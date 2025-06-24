@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, Bell } from 'lucide-react';
@@ -16,8 +15,8 @@ const Hero = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="space-y-8 animate-fade-in">
           {/* Badge */}
-          <div className="inline-flex items-center px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-200 dark:border-purple-800 rounded-full shadow-lg">
-            <span className="text-sm font-medium text-purple-600 dark:text-purple-400">
+          <div className="inline-flex items-center px-4 py-2 bg-purple-200/90 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-300 dark:border-purple-800 rounded-full shadow-lg">
+            <span className="text-sm font-medium text-purple-700 dark:text-purple-400">
               🎉 Welcome to your community's Lost & Found platform
             </span>
           </div>
@@ -25,10 +24,10 @@ const Hero = () => {
           {/* Main Heading */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
             <span className="block text-gray-900 dark:text-white">
-              Never Lose
+              Lost It?
             </span>
             <span className="block bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent">
-              Hope Again
+              Track It. Find It.
             </span>
           </h1>
 
@@ -50,14 +49,14 @@ const Hero = () => {
             
             <Link
               to="/map"
-              className="px-8 py-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 text-lg font-semibold rounded-2xl transition-all duration-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:shadow-lg"
+              className="px-8 py-4 bg-purple-200/90 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-400 text-lg font-semibold rounded-2xl transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900/20 hover:shadow-lg"
             >
               Explore Map
             </Link>
           </div>
 
           {/* Feature Icons */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto pt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto pt-16 pb-32">
             {[
               {
                 icon: Search,
@@ -77,7 +76,7 @@ const Hero = () => {
             ].map((feature, index) => (
               <div 
                 key={feature.title}
-                className="group p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-purple-100 dark:border-purple-900/50 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/10"
+                className="group p-6 bg-purple-200/90 dark:bg-gray-800/60 backdrop-blur-sm border border-purple-300 dark:border-purple-900/50 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/10"
                 style={{ animationDelay: `${index * 200}ms` }}
               >
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4 transition-transform duration-300 group-hover:scale-110">

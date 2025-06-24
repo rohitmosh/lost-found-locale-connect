@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import AuthHeader from '../components/AuthHeader';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -20,21 +20,27 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // TODO: Implement actual login logic
+    // Mock login
     setTimeout(() => {
       setIsLoading(false);
       console.log('Login submitted:', formData);
+      
+      // Set authentication in localStorage
+      localStorage.setItem('isAuthenticated', 'true');
+      
+      // Redirect to dashboard
+      navigate('/dashboard');
     }, 1000);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 dark:from-gray-900 dark:via-purple-900/10 dark:to-indigo-900/10">
-      <Navbar />
+      <AuthHeader />
       
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
           {/* Card */}
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-100 dark:border-purple-900/50 rounded-2xl shadow-xl p-8">
+          <div className="bg-purple-50/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-200 dark:border-purple-900/50 rounded-2xl shadow-xl p-8">
             {/* Header */}
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white">

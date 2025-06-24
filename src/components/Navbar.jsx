@@ -1,19 +1,55 @@
-
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, LogOut } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'Map', href: '/map' },
-    { name: 'Reports', href: '/reports' },
-    { name: 'Dashboard', href: '/dashboard' },
-  ];
+  // Check if user is on login or register page
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+
+  // Mock login/logout functionality
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('isAuthenticated', 'true');
+    navigate('/dashboard');
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('isAuthenticated');
+    navigate('/');
+  };
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
+    setIsAuthenticated(authStatus);
+  }, []);
+
+  // Auto-login for demo purposes if on dashboard page
+  useEffect(() => {
+    if (location.pathname === '/dashboard' && !isAuthenticated) {
+      handleLogin();
+    }
+  }, [location.pathname, isAuthenticated]);
+
+  const navigation = isAuthenticated 
+    ? [
+        { name: 'Dashboard', href: '/dashboard' },
+        { name: 'Map', href: '/map' },
+        { name: 'Reports', href: '/reports' },
+      ]
+    : [
+        { name: 'Home', href: '/' },
+        { name: 'Map', href: '/map' },
+        { name: 'Reports', href: '/reports' },
+        { name: 'Dashboard', href: '/dashboard' },
+      ];
 
   const isActive = (path) => location.pathname === path;
 
@@ -23,7 +59,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link 
-            to="/" 
+            to={isAuthenticated ? '/dashboard' : '/'} 
             className="flex items-center space-x-2 group"
           >
             <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
@@ -36,7 +72,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
+            {isAuthenticated && navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
@@ -59,18 +95,31 @@ const Navbar = () => {
             <ThemeToggle />
             
             <div className="hidden md:flex items-center space-x-3">
-              <Link
-                to="/login"
-                className="px-4 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors duration-200"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25"
-              >
-                Register
-              </Link>
+              {isAuthenticated ? (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-1 px-4 py-2 text-sm font-medium text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </button>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={handleLogin} // Auto-login for demo purposes
+                    className="px-4 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors duration-200"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25"
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -87,7 +136,7 @@ const Navbar = () => {
         {isOpen && (
           <div className="md:hidden py-4 border-t border-purple-100 dark:border-purple-900/50">
             <div className="flex flex-col space-y-3">
-              {navigation.map((item) => (
+              {isAuthenticated && navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
@@ -102,20 +151,38 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="flex items-center space-x-3 px-3 pt-3 border-t border-purple-100 dark:border-purple-900/50">
-                <Link
-                  to="/login"
-                  onClick={() => setIsOpen(false)}
-                  className="flex-1 px-4 py-2 text-center text-sm font-medium text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors duration-200"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setIsOpen(false)}
-                  className="flex-1 px-4 py-2 text-center text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200"
-                >
-                  Register
-                </Link>
+                {isAuthenticated ? (
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsOpen(false);
+                    }}
+                    className="flex-1 flex items-center justify-center space-x-1 px-4 py-2 text-sm font-medium text-red-500 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </button>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      onClick={() => {
+                        handleLogin();
+                        setIsOpen(false);
+                      }}
+                      className="flex-1 px-4 py-2 text-center text-sm font-medium text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors duration-200"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/register"
+                      onClick={() => setIsOpen(false)}
+                      className="flex-1 px-4 py-2 text-center text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200"
+                    >
+                      Register
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

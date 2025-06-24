@@ -1,13 +1,12 @@
-
 import React from 'react';
-import Navbar from '../components/Navbar';
+import SimpleHeader from '../components/SimpleHeader';
 import Hero from '../components/Hero';
 import Footer from '../components/Footer';
 
 const Landing = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      <Navbar />
+      <SimpleHeader />
       <Hero />
       <Footer />
     </div>
