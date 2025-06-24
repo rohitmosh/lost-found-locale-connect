@@ -1,9 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, MapPin, Bell, TrendingUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import NotificationSidebar from '../components/NotificationSidebar';
 import NotificationButton from '../components/NotificationButton';
+import Footer from '../components/Footer';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { 
+    opacity: 0, 
+    y: 10,
+    scale: 0.97,
+    rotateX: 1
+  },
+  visible: (index) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    rotateX: 0,
+    transition: {
+      type: "spring",
+      damping: 20,
+      stiffness: 300,
+      delay: index * 0.05,
+      duration: 0.4
+    }
+  }),
+  hover: {
+    y: -2,
+    scale: 1.01,
+    rotateY: 0.5,
+    transition: {
+      type: "spring",
+      stiffness: 500,
+      damping: 25
+    }
+  }
+};
 
 const Dashboard = () => {
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
@@ -54,81 +100,166 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Top Bar with Notification Button (Desktop) */}
           <div className="hidden md:flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-            <NotificationButton 
-              unreadCount={unreadNotifications} 
-              onClick={toggleNotificationSidebar} 
-              isOpen={isNotificationSidebarOpen} 
-            />
+            <motion.h1 
+              initial={{ opacity: 0, x: -5 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-2xl font-bold text-gray-900 dark:text-white"
+            >
+              Dashboard
+            </motion.h1>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              <NotificationButton 
+                unreadCount={unreadNotifications} 
+                onClick={toggleNotificationSidebar} 
+                isOpen={isNotificationSidebarOpen} 
+              />
+            </motion.div>
           </div>
           
           {/* Welcome Banner */}
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-8 mb-8 text-white">
-            <h1 className="text-3xl font-bold mb-2">Welcome back, John! 👋</h1>
-            <p className="text-purple-100 text-lg">
+                      <motion.div 
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 300, 
+                damping: 25,
+                delay: 0.1 
+              }}
+              whileHover={{ scale: 1.003 }}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-8 mb-8 text-white shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300"
+          >
+            <motion.h1 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl font-bold mb-2 text-shadow-lg"
+            >
+              Welcome back, John! 👋
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-purple-100 text-lg"
+            >
               Ready to help your community find their lost items today?
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Link
-              to="/report-lost"
-              className="group p-6 bg-purple-100 dark:bg-gray-800 rounded-2xl border border-purple-300 dark:border-gray-700 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 hover:scale-[1.02]"
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
+          >
+            <motion.div 
+              variants={itemVariants}
+              custom={0}
+              whileHover="hover"
             >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Search className="h-6 w-6 text-red-600 dark:text-red-400" />
+              <Link
+                to="/report-lost"
+                className="group p-6 bg-purple-100 dark:bg-gray-800 rounded-3xl border border-purple-300 dark:border-gray-700 hover:shadow-xl hover:shadow-red-500/20 dark:hover:shadow-red-900/20 transition-all duration-300 block hover:glow-red"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Search className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Report Lost Item</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Help us help you find your missing item</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Report Lost Item</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Help us help you find your missing item</p>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            </motion.div>
 
-            <Link
-              to="/report-found"
-              className="group p-6 bg-purple-100 dark:bg-gray-800 rounded-2xl border border-purple-300 dark:border-gray-700 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 hover:scale-[1.02]"
+            <motion.div 
+              variants={itemVariants}
+              custom={1}
+              whileHover="hover"
             >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Plus className="h-6 w-6 text-green-600 dark:text-green-400" />
+              <Link
+                to="/report-found"
+                className="group p-6 bg-purple-100 dark:bg-gray-800 rounded-3xl border border-purple-300 dark:border-gray-700 hover:shadow-xl hover:shadow-green-500/20 dark:hover:shadow-green-900/20 transition-all duration-300 block hover:glow-green"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Plus className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Report Found Item</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Found something? Help reunite it with its owner</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Report Found Item</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Found something? Help reunite it with its owner</p>
-                </div>
-              </div>
-            </Link>
-          </div>
+              </Link>
+            </motion.div>
+          </motion.div>
 
           {/* Statistics */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8"
+          >
             {stats.map((stat, index) => (
-              <div key={stat.label} className="bg-purple-100 dark:bg-gray-800 p-6 rounded-2xl border border-purple-300 dark:border-gray-700">
+              <motion.div 
+                key={stat.label} 
+                variants={itemVariants}
+                custom={index + 2}
+                whileHover="hover"
+                className="bg-purple-100 dark:bg-gray-800 p-6 rounded-3xl border border-purple-300 dark:border-gray-700 hover:shadow-xl hover:shadow-purple-500/20 dark:hover:shadow-purple-900/30 transition-all duration-300 hover:glow-purple"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.label}</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                    <motion.p 
+                      initial={{ scale: 0.8 }}
+                      animate={{ scale: 1 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 300, 
+                        delay: 0.3 + (index * 0.1)
+                      }}
+                      className="text-3xl font-bold text-gray-900 dark:text-white"
+                    >
+                      {stat.value}
+                    </motion.p>
                   </div>
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-purple-200/80 dark:bg-gray-700 ${stat.color}`}>
+                  <motion.div 
+                    whileHover={{ scale: 1.03, rotate: 1 }}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center bg-purple-200/80 dark:bg-gray-700 ${stat.color}`}
+                  >
                     <stat.icon className="h-6 w-6" />
-                  </div>
+                  </motion.div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Recent Activity */}
-          <div className="bg-purple-100 dark:bg-gray-800 rounded-2xl border border-purple-300 dark:border-gray-700 p-6">
+          <div className="bg-purple-100 dark:bg-gray-800 rounded-3xl border border-purple-300 dark:border-gray-700 p-6 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Recent Activity</h2>
             <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-center space-x-4 p-4 bg-purple-50 dark:bg-gray-700/50 rounded-xl">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.type === 'found' ? 'bg-green-500' : 'bg-red-500'
-                  }`} />
+              {recentActivity.map((activity, index) => (
+                <div 
+                  key={activity.id} 
+                  className={`flex items-center space-x-4 p-4 bg-purple-50 dark:bg-gray-700/50 rounded-xl hover:shadow-md ${
+                    activity.type === 'found' ? 'hover:shadow-green-500/10 hover:border-green-200 hover:glow-green' : 'hover:shadow-red-500/10 hover:border-red-200 hover:glow-red'
+                  } transition-all duration-300`}
+                >
+                  <div 
+                    className={`w-2 h-2 rounded-full ${
+                      activity.type === 'found' ? 'bg-green-500' : 'bg-red-500'
+                    }`} 
+                  />
                   <div className="flex-1">
                     <p className="text-gray-900 dark:text-white font-medium">
                       {activity.type === 'found' ? 'Found:' : 'Lost:'} {activity.item}
@@ -146,6 +277,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

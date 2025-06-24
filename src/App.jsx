@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ReportLostItem from "./pages/ReportLostItem";
 import ReportFoundItem from "./pages/ReportFoundItem";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/report-lost" element={<ReportLostItem />} />
             <Route path="/report-found" element={<ReportFoundItem />} />
+            <Route path="/reports" element={<Reports />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
