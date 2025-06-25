@@ -8,6 +8,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Map from "./pages/Map";
 import ReportLostItem from "./pages/ReportLostItem";
 import ReportFoundItem from "./pages/ReportFoundItem";
 import Reports from "./pages/Reports";
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/map" element={<Map />} />
             <Route path="/report-lost" element={<ReportLostItem />} />
             <Route path="/report-found" element={<ReportFoundItem />} />
             <Route path="/reports" element={<Reports />} />
