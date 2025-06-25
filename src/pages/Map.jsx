@@ -4,6 +4,8 @@ import { Search, MapPin, Plus, Filter, List, Grid, Bell } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import FilterPanel from '../components/map/FilterPanel';
 import MapControls from '../components/map/MapControls';
 import ItemPopup from '../components/map/ItemPopup';
@@ -169,10 +171,21 @@ const Map = () => {
 
     // Load Google Maps script if not already loaded
     if (!window.google) {
+      const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        console.error('Google Maps API key is missing. Please add REACT_APP_GOOGLE_MAPS_API_KEY to your .env file');
+        setIsLoading(false);
+        return;
+      }
+      
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
       script.async = true;
       script.onload = initMap;
+      script.onerror = () => {
+        console.error('Failed to load Google Maps API');
+        setIsLoading(false);
+      };
       document.head.appendChild(script);
     } else {
       initMap();
@@ -213,9 +226,12 @@ const Map = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+      {/* Navigation */}
+      <Navbar />
+
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-gray-200 dark:border-gray-800 animate-fade-in">
+      <header className="sticky top-16 z-40 glass border-b border-gray-200 dark:border-gray-800 animate-fade-in">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4 animate-fade-in">
@@ -297,7 +313,8 @@ const Map = () => {
         </div>
       </header>
 
-      <div className="flex relative">
+      {/* Main Content */}
+      <div className="flex-1 flex relative">
         {/* Filter Panel */}
         <FilterPanel
           isOpen={showFilters}
@@ -306,12 +323,12 @@ const Map = () => {
           onClose={() => setShowFilters(false)}
         />
 
-        {/* Main Content */}
+        {/* Map/List Content */}
         <div className="flex-1 relative">
           {viewMode === 'map' ? (
             <>
               {/* Map Container */}
-              <div className="relative h-[calc(100vh-4rem)]">
+              <div className="relative h-[calc(100vh-8rem)]">
                 {isLoading && (
                   <div className="absolute inset-0 glass flex items-center justify-center z-10 animate-fade-in">
                     <div className="text-center">
@@ -320,6 +337,29 @@ const Map = () => {
                     </div>
                   </div>
                 )}
+                
+                {!process.env.REACT_APP_GOOGLE_MAPS_API_KEY && (
+                  <div className="absolute inset-0 glass flex items-center justify-center z-10 animate-fade-in">
+                    <div className="text-center max-w-md p-6">
+                      <div className="text-red-500 mb-4">
+                        <MapPin className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                        Google Maps API Key Required
+                      </h3>
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">
+                        Please add your Google Maps API key to the .env file as REACT_APP_GOOGLE_MAPS_API_KEY
+                      </p>
+                      <Button
+                        onClick={() => window.open('https://console.developers.google.com/', '_blank')}
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        Get API Key
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
                 <div ref={mapRef} className="w-full h-full rounded-lg overflow-hidden shadow-2xl" />
 
                 {/* Map Controls */}
@@ -353,7 +393,7 @@ const Map = () => {
             </>
           ) : (
             /* List View */
-            <div className="p-6 h-[calc(100vh-4rem)] overflow-y-auto animate-fade-in">
+            <div className="p-6 h-[calc(100vh-8rem)] overflow-y-auto animate-fade-in">
               <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredItems.map((item) => (
                   <div
@@ -421,6 +461,9 @@ const Map = () => {
           onClose={() => setShowNotifications(false)}
         />
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
