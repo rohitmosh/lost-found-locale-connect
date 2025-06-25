@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, MapPin, Plus, Filter, List, Grid, Bell } from 'lucide-react';
+import { Search, MapPin, Plus, Filter, List, Grid, Bell, Target } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -78,8 +78,8 @@ const Map = () => {
         center: { lat: 40.7589, lng: -73.9851 }, // NYC coordinates
         zoom: 13,
         styles: isDark ? [
-          { elementType: 'geometry', stylers: [{ color: '#1f2937' }] },
-          { elementType: 'labels.text.stroke', stylers: [{ color: '#1f2937' }] },
+          { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
+          { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a2e' }] },
           { elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
           {
             featureType: 'administrative.locality',
@@ -94,42 +94,17 @@ const Map = () => {
           {
             featureType: 'poi.park',
             elementType: 'geometry',
-            stylers: [{ color: '#374151' }]
-          },
-          {
-            featureType: 'poi.park',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#6b7280' }]
+            stylers: [{ color: '#16213e' }]
           },
           {
             featureType: 'road',
             elementType: 'geometry',
-            stylers: [{ color: '#4b5563' }]
-          },
-          {
-            featureType: 'road',
-            elementType: 'geometry.stroke',
-            stylers: [{ color: '#374151' }]
-          },
-          {
-            featureType: 'road',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#9ca3af' }]
-          },
-          {
-            featureType: 'road.highway',
-            elementType: 'geometry',
-            stylers: [{ color: '#6b7280' }]
+            stylers: [{ color: '#16213e' }]
           },
           {
             featureType: 'water',
             elementType: 'geometry',
-            stylers: [{ color: '#0f172a' }]
-          },
-          {
-            featureType: 'water',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#6b7280' }]
+            stylers: [{ color: '#0f1419' }]
           }
         ] : [],
         disableDefaultUI: true,
@@ -172,7 +147,7 @@ const Map = () => {
     // Load Google Maps script if not already loaded
     if (!window.google) {
       const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-      if (!apiKey) {
+      if (!apiKey || apiKey === 'your_google_maps_api_key_here') {
         console.error('Google Maps API key is missing. Please add REACT_APP_GOOGLE_MAPS_API_KEY to your .env file');
         setIsLoading(false);
         return;
@@ -225,93 +200,114 @@ const Map = () => {
     setSearchQuery(query);
   }, []);
 
+  const handleMyLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        googleMapRef.current?.setCenter(userLocation);
+        googleMapRef.current?.setZoom(15);
+      });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gray-900 flex flex-col">
       {/* Navigation */}
       <Navbar />
 
-      {/* Header */}
-      <header className="sticky top-16 z-40 glass border-b border-gray-200 dark:border-gray-800 animate-fade-in">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4 animate-fade-in">
-              <h1 className="text-xl font-bold gradient-text">
-                Community Map
-              </h1>
-              <span className="text-sm text-gray-500 dark:text-gray-400 bg-purple-100 dark:bg-purple-900/30 px-3 py-1 rounded-full">
+      {/* Header Controls */}
+      <div className="sticky top-16 z-40 bg-gray-900/95 backdrop-blur-md border-b border-gray-800">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Left Side - Search */}
+            <div className="flex items-center space-x-6">
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 transition-colors group-focus-within:text-purple-400" />
+                <Input
+                  type="text"
+                  placeholder="Search for items..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="pl-12 w-80 h-12 bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 hover:bg-gray-800/70 hover:shadow-lg hover:shadow-purple-500/10 rounded-xl"
+                />
+              </div>
+              
+              <span className="text-gray-400 text-sm bg-gray-800/30 px-3 py-2 rounded-lg border border-gray-700">
                 {filteredItems.length} items found
               </span>
             </div>
 
-            <div className="flex items-center space-x-4">
-              {/* Search Bar */}
-              <div className="relative group">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-purple-500" />
-                <Input
-                  type="text"
-                  placeholder="Search items..."
-                  value={searchQuery}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-10 w-64 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 dark:focus:ring-purple-400/20 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/10"
-                />
-              </div>
+            {/* Right Side - Controls */}
+            <div className="flex items-center space-x-3">
+              {/* Filters Button */}
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="relative h-12 px-6 bg-gray-800/50 border-gray-700 text-white hover:bg-gray-800/70 hover:border-purple-500/50 transition-all duration-300 rounded-xl group hover:shadow-lg hover:shadow-purple-500/20"
+              >
+                <Filter className="h-5 w-5 mr-2 group-hover:text-purple-400 transition-colors" />
+                Filters
+                {(filters.categories.length > 0 || filters.status !== 'all') && (
+                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-purple-500 rounded-full animate-pulse"></span>
+                )}
+              </Button>
+
+              {/* My Location Button */}
+              <Button
+                variant="outline"
+                onClick={handleMyLocation}
+                className="h-12 px-6 bg-gray-800/50 border-gray-700 text-white hover:bg-gray-800/70 hover:border-purple-500/50 transition-all duration-300 rounded-xl group hover:shadow-lg hover:shadow-purple-500/20"
+              >
+                <Target className="h-5 w-5 mr-2 group-hover:text-purple-400 transition-colors" />
+                My Location
+              </Button>
 
               {/* View Toggle */}
-              <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 shadow-inner">
+              <div className="flex items-center bg-gray-800/50 rounded-xl p-1 border border-gray-700">
                 <Button
                   variant={viewMode === 'map' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('map')}
-                  className={`h-8 px-3 transition-all duration-200 ${
+                  className={`h-10 px-4 transition-all duration-300 rounded-lg ${
                     viewMode === 'map' 
-                      ? 'bg-purple-600 text-white shadow-lg hover:shadow-purple-500/25 hover:bg-purple-700' 
-                      : 'hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30 hover:bg-purple-700' 
+                      : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
                   }`}
                 >
-                  <Grid className="h-4 w-4" />
+                  <Grid className="h-4 w-4 mr-2" />
+                  Map
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('list')}
-                  className={`h-8 px-3 transition-all duration-200 ${
+                  className={`h-10 px-4 transition-all duration-300 rounded-lg ${
                     viewMode === 'list' 
-                      ? 'bg-purple-600 text-white shadow-lg hover:shadow-purple-500/25 hover:bg-purple-700' 
-                      : 'hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30 hover:bg-purple-700' 
+                      : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
                   }`}
                 >
-                  <List className="h-4 w-4" />
+                  <List className="h-4 w-4 mr-2" />
+                  List
                 </Button>
               </div>
-
-              {/* Filter Toggle */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className="relative bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/10 hover:glow-purple"
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-                {(filters.categories.length > 0 || filters.status !== 'all') && (
-                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-purple-500 rounded-full animate-pulse-glow"></span>
-                )}
-              </Button>
 
               {/* Notifications */}
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/10 hover:glow-purple"
+                className="relative h-12 px-4 bg-gray-800/50 border-gray-700 text-white hover:bg-gray-800/70 hover:border-purple-500/50 transition-all duration-300 rounded-xl group hover:shadow-lg hover:shadow-purple-500/20"
               >
-                <Bell className="h-4 w-4" />
+                <Bell className="h-5 w-5 group-hover:text-purple-400 transition-colors" />
                 <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
               </Button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex relative">
@@ -328,31 +324,31 @@ const Map = () => {
           {viewMode === 'map' ? (
             <>
               {/* Map Container */}
-              <div className="relative h-[calc(100vh-8rem)]">
+              <div className="relative h-[calc(100vh-10rem)]">
                 {isLoading && (
-                  <div className="absolute inset-0 glass flex items-center justify-center z-10 animate-fade-in">
+                  <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center z-10 animate-fade-in">
                     <div className="text-center">
                       <LoadingSpinner size="lg" />
-                      <p className="mt-4 text-gray-600 dark:text-gray-400">Loading map...</p>
+                      <p className="mt-4 text-gray-400">Loading map...</p>
                     </div>
                   </div>
                 )}
                 
-                {!process.env.REACT_APP_GOOGLE_MAPS_API_KEY && (
-                  <div className="absolute inset-0 glass flex items-center justify-center z-10 animate-fade-in">
-                    <div className="text-center max-w-md p-6">
-                      <div className="text-red-500 mb-4">
-                        <MapPin className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                {(!process.env.REACT_APP_GOOGLE_MAPS_API_KEY || process.env.REACT_APP_GOOGLE_MAPS_API_KEY === 'your_google_maps_api_key_here') && (
+                  <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center z-10 animate-fade-in">
+                    <div className="text-center max-w-md p-8 bg-gray-800/50 rounded-2xl border border-gray-700 shadow-2xl">
+                      <div className="text-purple-500 mb-6">
+                        <MapPin className="h-20 w-20 mx-auto mb-4 opacity-50" />
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                        Google Maps API Key Required
+                      <h3 className="text-2xl font-bold text-white mb-4 gradient-text">
+                        Map here
                       </h3>
-                      <p className="text-gray-500 dark:text-gray-400 mb-4">
-                        Please add your Google Maps API key to the .env file as REACT_APP_GOOGLE_MAPS_API_KEY
+                      <p className="text-gray-400 mb-6 text-lg">
+                        Add your Google Maps API key to display the interactive map
                       </p>
                       <Button
                         onClick={() => window.open('https://console.developers.google.com/', '_blank')}
-                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105"
                       >
                         Get API Key
                       </Button>
@@ -360,23 +356,12 @@ const Map = () => {
                   </div>
                 )}
                 
-                <div ref={mapRef} className="w-full h-full rounded-lg overflow-hidden shadow-2xl" />
+                <div ref={mapRef} className="w-full h-full" />
 
                 {/* Map Controls */}
                 <MapControls
                   map={googleMapRef.current}
-                  onMyLocation={() => {
-                    if (navigator.geolocation) {
-                      navigator.geolocation.getCurrentPosition((position) => {
-                        const userLocation = {
-                          lat: position.coords.latitude,
-                          lng: position.coords.longitude
-                        };
-                        googleMapRef.current?.setCenter(userLocation);
-                        googleMapRef.current?.setZoom(15);
-                      });
-                    }
-                  }}
+                  onMyLocation={handleMyLocation}
                 />
 
                 {/* Quick Actions */}
@@ -393,44 +378,44 @@ const Map = () => {
             </>
           ) : (
             /* List View */
-            <div className="p-6 h-[calc(100vh-8rem)] overflow-y-auto animate-fade-in">
+            <div className="p-6 h-[calc(100vh-10rem)] overflow-y-auto animate-fade-in">
               <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filteredItems.map((item) => (
+                {filteredItems.map((item, index) => (
                   <div
                     key={item.id}
-                    className="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transform hover:scale-105 hover:glow-purple animate-fade-in"
+                    className="group bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 cursor-pointer border border-gray-700/50 hover:border-purple-500/50 transform hover:scale-105 hover:-translate-y-2 animate-fade-in"
                     onClick={() => setSelectedItem(item)}
-                    style={{ animationDelay: `${filteredItems.indexOf(item) * 100}ms` }}
+                    style={{ animationDelay: `${index * 100}ms` }}
                   >
                     {item.image && (
                       <img
                         src={item.image}
                         alt={item.title}
-                        className="w-full h-40 object-cover rounded-lg mb-4 group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-40 object-cover rounded-xl mb-4 group-hover:scale-105 transition-transform duration-500"
                       />
                     )}
                     <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200">
+                      <h3 className="font-semibold text-white group-hover:text-purple-400 transition-colors duration-300">
                         {item.title}
                       </h3>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
                           item.status === 'Lost'
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 group-hover:shadow-red-500/25'
-                            : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 group-hover:shadow-green-500/25'
-                        } group-hover:shadow-lg`}
+                            ? 'bg-red-500/20 text-red-400 border border-red-500/30 group-hover:shadow-lg group-hover:shadow-red-500/25'
+                            : 'bg-green-500/20 text-green-400 border border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/25'
+                        }`}
                       >
                         {item.status}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                    <p className="text-sm text-gray-400 mb-4 line-clamp-2">
                       {item.description}
                     </p>
-                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                      <span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span className="bg-gray-700/50 px-3 py-1 rounded-lg border border-gray-600/50">
                         {item.category}
                       </span>
-                      <span className="flex items-center">
+                      <span className="flex items-center text-purple-400">
                         <MapPin className="h-3 w-3 mr-1" />
                         {item.distance}
                       </span>
@@ -439,14 +424,14 @@ const Map = () => {
                 ))}
               </div>
               {filteredItems.length === 0 && (
-                <div className="text-center py-12 animate-fade-in">
-                  <div className="text-gray-400 dark:text-gray-600 mb-4">
-                    <Search className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                <div className="text-center py-20 animate-fade-in">
+                  <div className="text-gray-600 mb-6">
+                    <Search className="h-20 w-20 mx-auto mb-4 opacity-50" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-2xl font-bold text-white mb-4">
                     No items found
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <p className="text-gray-400 text-lg">
                     Try adjusting your search or filters to find what you're looking for.
                   </p>
                 </div>
