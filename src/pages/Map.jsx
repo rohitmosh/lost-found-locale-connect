@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, MapPin, Plus, Filter, List, Grid, ZoomIn, ZoomOut, Maximize, RotateCcw, Bell } from 'lucide-react';
+import { Search, MapPin, Plus, Filter, List, Grid, Bell } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -215,38 +215,42 @@ const Map = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+      <header className="sticky top-0 z-50 glass border-b border-gray-200 dark:border-gray-800 animate-fade-in">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            <div className="flex items-center space-x-4 animate-fade-in">
+              <h1 className="text-xl font-bold gradient-text">
                 Community Map
               </h1>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span className="text-sm text-gray-500 dark:text-gray-400 bg-purple-100 dark:bg-purple-900/30 px-3 py-1 rounded-full">
                 {filteredItems.length} items found
               </span>
             </div>
 
             <div className="flex items-center space-x-4">
               {/* Search Bar */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-purple-500" />
                 <Input
                   type="text"
                   placeholder="Search items..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-10 w-64 bg-white dark:bg-gray-800"
+                  className="pl-10 w-64 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 dark:focus:ring-purple-400/20 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/10"
                 />
               </div>
 
               {/* View Toggle */}
-              <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+              <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 shadow-inner">
                 <Button
                   variant={viewMode === 'map' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('map')}
-                  className="h-8 px-3"
+                  className={`h-8 px-3 transition-all duration-200 ${
+                    viewMode === 'map' 
+                      ? 'bg-purple-600 text-white shadow-lg hover:shadow-purple-500/25 hover:bg-purple-700' 
+                      : 'hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}
                 >
                   <Grid className="h-4 w-4" />
                 </Button>
@@ -254,7 +258,11 @@ const Map = () => {
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('list')}
-                  className="h-8 px-3"
+                  className={`h-8 px-3 transition-all duration-200 ${
+                    viewMode === 'list' 
+                      ? 'bg-purple-600 text-white shadow-lg hover:shadow-purple-500/25 hover:bg-purple-700' 
+                      : 'hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}
                 >
                   <List className="h-4 w-4" />
                 </Button>
@@ -265,12 +273,12 @@ const Map = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
-                className="relative"
+                className="relative bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/10 hover:glow-purple"
               >
                 <Filter className="h-4 w-4 mr-2" />
                 Filters
                 {(filters.categories.length > 0 || filters.status !== 'all') && (
-                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-purple-500 rounded-full"></span>
+                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-purple-500 rounded-full animate-pulse-glow"></span>
                 )}
               </Button>
 
@@ -279,10 +287,10 @@ const Map = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative"
+                className="relative bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/10 hover:glow-purple"
               >
                 <Bell className="h-4 w-4" />
-                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
+                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
               </Button>
             </div>
           </div>
@@ -305,11 +313,14 @@ const Map = () => {
               {/* Map Container */}
               <div className="relative h-[calc(100vh-4rem)]">
                 {isLoading && (
-                  <div className="absolute inset-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center z-10">
-                    <LoadingSpinner />
+                  <div className="absolute inset-0 glass flex items-center justify-center z-10 animate-fade-in">
+                    <div className="text-center">
+                      <LoadingSpinner size="lg" />
+                      <p className="mt-4 text-gray-600 dark:text-gray-400">Loading map...</p>
+                    </div>
                   </div>
                 )}
-                <div ref={mapRef} className="w-full h-full" />
+                <div ref={mapRef} className="w-full h-full rounded-lg overflow-hidden shadow-2xl" />
 
                 {/* Map Controls */}
                 <MapControls
@@ -342,45 +353,64 @@ const Map = () => {
             </>
           ) : (
             /* List View */
-            <div className="p-6 h-[calc(100vh-4rem)] overflow-y-auto">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="p-6 h-[calc(100vh-4rem)] overflow-y-auto animate-fade-in">
+              <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredItems.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600"
+                    className="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transform hover:scale-105 hover:glow-purple animate-fade-in"
                     onClick={() => setSelectedItem(item)}
+                    style={{ animationDelay: `${filteredItems.indexOf(item) * 100}ms` }}
                   >
                     {item.image && (
                       <img
                         src={item.image}
                         alt={item.title}
-                        className="w-full h-32 object-cover rounded-lg mb-3"
+                        className="w-full h-40 object-cover rounded-lg mb-4 group-hover:scale-105 transition-transform duration-300"
                       />
                     )}
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200">
                         {item.title}
                       </h3>
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
                           item.status === 'Lost'
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                            : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                        }`}
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 group-hover:shadow-red-500/25'
+                            : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 group-hover:shadow-green-500/25'
+                        } group-hover:shadow-lg`}
                       >
                         {item.status}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
                       {item.description}
                     </p>
                     <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                      <span>{item.category}</span>
-                      <span>{item.distance}</span>
+                      <span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">
+                        {item.category}
+                      </span>
+                      <span className="flex items-center">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {item.distance}
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
+              {filteredItems.length === 0 && (
+                <div className="text-center py-12 animate-fade-in">
+                  <div className="text-gray-400 dark:text-gray-600 mb-4">
+                    <Search className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    No items found
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Try adjusting your search or filters to find what you're looking for.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
