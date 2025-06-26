@@ -293,4 +293,4 @@ const NotificationSidebar = ({ isOpen, onClose }) => {
   );
 };
 
-export default NotificationSidebar; 
+export default NotificationSidebar;
