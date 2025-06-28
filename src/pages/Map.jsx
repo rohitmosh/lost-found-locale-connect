@@ -1,15 +1,15 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, MapPin, Plus, Filter, List, Grid, Bell, Target } from 'lucide-react';
+import { Search, MapPin, Filter, List, Grid, Bell, Target, X } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import FilterPanel from '../components/map/FilterPanel';
 import MapControls from '../components/map/MapControls';
 import ItemPopup from '../components/map/ItemPopup';
 import QuickActions from '../components/map/QuickActions';
+import MapMarker from '../components/map/MapMarker';
+import MarkerClusterer from '../components/map/MarkerClusterer';
 import NotificationSidebar from '../components/NotificationSidebar';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
@@ -47,6 +47,28 @@ const mockItems = [
     location: { lat: 40.7505, lng: -73.9934 },
     image: null,
     distance: '2.1 km'
+  },
+  {
+    id: 4,
+    title: 'Silver MacBook Pro',
+    description: 'Left at library study area, has stickers on cover',
+    category: 'Electronics',
+    status: 'Lost',
+    date: '2024-01-10',
+    location: { lat: 40.7430, lng: -73.9800 },
+    image: null,
+    distance: '3.5 km'
+  },
+  {
+    id: 5,
+    title: 'House Keys with Red Keychain',
+    description: 'Found near subway entrance on 5th Avenue',
+    category: 'Keys',
+    status: 'Found',
+    date: '2024-01-12',
+    location: { lat: 40.7560, lng: -73.9780 },
+    image: null,
+    distance: '1.5 km'
   }
 ];
 
@@ -54,12 +76,17 @@ const Map = () => {
   const { isDark } = useTheme();
   const mapRef = useRef(null);
   const googleMapRef = useRef(null);
+  const markersRef = useRef([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [mapInitialized, setMapInitialized] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [viewMode, setViewMode] = useState('map'); // 'map' or 'list'
+  const [userLocation, setUserLocation] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [activeSearch, setActiveSearch] = useState('');
   const [filters, setFilters] = useState({
     categories: [],
     status: 'all',
@@ -69,92 +96,195 @@ const Map = () => {
   
   const [filteredItems, setFilteredItems] = useState(mockItems);
 
+  // Debounce search input to avoid excessive filtering
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setActiveSearch(searchQuery);
+    }, 500);
+    
+    return () => clearTimeout(timerId);
+  }, [searchQuery]);
+  
+  // Suggestions based on search
+  useEffect(() => {
+    if (activeSearch.length >= 2) {
+      // Mock search results based on the query
+      const results = mockItems
+        .filter(item => 
+          item.title.toLowerCase().includes(activeSearch.toLowerCase()) ||
+          item.description.toLowerCase().includes(activeSearch.toLowerCase()) ||
+          item.category.toLowerCase().includes(activeSearch.toLowerCase())
+        )
+        .slice(0, 5)
+        .map(item => ({
+          id: item.id,
+          text: item.title,
+          category: item.category
+        }));
+      
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  }, [activeSearch]);
+
   // Initialize Google Maps
   useEffect(() => {
-    const initMap = () => {
+    const initMap = async () => {
       if (!window.google || !mapRef.current) return;
 
+      // Only initialize the map once
+      if (mapInitialized) return;
+      setMapInitialized(true);
+
+      // Get user location if available
+      try {
+        if (navigator.geolocation) {
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 5000,
+              maximumAge: 0
+            });
+          });
+          
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        }
+      } catch (error) {
+        console.log('Could not get user location:', error.message);
+      }
+
+      // Create custom map style for dark mode
+      const darkMapStyle = [
+        { elementType: 'geometry', stylers: [{ color: '#0f172a' }] },
+        { elementType: 'labels.text.stroke', stylers: [{ color: '#0f172a' }] },
+        { elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
+        {
+          featureType: 'administrative.locality',
+          elementType: 'labels.text.fill',
+          stylers: [{ color: '#9ca3af' }]
+        },
+        {
+          featureType: 'poi',
+          elementType: 'labels.text.fill',
+          stylers: [{ color: '#6b7280' }]
+        },
+        {
+          featureType: 'poi.park',
+          elementType: 'geometry',
+          stylers: [{ color: '#0f1e32' }]
+        },
+        {
+          featureType: 'road',
+          elementType: 'geometry',
+          stylers: [{ color: '#1e293b' }]
+        },
+        {
+          featureType: 'road',
+          elementType: 'labels.text.fill',
+          stylers: [{ color: '#9ca3af' }]
+        },
+        {
+          featureType: 'water',
+          elementType: 'geometry',
+          stylers: [{ color: '#0c1221' }]
+        },
+        {
+          featureType: 'transit',
+          elementType: 'geometry',
+          stylers: [{ color: '#1e293b' }]
+        }
+      ];
+
+      // Create map
       const mapOptions = {
-        center: { lat: 40.7589, lng: -73.9851 }, // NYC coordinates
+        center: userLocation || { lat: 40.7589, lng: -73.9851 }, // Use user location or default to NYC
         zoom: 13,
-        styles: isDark ? [
-          { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
-          { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a2e' }] },
-          { elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
-          {
-            featureType: 'administrative.locality',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#d1d5db' }]
-          },
-          {
-            featureType: 'poi',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#9ca3af' }]
-          },
-          {
-            featureType: 'poi.park',
-            elementType: 'geometry',
-            stylers: [{ color: '#16213e' }]
-          },
-          {
-            featureType: 'road',
-            elementType: 'geometry',
-            stylers: [{ color: '#16213e' }]
-          },
-          {
-            featureType: 'water',
-            elementType: 'geometry',
-            stylers: [{ color: '#0f1419' }]
-          }
-        ] : [],
+        styles: isDark ? darkMapStyle : [],
         disableDefaultUI: true,
         zoomControl: false,
         mapTypeControl: false,
         streetViewControl: false,
-        fullscreenControl: false
+        fullscreenControl: false,
+        clickableIcons: false,
+        gestureHandling: 'greedy'
       };
 
+      // Initialize map
       googleMapRef.current = new window.google.maps.Map(mapRef.current, mapOptions);
-
-      // Add markers for each item
-      filteredItems.forEach(item => {
-        const marker = new window.google.maps.Marker({
-          position: item.location,
+      
+      // Add user location marker if available
+      if (userLocation) {
+        const userMarker = new window.google.maps.Marker({
+          position: userLocation,
           map: googleMapRef.current,
-          title: item.title,
           icon: {
-            path: item.status === 'Lost' ? 
-              'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z' :
-              'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z',
-            fillColor: item.status === 'Lost' ? '#ef4444' : '#22c55e',
+            path: window.google.maps.SymbolPath.CIRCLE,
+            fillColor: '#8B5CF6',
             fillOpacity: 1,
             strokeColor: '#ffffff',
             strokeWeight: 2,
-            scale: 1.2,
-            anchor: new window.google.maps.Point(12, 24)
+            scale: 8
           },
-          animation: window.google.maps.Animation.DROP
+          title: 'Your Location',
+          zIndex: 1000
         });
-
-        marker.addListener('click', () => {
-          setSelectedItem(item);
+        
+        // Add pulsing effect
+        const pulseMarker = new window.google.maps.Marker({
+          position: userLocation,
+          map: googleMapRef.current,
+          icon: {
+            path: window.google.maps.SymbolPath.CIRCLE,
+            fillColor: '#8B5CF6',
+            fillOpacity: 0.4,
+            strokeColor: '#8B5CF6',
+            strokeWeight: 1,
+            scale: 16
+          },
+          zIndex: 999
         });
-      });
+        
+        // Animate pulsing effect
+        let scale = 16;
+        const animateMarker = () => {
+          scale = scale === 16 ? 24 : 16;
+          pulseMarker.setIcon({
+            ...pulseMarker.getIcon(),
+            scale: scale
+          });
+          setTimeout(animateMarker, 1000);
+        };
+        
+        animateMarker();
+      }
 
+      // Clean up markers array
+      markersRef.current = [];
+      
+      // Set loading to false after map is loaded
       setIsLoading(false);
     };
 
     // Load Google Maps script if not already loaded
     if (!window.google) {
-      const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
       if (!apiKey || apiKey === 'your_google_maps_api_key_here') {
-        console.error('Google Maps API key is missing. Please add REACT_APP_GOOGLE_MAPS_API_KEY to your .env file');
+        console.error('Google Maps API key is missing. Please add VITE_GOOGLE_MAPS_API_KEY to your .env.local file');
         setIsLoading(false);
         return;
       }
       
+      // Preload the map styles to avoid flashing
+      if (mapRef.current) {
+        mapRef.current.style.backgroundColor = isDark ? '#0f172a' : '#ffffff';
+      }
+      
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry`;
       script.async = true;
       script.onload = initMap;
       script.onerror = () => {
@@ -165,7 +295,32 @@ const Map = () => {
     } else {
       initMap();
     }
-  }, [isDark, filteredItems]);
+  }, [isDark, userLocation]);
+
+  // Update markers when filtered items change
+  useEffect(() => {
+    if (!googleMapRef.current || !window.google) return;
+
+    // Clear existing markers
+    markersRef.current.forEach(marker => {
+      if (marker && marker.setMap) {
+        marker.setMap(null);
+      }
+    });
+    
+    // Reset markers array
+    markersRef.current = [];
+    
+    // No need to add markers if we're in list view
+    if (viewMode !== 'map') return;
+    
+    // Add new markers
+    filteredItems.forEach((item, index) => {
+      const markerRef = { current: null };
+      markersRef.current.push(markerRef);
+    });
+    
+  }, [filteredItems, viewMode, googleMapRef.current]);
 
   // Filter items based on current filters
   useEffect(() => {
@@ -196,21 +351,58 @@ const Map = () => {
     setFilteredItems(filtered);
   }, [searchQuery, filters]);
 
-  const handleSearch = useCallback((query) => {
-    setSearchQuery(query);
-  }, []);
+  // Handle item selection
+  const handleItemClick = (item) => {
+    setSelectedItem(item);
+    if (googleMapRef.current && item.location) {
+      googleMapRef.current.panTo(item.location);
+      googleMapRef.current.setZoom(15);
+    }
+  };
 
+  // Handle my location button click
   const handleMyLocation = () => {
-    if (navigator.geolocation) {
+    if (userLocation && googleMapRef.current) {
+      googleMapRef.current.panTo(userLocation);
+      googleMapRef.current.setZoom(15);
+    } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
-        const userLocation = {
+        const location = {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
-        googleMapRef.current?.setCenter(userLocation);
-        googleMapRef.current?.setZoom(15);
+        setUserLocation(location);
+        if (googleMapRef.current) {
+          googleMapRef.current.panTo(location);
+          googleMapRef.current.setZoom(15);
+        }
       });
     }
+  };
+
+  // Handle search input
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Handle search result click
+  const handleSearchResultClick = (itemId) => {
+    const item = mockItems.find(item => item.id === itemId);
+    if (item) {
+      handleItemClick(item);
+      setSearchResults([]);
+      setSearchQuery(item.title);
+    }
+  };
+
+  // Toggle filter panel
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  // Toggle view mode between map and list
+  const toggleViewMode = (mode) => {
+    setViewMode(mode);
   };
 
   return (
@@ -220,90 +412,183 @@ const Map = () => {
 
       {/* Header Controls */}
       <div className="sticky top-16 z-40 bg-gray-900/95 backdrop-blur-md border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             {/* Left Side - Search */}
-            <div className="flex items-center space-x-6">
+            <div className="flex-1 min-w-[300px]">
               <div className="relative group">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 transition-colors group-focus-within:text-purple-400" />
-                <Input
+                <input
                   type="text"
                   placeholder="Search for items..."
                   value={searchQuery}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-12 w-80 h-12 bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 hover:bg-gray-800/70 hover:shadow-lg hover:shadow-purple-500/10 rounded-xl"
+                  onChange={handleSearch}
+                  className="pl-12 w-full h-12 bg-gray-800/50 border border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 hover:bg-gray-800/70 rounded-xl"
                 />
+                
+                {/* Search results dropdown */}
+                <AnimatePresence>
+                  {searchResults.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full left-0 right-0 mt-2 bg-gray-800/95 backdrop-blur-md border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden"
+                    >
+                      {searchResults.map((result) => (
+                        <motion.button
+                          key={result.id}
+                          onClick={() => handleSearchResultClick(result.id)}
+                          className="w-full px-4 py-3 text-left hover:bg-purple-900/30 transition-colors flex items-center justify-between"
+                          whileHover={{ backgroundColor: 'rgba(139, 92, 246, 0.2)' }}
+                        >
+                          <div className="flex items-center">
+                            <Search className="h-4 w-4 mr-2 text-purple-400" />
+                            <span className="text-white">{result.text}</span>
+                          </div>
+                          <span className="text-xs text-gray-400 bg-gray-700/50 px-2 py-1 rounded-md">
+                            {result.category}
+                          </span>
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
               
-              <span className="text-gray-400 text-sm bg-gray-800/30 px-3 py-2 rounded-lg border border-gray-700">
-                {filteredItems.length} items found
-              </span>
+              {/* Active filters tags */}
+              {(filters.categories.length > 0 || filters.status !== 'all' || filters.dateRange !== 'all') && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-xs text-gray-400"
+                  >
+                    Active filters:
+                  </motion.span>
+                  
+                  <AnimatePresence>
+                    {filters.status !== 'all' && (
+                      <motion.span
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        className="px-2 py-1 rounded-md text-xs bg-purple-900/30 text-purple-400 border border-purple-700/50 flex items-center"
+                      >
+                        {filters.status === 'lost' ? 'Lost Items' : 'Found Items'}
+                        <button
+                          onClick={() => setFilters({...filters, status: 'all'})}
+                          className="ml-1 hover:text-white"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </motion.span>
+                    )}
+                    
+                    {filters.categories.map(category => (
+                      <motion.span
+                        key={category}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        className="px-2 py-1 rounded-md text-xs bg-purple-900/30 text-purple-400 border border-purple-700/50 flex items-center"
+                      >
+                        {category}
+                        <button
+                          onClick={() => setFilters({
+                            ...filters, 
+                            categories: filters.categories.filter(c => c !== category)
+                          })}
+                          className="ml-1 hover:text-white"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </motion.span>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
             </div>
 
             {/* Right Side - Controls */}
             <div className="flex items-center space-x-3">
-              {/* Filters Button */}
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="relative h-12 px-6 bg-gray-800/50 border-gray-700 text-white hover:bg-gray-800/70 hover:border-purple-500/50 transition-all duration-300 rounded-xl group hover:shadow-lg hover:shadow-purple-500/20"
+              {/* Results counter */}
+              <motion.span
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-gray-400 text-sm bg-gray-800/30 px-3 py-2 rounded-lg border border-gray-700"
               >
-                <Filter className="h-5 w-5 mr-2 group-hover:text-purple-400 transition-colors" />
-                Filters
+                {filteredItems.length} items found
+              </motion.span>
+              
+              {/* Filters Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={toggleFilters}
+                className="relative h-12 px-6 bg-gray-800/50 border border-gray-700 text-white hover:bg-gray-800/70 hover:border-purple-500/50 transition-all duration-300 rounded-xl flex items-center space-x-2 hover:shadow-lg hover:shadow-purple-500/20"
+              >
+                <Filter className="h-5 w-5 text-purple-400" />
+                <span>Filters</span>
                 {(filters.categories.length > 0 || filters.status !== 'all') && (
-                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-purple-500 rounded-full animate-pulse"></span>
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 h-3 w-3 bg-purple-500 rounded-full"
+                    layoutId="filter-badge"
+                  />
                 )}
-              </Button>
+              </motion.button>
 
               {/* My Location Button */}
-              <Button
-                variant="outline"
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleMyLocation}
-                className="h-12 px-6 bg-gray-800/50 border-gray-700 text-white hover:bg-gray-800/70 hover:border-purple-500/50 transition-all duration-300 rounded-xl group hover:shadow-lg hover:shadow-purple-500/20"
+                className="h-12 px-6 bg-gray-800/50 border border-gray-700 text-white hover:bg-gray-800/70 hover:border-purple-500/50 transition-all duration-300 rounded-xl flex items-center space-x-2 hover:shadow-lg hover:shadow-purple-500/20"
               >
-                <Target className="h-5 w-5 mr-2 group-hover:text-purple-400 transition-colors" />
-                My Location
-              </Button>
+                <Target className="h-5 w-5 text-purple-400" />
+                <span>My Location</span>
+              </motion.button>
 
               {/* View Toggle */}
               <div className="flex items-center bg-gray-800/50 rounded-xl p-1 border border-gray-700">
-                <Button
-                  variant={viewMode === 'map' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('map')}
-                  className={`h-10 px-4 transition-all duration-300 rounded-lg ${
-                    viewMode === 'map' 
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30 hover:bg-purple-700' 
-                      : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
-                  }`}
+                <motion.button
+                  whileHover={{ scale: viewMode === 'map' ? 1 : 1.05 }}
+                  whileTap={{ scale: viewMode === 'map' ? 1 : 0.95 }}
+                  onClick={() => toggleViewMode('map')}
+                  className="relative h-10 px-4 rounded-lg flex items-center space-x-2 transition-all duration-300"
                 >
-                  <Grid className="h-4 w-4 mr-2" />
-                  Map
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className={`h-10 px-4 transition-all duration-300 rounded-lg ${
-                    viewMode === 'list' 
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30 hover:bg-purple-700' 
-                      : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
-                  }`}
+                  {viewMode === 'map' && (
+                    <motion.div
+                      layoutId="viewMode"
+                      className="absolute inset-0 bg-purple-600 rounded-lg"
+                      initial={false}
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  <Grid className={`h-4 w-4 ${viewMode === 'map' ? 'text-white' : 'text-gray-400'} relative z-10`} />
+                  <span className={`${viewMode === 'map' ? 'text-white' : 'text-gray-400'} relative z-10`}>Map</span>
+                </motion.button>
+                
+                <motion.button
+                  whileHover={{ scale: viewMode === 'list' ? 1 : 1.05 }}
+                  whileTap={{ scale: viewMode === 'list' ? 1 : 0.95 }}
+                  onClick={() => toggleViewMode('list')}
+                  className="relative h-10 px-4 rounded-lg flex items-center space-x-2 transition-all duration-300"
                 >
-                  <List className="h-4 w-4 mr-2" />
-                  List
-                </Button>
+                  {viewMode === 'list' && (
+                    <motion.div
+                      layoutId="viewMode"
+                      className="absolute inset-0 bg-purple-600 rounded-lg"
+                      initial={false}
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  <List className={`h-4 w-4 ${viewMode === 'list' ? 'text-white' : 'text-gray-400'} relative z-10`} />
+                  <span className={`${viewMode === 'list' ? 'text-white' : 'text-gray-400'} relative z-10`}>List</span>
+                </motion.button>
               </div>
-
-              {/* Notifications */}
-              <Button
-                variant="outline"
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="relative h-12 px-4 bg-gray-800/50 border-gray-700 text-white hover:bg-gray-800/70 hover:border-purple-500/50 transition-all duration-300 rounded-xl group hover:shadow-lg hover:shadow-purple-500/20"
-              >
-                <Bell className="h-5 w-5 group-hover:text-purple-400 transition-colors" />
-                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></span>
-              </Button>
             </div>
           </div>
         </div>
@@ -326,34 +611,64 @@ const Map = () => {
               {/* Map Container */}
               <div className="relative h-[calc(100vh-10rem)]">
                 {isLoading && (
-                  <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center z-10 animate-fade-in">
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center z-10"
+                  >
                     <div className="text-center">
                       <LoadingSpinner size="lg" />
                       <p className="mt-4 text-gray-400">Loading map...</p>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
                 
-                {(!process.env.REACT_APP_GOOGLE_MAPS_API_KEY || process.env.REACT_APP_GOOGLE_MAPS_API_KEY === 'your_google_maps_api_key_here') && (
-                  <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center z-10 animate-fade-in">
+                {(!import.meta.env.VITE_GOOGLE_MAPS_API_KEY || import.meta.env.VITE_GOOGLE_MAPS_API_KEY === 'your_google_maps_api_key_here') && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center z-10"
+                  >
                     <div className="text-center max-w-md p-8 bg-gray-800/50 rounded-2xl border border-gray-700 shadow-2xl">
-                      <div className="text-purple-500 mb-6">
+                      <motion.div 
+                        initial={{ scale: 0.8, opacity: 0.5 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.3, duration: 0.5 }}
+                        className="text-purple-500 mb-6"
+                      >
                         <MapPin className="h-20 w-20 mx-auto mb-4 opacity-50" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-white mb-4 gradient-text">
+                      </motion.div>
+                      <motion.h3 
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.4, duration: 0.5 }}
+                        className="text-2xl font-bold text-white mb-4 bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent"
+                      >
                         Map here
-                      </h3>
-                      <p className="text-gray-400 mb-6 text-lg">
+                      </motion.h3>
+                      <motion.p 
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.5, duration: 0.5 }}
+                        className="text-gray-400 mb-6 text-lg"
+                      >
                         Add your Google Maps API key to display the interactive map
-                      </p>
-                      <Button
-                        onClick={() => window.open('https://console.developers.google.com/', '_blank')}
-                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105"
+                      </motion.p>
+                      <motion.button
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.6, duration: 0.5 }}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => window.open('https://console.cloud.google.com/', '_blank')}
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-xl shadow-lg shadow-purple-500/25 transition-all duration-300"
                       >
                         Get API Key
-                      </Button>
+                      </motion.button>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
                 
                 <div ref={mapRef} className="w-full h-full" />
@@ -378,53 +693,97 @@ const Map = () => {
             </>
           ) : (
             /* List View */
-            <div className="p-6 h-[calc(100vh-10rem)] overflow-y-auto animate-fade-in">
+            <div className="p-6 h-[calc(100vh-10rem)] overflow-y-auto">
               <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filteredItems.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="group bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 cursor-pointer border border-gray-700/50 hover:border-purple-500/50 transform hover:scale-105 hover:-translate-y-2 animate-fade-in"
-                    onClick={() => setSelectedItem(item)}
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    {item.image && (
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-40 object-cover rounded-xl mb-4 group-hover:scale-105 transition-transform duration-500"
-                      />
-                    )}
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-semibold text-white group-hover:text-purple-400 transition-colors duration-300">
-                        {item.title}
-                      </h3>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
-                          item.status === 'Lost'
-                            ? 'bg-red-500/20 text-red-400 border border-red-500/30 group-hover:shadow-lg group-hover:shadow-red-500/25'
-                            : 'bg-green-500/20 text-green-400 border border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/25'
-                        }`}
+                <AnimatePresence>
+                  {filteredItems.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ 
+                        type: "spring", 
+                        damping: 25, 
+                        stiffness: 300,
+                        delay: index * 0.05
+                      }}
+                      whileHover={{ 
+                        y: -5, 
+                        scale: 1.02,
+                        boxShadow: "0 10px 25px rgba(139, 92, 246, 0.2)",
+                        borderColor: "rgba(139, 92, 246, 0.5)"
+                      }}
+                      className="group bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-700/50 cursor-pointer overflow-hidden"
+                      onClick={() => handleItemClick(item)}
+                    >
+                      {item.image && (
+                        <div className="relative h-40 -mx-6 -mt-6 mb-4 overflow-hidden">
+                          <motion.img
+                            src={item.image}
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ duration: 0.4 }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
+                        </div>
+                      )}
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="font-semibold text-white group-hover:text-purple-400 transition-colors duration-300">
+                          {item.title}
+                        </h3>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
+                            item.status === 'Lost'
+                              ? 'bg-red-500/20 text-red-400 border border-red-500/30 group-hover:shadow-lg group-hover:shadow-red-500/25'
+                              : 'bg-green-500/20 text-green-400 border border-green-500/30 group-hover:shadow-lg group-hover:shadow-green-500/25'
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-400 mb-4 line-clamp-2">
+                        {item.description}
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span className="bg-gray-700/50 px-3 py-1 rounded-lg border border-gray-600/50">
+                          {item.category}
+                        </span>
+                        <span className="flex items-center text-purple-400">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          {item.distance}
+                        </span>
+                      </div>
+                      
+                      {/* Hover effect overlay */}
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        whileHover={{ opacity: 1 }}
+                        className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-purple-900/50 via-purple-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       >
-                        {item.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-400 mb-4 line-clamp-2">
-                      {item.description}
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span className="bg-gray-700/50 px-3 py-1 rounded-lg border border-gray-600/50">
-                        {item.category}
-                      </span>
-                      <span className="flex items-center text-purple-400">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        {item.distance}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                        <div className="flex justify-center">
+                          <motion.button 
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="text-white font-medium text-sm"
+                          >
+                            View Details
+                          </motion.button>
+                        </div>
+                      </motion.div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
+
               {filteredItems.length === 0 && (
-                <div className="text-center py-20 animate-fade-in">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300, delay: 0.2 }}
+                  className="text-center py-20"
+                >
                   <div className="text-gray-600 mb-6">
                     <Search className="h-20 w-20 mx-auto mb-4 opacity-50" />
                   </div>
@@ -434,17 +793,24 @@ const Map = () => {
                   <p className="text-gray-400 text-lg">
                     Try adjusting your search or filters to find what you're looking for.
                   </p>
-                </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setFilters({
+                      categories: [],
+                      status: 'all',
+                      dateRange: 'all',
+                      radius: 5
+                    })}
+                    className="mt-6 bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition-colors"
+                  >
+                    Clear Filters
+                  </motion.button>
+                </motion.div>
               )}
             </div>
           )}
         </div>
-
-        {/* Notification Sidebar */}
-        <NotificationSidebar
-          isOpen={showNotifications}
-          onClose={() => setShowNotifications(false)}
-        />
       </div>
 
       {/* Footer */}
