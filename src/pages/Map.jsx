@@ -548,13 +548,62 @@ const Map = () => {
       // Give time for the map to initialize before panning
       setTimeout(() => {
         if (googleMapRef.current && item.location) {
+          // Use animation options for smooth transitions
           googleMapRef.current.panTo(item.location);
           googleMapRef.current.setZoom(15);
+          // Apply smooth animation options with custom easing
+          googleMapRef.current.setOptions({
+            zoomControl: false,
+            scrollwheel: false,
+            draggable: false,
+            disableDoubleClickZoom: true,
+            animation: window.google.maps.Animation.SMOOTH,
+            animationDuration: 800,
+            animationEasing: "easeOutCubic"
+          });
+          
+          // Force immediate map rerender to ensure animation starts right away
+          window.google.maps.event.trigger(googleMapRef.current, 'resize');
+          
+          // Re-enable map controls after animation completes
+          setTimeout(() => {
+            googleMapRef.current.setOptions({
+              zoomControl: false,
+              scrollwheel: true,
+              draggable: true,
+              disableDoubleClickZoom: false
+            });
+          }, 1000);
         }
       }, 300);
     } else if (googleMapRef.current && item.location) {
+      // Apply smooth animation with custom easing
+      googleMapRef.current.setOptions({
+        zoomControl: false,
+        scrollwheel: false,
+        draggable: false,
+        disableDoubleClickZoom: true,
+        animation: window.google.maps.Animation.SMOOTH,
+        animationDuration: 800,
+        animationEasing: "easeOutCubic"
+      });
+      
+      // Force immediate map rerender to ensure animation starts right away
+      window.google.maps.event.trigger(googleMapRef.current, 'resize');
+      
+      // Smooth pan and zoom
       googleMapRef.current.panTo(item.location);
       googleMapRef.current.setZoom(15);
+      
+      // Re-enable map controls after animation completes
+      setTimeout(() => {
+        googleMapRef.current.setOptions({
+          zoomControl: false,
+          scrollwheel: true,
+          draggable: true,
+          disableDoubleClickZoom: false
+        });
+      }, 1000);
     }
   };
 
@@ -1078,6 +1127,7 @@ const Map = () => {
                 {/* Marker Clusterer */}
                 {googleMapRef.current && markersRef.current.length > 0 && (
                   <MarkerClusterer 
+                    key={`clusterer-${markersRef.current.length}`}
                     map={googleMapRef.current}
                     markers={markersRef.current.map(ref => ref.current).filter(Boolean)}
                   />
@@ -1185,7 +1235,7 @@ const Map = () => {
                               toggleViewMode('map');
                               handleItemClick(item);
                             }}
-                            className="text-white font-medium text-sm bg-purple-600 px-4 py-2 rounded-lg shadow-lg"
+                            className="text-white font-semibold text-sm px-4 py-2 transition-all duration-200 hover:text-purple-300"
                           >
                             View Details
                           </motion.button>

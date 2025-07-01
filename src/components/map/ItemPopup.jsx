@@ -27,7 +27,8 @@ const ItemPopup = ({ item, onClose }) => {
         transition={{ 
           type: "spring", 
           damping: 25, 
-          stiffness: 300 
+          stiffness: 400,
+          mass: 0.8
         }}
         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 w-96 max-w-[90vw]"
         style={{
@@ -140,11 +141,11 @@ const ItemPopup = ({ item, onClose }) => {
 
         {/* Backdrop */}
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className={`fixed inset-0 ${isDark ? 'bg-black/50' : 'bg-black/30'} backdrop-blur-sm -z-10`}
+          initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          animate={{ opacity: 1, backdropFilter: "blur(10px)" }}
+          exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          transition={{ duration: 0.3 }}
+          className={`fixed inset-0 ${isDark ? 'bg-black/60' : 'bg-black/40'} backdrop-blur-[10px] -z-10`}
           onClick={onClose}
         />
       </motion.div>
