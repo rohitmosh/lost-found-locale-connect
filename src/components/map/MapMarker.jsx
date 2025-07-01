@@ -6,17 +6,22 @@ const MapMarker = ({ item, onClick, map, markerRef }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
-  // SVG paths for the marker icons
+  // SVG paths for the marker icons - Updated with search icon for lost and plus icon for found
   const lostMarkerPath = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="32" height="32">
-      <path stroke="#ffffff" stroke-width="1" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+      <circle cx="24" cy="20" r="18" fill="#ef4444" stroke="#ffffff" stroke-width="2" />
+      <circle cx="24" cy="20" r="8" fill="none" stroke="#ffffff" stroke-width="2" />
+      <line x1="29" y1="25" x2="36" y2="32" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+      <path d="M24 38 L20 46 L28 46 Z" fill="#ef4444" stroke="#ffffff" stroke-width="1" />
     </svg>
   `;
 
   const foundMarkerPath = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#10b981" width="32" height="32">
-      <path stroke="#ffffff" stroke-width="1" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
-      <circle cx="12" cy="9" r="2.5" fill="#ffffff"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+      <circle cx="24" cy="20" r="18" fill="#10b981" stroke="#ffffff" stroke-width="2" />
+      <line x1="24" y1="12" x2="24" y2="28" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+      <line x1="16" y1="20" x2="32" y2="20" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+      <path d="M24 38 L20 46 L28 46 Z" fill="#10b981" stroke="#ffffff" stroke-width="1" />
     </svg>
   `;
 
@@ -28,9 +33,9 @@ const MapMarker = ({ item, onClick, map, markerRef }) => {
       url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
         item.status === 'Lost' ? lostMarkerPath : foundMarkerPath
       )}`,
-      size: new window.google.maps.Size(32, 32),
-      anchor: new window.google.maps.Point(16, 32),
-      scaledSize: new window.google.maps.Size(32, 32),
+      size: new window.google.maps.Size(48, 48),
+      anchor: new window.google.maps.Point(24, 46),
+      scaledSize: new window.google.maps.Size(48, 48),
     };
     
     // Create marker instance
@@ -61,8 +66,8 @@ const MapMarker = ({ item, onClick, map, markerRef }) => {
       
       // Scale up the marker slightly
       const icon = marker.getIcon();
-      icon.scaledSize = new window.google.maps.Size(40, 40);
-      icon.anchor = new window.google.maps.Point(20, 40);
+      icon.scaledSize = new window.google.maps.Size(56, 56);
+      icon.anchor = new window.google.maps.Point(28, 54);
       marker.setIcon(icon);
     });
     
@@ -72,8 +77,8 @@ const MapMarker = ({ item, onClick, map, markerRef }) => {
       
       // Scale back to normal
       const icon = marker.getIcon();
-      icon.scaledSize = new window.google.maps.Size(32, 32);
-      icon.anchor = new window.google.maps.Point(16, 32);
+      icon.scaledSize = new window.google.maps.Size(48, 48);
+      icon.anchor = new window.google.maps.Point(24, 46);
       marker.setIcon(icon);
     });
     

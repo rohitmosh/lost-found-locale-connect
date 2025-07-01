@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Calendar, MapPin, Filter, Check, Trash } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const categories = [
   'Electronics',
@@ -16,6 +17,7 @@ const categories = [
 ];
 
 const FilterPanel = ({ isOpen, filters, onFiltersChange, onClose }) => {
+  const { isDark } = useTheme();
   const handleCategoryToggle = (category) => {
     const newCategories = filters.categories.includes(category)
       ? filters.categories.filter(c => c !== category)
@@ -97,22 +99,22 @@ const FilterPanel = ({ isOpen, filters, onFiltersChange, onClose }) => {
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="fixed top-[64px] left-0 h-[calc(100vh-64px)] bg-gray-900/95 backdrop-blur-md border-r border-gray-700 shadow-2xl shadow-purple-900/20 z-50 w-80 overflow-hidden"
+          className={`fixed top-[64px] left-0 h-[calc(100vh-64px)] ${isDark ? 'bg-gray-900/95' : 'bg-white/95'} backdrop-blur-md border-r ${isDark ? 'border-gray-700' : 'border-gray-200'} shadow-2xl ${isDark ? 'shadow-purple-900/20' : 'shadow-purple-500/10'} z-50 w-80 overflow-hidden`}
         >
           <motion.div 
             variants={itemVariants}
-            className="p-4 border-b border-gray-700 flex justify-between items-center"
+            className={`p-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'} flex justify-between items-center`}
           >
             <div className="flex items-center space-x-2">
               <Filter className="h-5 w-5 text-purple-400" />
-              <h2 className="text-lg font-semibold text-white">Filters</h2>
+              <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Filters</h2>
             </div>
             <div className="flex items-center space-x-2">
               <motion.button
                 whileHover={{ scale: 1.05, color: "#c084fc" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={clearAllFilters}
-                className="text-xs text-gray-400 hover:text-purple-400 flex items-center space-x-1 py-1 px-2 rounded-md hover:bg-purple-500/10 transition-colors"
+                className={`text-xs ${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-500 hover:text-purple-500'} flex items-center space-x-1 py-1 px-2 rounded-md hover:bg-purple-500/10 transition-colors`}
               >
                 <Trash className="h-3 w-3" />
                 <span>Clear All</span>
@@ -291,6 +293,83 @@ const FilterPanel = ({ isOpen, filters, onFiltersChange, onClose }) => {
               </div>
               
               <div className="mt-4 mb-6 relative">
+                {/* Custom slider styled with CSS */}
+                <style dangerouslySetInnerHTML={{ __html: `
+                  /* Custom slider styles */
+                  .custom-slider {
+                    -webkit-appearance: none;
+                    appearance: none;
+                    width: 100%;
+                    height: 24px;
+                    background: transparent;
+                    margin: 0;
+                    padding: 0;
+                    outline: none;
+                  }
+                  
+                  .custom-slider::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    appearance: none;
+                    width: 22px;
+                    height: 22px;
+                    border-radius: 50%;
+                    background: #8B5CF6;
+                    border: 2px solid white;
+                    cursor: pointer;
+                    margin-top: -9px;
+                    box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+                    position: relative;
+                    z-index: 2;
+                  }
+                  
+                  .custom-slider::-moz-range-thumb {
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    background: #8B5CF6;
+                    border: 2px solid white;
+                    cursor: pointer;
+                    box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+                    position: relative;
+                    z-index: 2;
+                  }
+                  
+                  .custom-slider::-webkit-slider-runnable-track {
+                    width: 100%;
+                    height: 4px;
+                    background: rgba(139, 92, 246, 0.2);
+                    border-radius: 999px;
+                    cursor: pointer;
+                  }
+                  
+                  .custom-slider::-moz-range-track {
+                    width: 100%;
+                    height: 4px;
+                    background: rgba(139, 92, 246, 0.2);
+                    border-radius: 999px;
+                    cursor: pointer;
+                  }
+                  
+                  .custom-slider::-moz-range-progress {
+                    height: 4px;
+                    background: #8B5CF6;
+                    border-radius: 999px;
+                  }
+                `}} />
+                
+                {/* Track background - visible on all browsers */}
+                <div 
+                  className="absolute top-1/2 left-0 h-1 rounded-full -translate-y-1/2 bg-purple-900/50"
+                  style={{ width: '100%' }}
+                ></div>
+                
+                {/* Filled track - visible on all browsers */}
+                <div 
+                  className="absolute top-1/2 left-0 h-1 rounded-full -translate-y-1/2 bg-purple-600"
+                  style={{ width: `${(filters.radius / 10) * 100}%` }}
+                ></div>
+                
+                {/* The actual range input with custom styling */}
                 <input
                   type="range"
                   min="0.5"
@@ -298,24 +377,8 @@ const FilterPanel = ({ isOpen, filters, onFiltersChange, onClose }) => {
                   step="0.5"
                   value={filters.radius}
                   onChange={(e) => handleRadiusChange(e.target.value)}
-                  className="w-full h-2 appearance-none cursor-pointer bg-transparent"
-                  style={{
-                    WebkitAppearance: 'none',
-                    appearance: 'none'
-                  }}
+                  className="custom-slider w-full relative z-10"
                 />
-                <div 
-                  className="absolute top-1/2 left-0 h-1 rounded-full -translate-y-1/2 bg-purple-900/50"
-                  style={{ width: '100%' }}
-                ></div>
-                <div 
-                  className="absolute top-1/2 left-0 h-1 rounded-full -translate-y-1/2 bg-purple-600"
-                  style={{ width: `${(filters.radius / 10) * 100}%` }}
-                ></div>
-                <div 
-                  className="absolute top-1/2 left-0 w-4 h-4 bg-purple-600 rounded-full -translate-x-1/2 -translate-y-1/2 shadow-lg shadow-purple-500/30 cursor-pointer"
-                  style={{ left: `${(filters.radius / 10) * 100}%` }}
-                ></div>
               </div>
               
               <div className="flex justify-between text-xs text-gray-500 mt-1">

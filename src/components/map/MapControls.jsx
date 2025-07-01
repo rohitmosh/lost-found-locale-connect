@@ -31,7 +31,7 @@ const ControlButton = ({ icon: Icon, onClick, title, delay = 0 }) => (
   </motion.button>
 );
 
-const MapControls = ({ map, onMyLocation }) => {
+const MapControls = ({ map }) => {
   const handleZoomIn = () => {
     if (map) {
       map.setZoom(map.getZoom() + 1);
