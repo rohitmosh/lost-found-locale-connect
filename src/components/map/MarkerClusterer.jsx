@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Preload MarkerClusterer script at component level for immediate availability
 const preloadMarkerClusterer = () => {
@@ -26,6 +27,7 @@ preloadMarkerClusterer();
 // MarkerClusterer component for grouping nearby markers
 const MarkerClusterer = ({ map, markers }) => {
   const clustererRef = useRef(null);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     if (!map || !window.google || !markers || markers.length === 0) return;
@@ -48,8 +50,8 @@ const MarkerClusterer = ({ map, markers }) => {
       // Create beautiful cluster styles with glow effect
       const clusterStyles = [
         {
-          textColor: 'white',
-          textSize: 16,
+          textColor: isDark ? 'white' : 'black',
+          textSize: 22, // Increased text size
           fontWeight: 'bold',
           url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
@@ -69,8 +71,8 @@ const MarkerClusterer = ({ map, markers }) => {
         },
         // Different sizes for different cluster sizes
         {
-          textColor: 'white',
-          textSize: 16,
+          textColor: isDark ? 'white' : 'black',
+          textSize: 24, // Increased text size
           fontWeight: 'bold',
           url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90" width="90" height="90">
@@ -89,8 +91,8 @@ const MarkerClusterer = ({ map, markers }) => {
           textOffset: [0, 0]
         },
         {
-          textColor: 'white',
-          textSize: 18,
+          textColor: isDark ? 'white' : 'black',
+          textSize: 26, // Increased text size
           fontWeight: 'bold',
           url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
@@ -123,8 +125,6 @@ const MarkerClusterer = ({ map, markers }) => {
           batchSizeIE: 200,
           title: '', // Empty title to improve performance
           ignoreHidden: true, // Improve performance by ignoring hidden markers
-          imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-          imageExtension: 'png',
           calculator: function(markers, numStyles) {
             // Custom calculator to determine which style to use based on number of markers
             const count = markers.length;
@@ -158,54 +158,67 @@ const MarkerClusterer = ({ map, markers }) => {
         const renderer = {
           render: ({ count, position }) => {
             // Determine size based on count
-            let size, glowSize, innerGlowSize, mainSize;
+            let size, svg;
             
             if (count < 10) {
               size = 80;
-              glowSize = 38;
-              innerGlowSize = 32;
-              mainSize = 26;
+              svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+                  <!-- Outer glow -->
+                  <circle cx="40" cy="40" r="38" fill="rgba(139, 92, 246, 0.2)" />
+                  <!-- Inner glow -->
+                  <circle cx="40" cy="40" r="32" fill="rgba(139, 92, 246, 0.4)" />
+                  <!-- Main circle -->
+                  <circle cx="40" cy="40" r="26" fill="#8B5CF6" stroke="#ffffff" stroke-width="2" />
+                </svg>
+              `;
             } else if (count < 20) {
               size = 90;
-              glowSize = 43;
-              innerGlowSize = 37;
-              mainSize = 31;
+              svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90" width="90" height="90">
+                  <!-- Outer glow -->
+                  <circle cx="45" cy="45" r="43" fill="rgba(139, 92, 246, 0.2)" />
+                  <!-- Inner glow -->
+                  <circle cx="45" cy="45" r="37" fill="rgba(139, 92, 246, 0.4)" />
+                  <!-- Main circle -->
+                  <circle cx="45" cy="45" r="31" fill="#8B5CF6" stroke="#ffffff" stroke-width="2" />
+                </svg>
+              `;
             } else {
               size = 100;
-              glowSize = 48;
-              innerGlowSize = 42;
-              mainSize = 36;
+              svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+                  <!-- Outer glow -->
+                  <circle cx="50" cy="50" r="48" fill="rgba(139, 92, 246, 0.2)" />
+                  <!-- Inner glow -->
+                  <circle cx="50" cy="50" r="42" fill="rgba(139, 92, 246, 0.4)" />
+                  <!-- Main circle -->
+                  <circle cx="50" cy="50" r="36" fill="#8B5CF6" stroke="#ffffff" stroke-width="2" />
+                </svg>
+              `;
             }
             
-            // Create custom cluster marker with glow effect
+            // Create custom cluster marker with glow effect and a separate label
             const marker = new window.google.maps.Marker({
               position,
               icon: {
-                url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
-                    <!-- Outer glow -->
-                    <circle cx="${size/2}" cy="${size/2}" r="${glowSize}" fill="rgba(139, 92, 246, 0.2)" />
-                    <!-- Inner glow -->
-                    <circle cx="${size/2}" cy="${size/2}" r="${innerGlowSize}" fill="rgba(139, 92, 246, 0.4)" />
-                    <!-- Main circle -->
-                    <circle cx="${size/2}" cy="${size/2}" r="${mainSize}" fill="#8B5CF6" stroke="#ffffff" stroke-width="2" />
-                  </svg>
-                `)}`,
+                url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
                 size: new window.google.maps.Size(size, size),
                 anchor: new window.google.maps.Point(size/2, size/2),
                 scaledSize: new window.google.maps.Size(size, size),
               },
               label: {
                 text: count.toString(),
-                color: 'white',
-                fontSize: count < 10 ? '16px' : count < 20 ? '16px' : '18px',
+                color: isDark ? 'white' : 'black',
+                fontSize: count < 10 ? '22px' : count < 20 ? '24px' : '26px', // Increased font sizes
                 fontWeight: 'bold',
                 className: 'cluster-marker-label',
               },
               zIndex: 999,
-              optimized: true
+              optimized: false // Set to false for SVG reliability
             });
 
+            // Add styling for proper label centering if not already added
             if (!document.getElementById('cluster-label-style')) {
               const style = document.createElement('style');
               style.id = 'cluster-label-style';
@@ -221,6 +234,8 @@ const MarkerClusterer = ({ map, markers }) => {
                   display: flex !important;
                   align-items: center !important;
                   justify-content: center !important;
+                  position: absolute !important;
+                  pointer-events: none !important;
                 }
               `;
               document.head.appendChild(style);
@@ -315,7 +330,7 @@ const MarkerClusterer = ({ map, markers }) => {
         clustererRef.current.setMap(null);
       }
     };
-  }, [map, markers]);
+  }, [map, markers, isDark]); // Added isDark to dependencies to update on theme changes
 
   // This is a utility component with no UI
   return null;
