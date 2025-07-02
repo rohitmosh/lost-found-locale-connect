@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import MapSelector from '@/components/map/MapSelector';
+import StaticMapImage from '@/components/map/StaticMapImage';
 
 const itemCategories = [
   { value: 'electronics', label: 'Electronics' },
@@ -457,81 +458,99 @@ const LostItemForm = () => {
             transition={pageTransition}
           >
             <div className="bg-purple-100/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-300 dark:border-purple-900/50 rounded-2xl p-6 shadow-lg mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b border-purple-200 dark:border-purple-900/50 pb-3">
                 Review Your Report
               </h2>
               
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Item Title</h3>
-                    <p className="text-gray-900 dark:text-white">{formData.title}</p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Category</h3>
-                    <p className="text-gray-900 dark:text-white">
-                      {itemCategories.find(c => c.value === formData.category)?.label || formData.category}
-                    </p>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Description</h3>
-                  <p className="text-gray-900 dark:text-white">{formData.description}</p>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">When Lost</h3>
-                    <p className="text-gray-900 dark:text-white">
-                      {formData.notSureWhen 
-                        ? "Not sure" 
-                        : formData.lostDate && formData.lostTime 
-                          ? `${formData.lostDate} at ${formData.lostTime}`
-                          : "Not specified"}
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Where Lost</h3>
-                    <p className="text-gray-900 dark:text-white">{formData.location}</p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Contact Email</h3>
-                    <p className="text-gray-900 dark:text-white">{formData.contactEmail}</p>
-                  </div>
-                  
-                  {formData.contactPhone && (
+              <div className="space-y-4">
+                {/* Basic Information Section */}
+                <div className="bg-white/50 dark:bg-gray-700/30 rounded-lg p-4">
+                  <h3 className="font-medium text-purple-700 dark:text-purple-400 mb-3 text-base">Basic Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Contact Phone</h3>
-                      <p className="text-gray-900 dark:text-white">{formData.contactPhone}</p>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Item Title</h4>
+                      <p className="text-gray-900 dark:text-white font-medium">{formData.title}</p>
                     </div>
-                  )}
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Privacy</h3>
-                    <p className="text-gray-900 dark:text-white">
-                      {formData.hideContactInfo ? "Contact info hidden until claimed" : "Contact info visible"}
-                    </p>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Category</h4>
+                      <p className="text-gray-900 dark:text-white font-medium">
+                        {itemCategories.find(c => c.value === formData.category)?.label || formData.category}
+                      </p>
+                    </div>
                   </div>
                   
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Notifications</h3>
-                    <p className="text-gray-900 dark:text-white">
-                      {formData.allowNotifications ? "Enabled" : "Disabled"}
-                    </p>
+                  <div className="mt-3">
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</h4>
+                    <p className="text-gray-900 dark:text-white">{formData.description}</p>
                   </div>
                 </div>
                 
+                {/* Location & Time Section */}
+                <div className="bg-white/50 dark:bg-gray-700/30 rounded-lg p-4">
+                  <h3 className="font-medium text-purple-700 dark:text-purple-400 mb-3 text-base">Location & Time</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">When Lost</h4>
+                      <p className="text-gray-900 dark:text-white font-medium">
+                        {formData.notSureWhen 
+                          ? "Not sure" 
+                          : formData.lostDate && formData.lostTime 
+                            ? `${formData.lostDate} at ${formData.lostTime}`
+                            : "Not specified"}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Where Lost</h4>
+                      <p className="text-gray-900 dark:text-white font-medium">{formData.location}</p>
+                      {formData.locationCoords && (
+                        <div className="mt-2">
+                          <StaticMapImage location={formData.locationCoords} width={300} height={180} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Contact Information Section */}
+                <div className="bg-white/50 dark:bg-gray-700/30 rounded-lg p-4">
+                  <h3 className="font-medium text-purple-700 dark:text-purple-400 mb-3 text-base">Contact Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Contact Email</h4>
+                      <p className="text-gray-900 dark:text-white font-medium">{formData.contactEmail}</p>
+                    </div>
+                    
+                    {formData.contactPhone && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Contact Phone</h4>
+                        <p className="text-gray-900 dark:text-white font-medium">{formData.contactPhone}</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Privacy</h4>
+                      <p className="text-gray-900 dark:text-white font-medium">
+                        {formData.hideContactInfo ? "Contact info hidden until claimed" : "Contact info visible"}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Notifications</h4>
+                      <p className="text-gray-900 dark:text-white font-medium">
+                        {formData.allowNotifications ? "Enabled" : "Disabled"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Photo Section (if available) */}
                 {formData.photo && (
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Photo</h3>
+                  <div className="bg-white/50 dark:bg-gray-700/30 rounded-lg p-4">
+                    <h3 className="font-medium text-purple-700 dark:text-purple-400 mb-3 text-base">Photo</h3>
                     <div className="w-32 h-32 bg-purple-50 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                       <p className="text-sm text-gray-500">{formData.photo.name}</p>
                     </div>
@@ -539,7 +558,7 @@ const LostItemForm = () => {
                 )}
               </div>
               
-              <div className="mt-8 border-t border-purple-200 dark:border-purple-900/50 pt-6">
+              <div className="mt-6 border-t border-purple-200 dark:border-purple-900/50 pt-4">
                 <div className="flex items-center mb-6">
                   <Checkbox
                     id="confirmAccuracy"

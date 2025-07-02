@@ -12,7 +12,7 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const mapRef = useRef(null);
-  const markerRef = useRef(null);
+  const hasSetInitialLocation = useRef(false);
 
   // Load Google Maps API
   const { isLoaded } = useJsApiLoader({
@@ -25,24 +25,10 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
     mapRef.current = map;
     setMap(map);
     setIsLoading(false);
-
-    // Create marker at center
-    if (window.google && !markerRef.current) {
-      markerRef.current = new window.google.maps.Marker({
-        position: center,
-        map: map,
-        draggable: false,
-        animation: window.google.maps.Animation.DROP,
-      });
-    }
-  }, [center]);
+  }, []);
 
   // Clean up on unmount
   const onUnmount = useCallback(() => {
-    if (markerRef.current) {
-      markerRef.current.setMap(null);
-      markerRef.current = null;
-    }
     setMap(null);
   }, []);
 
@@ -54,11 +40,6 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
         lat: newCenter.lat(),
         lng: newCenter.lng(),
       };
-      
-      // Update marker position
-      if (markerRef.current) {
-        markerRef.current.setPosition(newCenter);
-      }
       
       setSelectedLocation(newLocation);
       
@@ -72,15 +53,14 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
   // Handle current location button click
   const handleUseCurrentLocation = async () => {
     try {
+      setIsLoading(true);
       const location = await getUserLocation();
       if (location && mapRef.current) {
+        // Update map center
         mapRef.current.panTo(location);
         setCenter(location);
         
-        if (markerRef.current) {
-          markerRef.current.setPosition(location);
-        }
-        
+        // Update selected location
         setSelectedLocation(location);
         
         // Notify parent component
@@ -91,6 +71,8 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
     } catch (error) {
       console.error('Error getting user location:', error);
       // Could show a toast notification here
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -105,26 +87,25 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
 
   // Set initial location if provided
   useEffect(() => {
-    if (initialLocation && mapRef.current) {
+    if (initialLocation && mapRef.current && !hasSetInitialLocation.current) {
       mapRef.current.panTo(initialLocation);
       setCenter(initialLocation);
-      
-      if (markerRef.current) {
-        markerRef.current.setPosition(initialLocation);
-      }
-      
       setSelectedLocation(initialLocation);
+      hasSetInitialLocation.current = true;
     }
   }, [initialLocation]);
 
-  // Try to get user location on component mount
+  // Try to get user location on component mount only once
   useEffect(() => {
     const initUserLocation = async () => {
+      if (hasSetInitialLocation.current) return;
+      
       try {
         const location = await getUserLocation();
-        if (location) {
+        if (location && !hasSetInitialLocation.current) {
           setCenter(location);
           setSelectedLocation(location);
+          hasSetInitialLocation.current = true;
           
           // Notify parent component
           if (onLocationChange) {
@@ -156,6 +137,8 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
             options={{
               disableDefaultUI: true,
               zoomControl: true,
+              gestureHandling: 'greedy',
+              draggable: true,
               styles: isDark ? getDarkMapStyle() : [],
               backgroundColor: isDark ? '#0f172a' : '#ffffff',
             }}
@@ -180,6 +163,16 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
             <MapPin className="h-8 w-8 text-purple-600 drop-shadow-lg" />
           </div>
         )}
+        
+        {/* Loading overlay */}
+        {isLoaded && isLoading && (
+          <div className="absolute inset-0 bg-white/50 dark:bg-gray-800/50 flex items-center justify-center z-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-2"></div>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">Getting location...</p>
+            </div>
+          </div>
+        )}
       </div>
       
       <div className="p-3 bg-white dark:bg-gray-800 flex justify-between items-center">
@@ -196,9 +189,10 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
           variant="outline"
           size="sm"
           onClick={handleUseCurrentLocation}
+          disabled={isLoading}
           className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-900/20"
         >
-          Use Current Location
+          {isLoading ? 'Getting location...' : 'Use Current Location'}
         </Button>
       </div>
     </div>
