@@ -100,7 +100,7 @@ const Footer = () => {
 
         <div className="mt-8 pt-8 border-t border-purple-200 dark:border-purple-900/50">
           <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
-            © 2024 FindIt. Made with ❤️ for communities everywhere.
+            © 2025 FindIt. Made with ❤️ for communities everywhere.
           </p>
         </div>
       </div>

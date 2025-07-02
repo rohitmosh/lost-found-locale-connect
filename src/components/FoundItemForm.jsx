@@ -37,6 +37,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import MapSelector from '@/components/map/MapSelector';
 
 const itemCategories = [
   { value: 'electronics', label: 'Electronics' },
@@ -65,7 +66,8 @@ const FoundItemForm = () => {
     contactPhone: '',
     allowNotifications: true,
     hideContactInfo: false,
-    location: 'Current Location', // This would be replaced with actual coordinates
+    location: 'Current Location', // Text representation of coordinates
+    locationCoords: null, // Actual coordinates object {lat, lng}
     itemLocation: 'have-with-me', // Where is the item now?
     customItemLocation: '',
     returnMethod: 'meet-in-person',
@@ -451,34 +453,15 @@ const FoundItemForm = () => {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Where did you find it? *
                     </label>
-                    <div className="border border-purple-200 dark:border-purple-900/50 rounded-lg overflow-hidden">
-                      <div className="h-[200px] bg-purple-50 dark:bg-gray-700 flex items-center justify-center relative">
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-indigo-500/10" />
-                        <div className="text-center relative">
-                          <MapPin className="h-10 w-10 text-purple-500 mx-auto mb-2" />
-                          <p className="text-gray-600 dark:text-gray-300">
-                            Map would appear here
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Drag pin to exact location or use current location
-                          </p>
-                        </div>
-                      </div>
-                      <div className="p-3 bg-white dark:bg-gray-800 flex justify-between items-center">
-                        <div className="text-sm text-gray-700 dark:text-gray-300 flex items-center">
-                          <MapPin className="h-4 w-4 text-purple-500 mr-1" />
-                          <span>{formData.location}</span>
-                        </div>
-                        <Button 
-                          type="button" 
-                          variant="outline"
-                          size="sm"
-                          className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-900/20"
-                        >
-                          Use Current Location
-                        </Button>
-                      </div>
-                    </div>
+                    <MapSelector 
+                      onLocationChange={(location) => {
+                        setFormData({
+                          ...formData,
+                          location: `${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}`,
+                          locationCoords: location
+                        });
+                      }}
+                    />
                   </div>
                 </div>
                 
