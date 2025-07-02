@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, MapPin, Bell } from 'lucide-react';
+import { Search, MapPin, Bell, HelpCircle } from 'lucide-react';
 
 const Hero = () => {
   return (
@@ -21,7 +22,6 @@ const Hero = () => {
             </span>
           </div>
 
-          {/* Main Heading */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
             <span className="block text-gray-900 dark:text-white">
               Lost It?
@@ -31,13 +31,12 @@ const Hero = () => {
             </span>
           </h1>
 
-          {/* Subtitle */}
           <p className="max-w-3xl mx-auto text-xl sm:text-2xl text-gray-600 dark:text-gray-300 leading-relaxed">
             Connect with your community to find lost items and help others reunite with their belongings. 
             Powered by real-time updates and smart location mapping.
           </p>
 
-          {/* CTA Buttons */}
+          {/* Updated CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               to="/register"
@@ -45,6 +44,14 @@ const Hero = () => {
             >
               <span className="relative z-10">Get Started Free</span>
               <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-indigo-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </Link>
+            
+            <Link
+              to="/how-it-works"
+              className="group px-8 py-4 bg-purple-200/90 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-400 text-lg font-semibold rounded-2xl transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900/20 hover:shadow-lg flex items-center gap-2"
+            >
+              <HelpCircle className="w-5 h-5" />
+              How It Works
             </Link>
             
             <Link

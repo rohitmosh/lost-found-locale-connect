@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system with purple theme colors */
+/* ... keep existing code (design system with purple theme colors) */
 
 @layer base {
   :root {
@@ -87,6 +87,8 @@
   }
 }
 
+/* ... keep existing code (base styles, custom scrollbar, components) */
+
 @layer base {
   * {
     @apply border-border;
@@ -96,12 +98,10 @@
     @apply bg-background text-foreground font-sans antialiased;
   }
 
-  /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
   }
 
-  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -120,22 +120,18 @@
 }
 
 @layer components {
-  /* Gradient text utility */
   .gradient-text {
     @apply bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent;
   }
 
-  /* Glass effect utility */
   .glass {
     @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-100 dark:border-purple-900/50;
   }
 
-  /* Animated button hover effects */
   .btn-hover {
     @apply transition-all duration-200 transform hover:scale-105 hover:shadow-lg;
   }
 
-  /* Loading animation */
   .loading-dots::after {
     content: '';
     animation: loading-dots 1.5s infinite;
@@ -149,7 +145,8 @@
   }
 }
 
-/* Animation utilities */
+/* ... keep existing code (animation utilities and keyframes) */
+
 @layer utilities {
   .animate-fade-in {
     animation: fade-in 0.6s ease-out;
@@ -174,9 +171,23 @@
   .animate-glow-pulse {
     animation: glow-pulse 2s ease-in-out infinite alternate;
   }
+
+  /* New animations for How It Works page */
+  .animate-slide-in-left {
+    animation: slide-in-left 0.8s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.8s ease-out;
+  }
+
+  .animate-stagger-fade {
+    animation: fade-in 0.6s ease-out both;
+  }
 }
 
-/* Enhanced Custom animations */
+/* ... keep existing code (enhanced custom animations) */
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -238,11 +249,46 @@
   }
 }
 
+/* New keyframes for How It Works page */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ... keep existing code (text effects, hover effects, etc.) */
+
 .animate-fade-in {
   animation: fade-in 0.6s ease-in-out forwards;
 }
 
-/* Additional utilities */
 .text-shadow {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -288,7 +334,6 @@
   animation: pulse-glow 2s infinite;
 }
 
-/* Enhanced microanimations */
 .hover\:micro-bounce:hover {
   animation: bounce-subtle 0.6s ease-in-out;
 }
@@ -303,7 +348,6 @@
   transition: transform 0.2s ease;
 }
 
-/* Backdrop blur effects */
 .backdrop-blur-strong {
   backdrop-filter: blur(20px);
 }
@@ -312,7 +356,8 @@
   backdrop-filter: blur(12px);
 }
 
-/* Custom Range Slider Styles */
+/* ... keep existing code (slider styles, map animations, card effects, etc.) */
+
 .slider::-webkit-slider-thumb {
   appearance: none;
   height: 20px;
@@ -345,7 +390,6 @@
   box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
 }
 
-/* Map marker animations */
 @keyframes markerBounce {
   0%, 20%, 50%, 80%, 100% {
     transform: translateY(0);
@@ -362,7 +406,6 @@
   animation: markerBounce 1s ease-in-out;
 }
 
-/* Smooth transitions for map controls */
 .map-control-enter {
   opacity: 0;
   transform: scale(0.9);
@@ -385,7 +428,6 @@
   transition: opacity 300ms, transform 300ms;
 }
 
-/* Enhanced card hover effects */
 .card-hover {
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -395,7 +437,6 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
-/* Stagger animation for lists */
 .stagger-fade-in {
   animation: fade-in 0.6s ease-out both;
 }
