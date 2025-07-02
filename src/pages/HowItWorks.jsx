@@ -132,22 +132,22 @@ const HowItWorks = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 dark:from-gray-900 dark:via-purple-900/10 dark:to-indigo-900/10">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 dark:from-gray-900 dark:via-purple-900/30 dark:to-indigo-900/30">
       <Navbar />
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-300/20 dark:bg-purple-600/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-300/20 dark:bg-indigo-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-400/40 dark:bg-purple-500/30 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-400/40 dark:bg-indigo-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-violet-400/40 dark:bg-violet-500/30 rounded-full blur-3xl animate-pulse delay-500" />
         </div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in">
             <h1 className="text-4xl sm:text-6xl font-bold mb-6">
-              <span className="block text-gray-900 dark:text-white mb-2">How It</span>
-              <span className="block bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                Works
+              <span className="bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                How It Works
               </span>
             </h1>
             <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
@@ -218,10 +218,15 @@ const HowItWorks = () => {
       </section>
 
       {/* Key Features */}
-      <section className="py-20 bg-purple-50/50 dark:bg-gray-800/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+      <section className="py-20 bg-purple-50/70 dark:bg-gray-800/30 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-72 h-72 bg-purple-400/20 dark:bg-purple-500/20 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-400/20 dark:bg-indigo-500/20 rounded-full blur-3xl animate-float delay-1000" />
+        </div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-300">
               Standout Features
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
@@ -234,9 +239,10 @@ const HowItWorks = () => {
               <div
                 key={feature.title}
                 ref={(el) => (featuresRef.current[index] = el)}
-                className="group opacity-0 p-8 bg-white/80 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 hover:scale-105 cursor-pointer"
+                className="group opacity-0 p-8 bg-white/90 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:scale-105 cursor-pointer animate-glow-pulse"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg animate-bounce-subtle">
                   <feature.icon className="w-8 h-8 text-white" />
                 </div>
                 
@@ -254,18 +260,24 @@ const HowItWorks = () => {
       </section>
 
       {/* Demo Video Section */}
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-            See It In Action
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">
-            Watch how easy it is to report and find lost items
-          </p>
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-400/20 dark:bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
+        </div>
+        
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="animate-fade-in">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-300">
+              See It In Action
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">
+              Watch how easy it is to report and find lost items
+            </p>
+          </div>
           
-          <div className="relative group">
-            <div className="aspect-video bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-3xl flex items-center justify-center shadow-2xl border border-purple-200/50 dark:border-purple-800/50 group-hover:scale-105 transition-all duration-500">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 cursor-pointer">
+          <div className="relative group animate-scale-in">
+            <div className="aspect-video bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-3xl flex items-center justify-center shadow-2xl border border-purple-200/50 dark:border-purple-800/50 group-hover:scale-105 transition-all duration-500 hover:shadow-purple-500/25">
+              <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 cursor-pointer animate-pulse-glow">
                 <Play className="w-10 h-10 text-white ml-1" fill="currentColor" />
               </div>
             </div>
@@ -275,10 +287,15 @@ const HowItWorks = () => {
       </section>
 
       {/* Why It's Easy */}
-      <section className="py-20 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/10 dark:to-indigo-900/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+      <section className="py-20 bg-gradient-to-r from-purple-50/80 to-indigo-50/80 dark:from-purple-900/20 dark:to-indigo-900/20 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-purple-400/30 dark:bg-purple-500/25 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-400/30 dark:bg-indigo-500/25 rounded-full blur-3xl animate-float delay-500" />
+        </div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-300">
               Built for Everyone
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
@@ -306,12 +323,13 @@ const HowItWorks = () => {
             ].map((item, index) => (
               <div
                 key={item.title}
-                className="group p-8 bg-white/80 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 hover:scale-105 text-center"
+                className="group p-8 bg-white/90 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:scale-105 text-center animate-stagger-fade"
+                style={{ animationDelay: `${index * 200}ms` }}
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-glow-pulse">
                   <item.icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
                   {item.title}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
@@ -324,10 +342,15 @@ const HowItWorks = () => {
       </section>
 
       {/* Tech Stack */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-400/15 dark:bg-purple-500/15 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-400/15 dark:bg-indigo-500/15 rounded-full blur-3xl animate-pulse delay-1000" />
+        </div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-300">
               Built With Modern Tech
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
@@ -339,13 +362,13 @@ const HowItWorks = () => {
             {techStack.map((tech, index) => (
               <div
                 key={tech.name}
-                className="group p-6 bg-white/80 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 hover:scale-105 text-center"
+                className="group p-6 bg-white/90 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-xl hover:shadow-purple-500/15 transition-all duration-300 hover:scale-105 text-center animate-stagger-fade hover:glow-purple"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
+                <div className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2 group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors duration-300">
                   {tech.category}
                 </div>
-                <div className="font-bold text-gray-900 dark:text-white">
+                <div className="font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
                   {tech.name}
                 </div>
               </div>
@@ -357,18 +380,25 @@ const HowItWorks = () => {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-purple-600 to-indigo-600 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-float delay-1000" />
+        </div>
+        
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <h2 className="text-3xl sm:text-5xl font-bold mb-6">
-            Ready to Get Started?
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join thousands of users who have successfully reunited with their lost items
-          </p>
+          <div className="animate-fade-in">
+            <h2 className="text-3xl sm:text-5xl font-bold mb-6 animate-glow-pulse">
+              Ready to Get Started?
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              Join thousands of users who have successfully reunited with their lost items
+            </p>
+          </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scale-in">
             <Link
               to="/register"
-              className="group px-8 py-4 bg-white text-purple-600 font-bold rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center gap-2"
+              className="group px-8 py-4 bg-white text-purple-600 font-bold rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center gap-2 hover:glow-purple"
             >
               Try It Now
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -378,7 +408,7 @@ const HowItWorks = () => {
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="group px-8 py-4 border-2 border-white/30 text-white font-bold rounded-2xl transition-all duration-300 hover:bg-white/10 hover:scale-105 flex items-center gap-2"
+              className="group px-8 py-4 border-2 border-white/30 text-white font-bold rounded-2xl transition-all duration-300 hover:bg-white/10 hover:scale-105 flex items-center gap-2 hover:shadow-xl"
             >
               <Github className="w-5 h-5" />
               View Source
