@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, MapPin, Bell, TrendingUp } from 'lucide-react';
@@ -179,17 +180,19 @@ const Dashboard = () => {
           </motion.div>
 
           {/* User Profile Section */}
-          {showProfile && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mb-8"
-            >
-              <UserProfile />
-            </motion.div>
-          )}
+          <AnimatePresence>
+            {showProfile && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mb-8"
+              >
+                <UserProfile />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Quick Actions */}
           <motion.div 
@@ -287,7 +290,7 @@ const Dashboard = () => {
           <div className="bg-purple-100 dark:bg-gray-800 rounded-3xl border border-purple-300 dark:border-gray-700 p-6 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Recent Activity</h2>
             <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
+              {recentActivity.map((activity) => (
                 <div 
                   key={activity.id} 
                   className={`flex items-center space-x-4 p-4 bg-purple-50 dark:bg-gray-700/50 rounded-xl hover:shadow-md ${

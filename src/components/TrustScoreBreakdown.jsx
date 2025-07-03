@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,8 +14,8 @@ import {
   MessageCircleX
 } from 'lucide-react';
 
-const TrustScoreBreakdown = ({ userStats }) => {
-  // Mock data - in real app, this would come from props or API
+const TrustScoreBreakdown = ({ userStats = null }) => {
+  // Default stats if none provided
   const stats = userStats || {
     successfulMatches: 3,
     reportAccuracy: 8,
@@ -127,7 +128,7 @@ const TrustScoreBreakdown = ({ userStats }) => {
             Positive Actions (+{totalPositive} points)
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {positiveMetrics.map((metric, index) => (
+            {positiveMetrics.map((metric) => (
               <div 
                 key={metric.label}
                 className="flex items-center justify-between p-3 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
@@ -157,7 +158,7 @@ const TrustScoreBreakdown = ({ userStats }) => {
               Deductions ({totalNegative} points)
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {negativeMetrics.filter(metric => metric.points < 0).map((metric, index) => (
+              {negativeMetrics.filter(metric => metric.points < 0).map((metric) => (
                 <div 
                   key={metric.label}
                   className="flex items-center justify-between p-3 rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/10 hover:shadow-md transition-all duration-200"

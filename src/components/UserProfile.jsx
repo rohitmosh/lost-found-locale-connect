@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, MapPin, Calendar, Eye, EyeOff } from 'lucide-react';
+import { MapPin, Calendar, Eye, EyeOff } from 'lucide-react';
 import TrustScore from './TrustScore';
 import TrustScoreBreakdown from './TrustScoreBreakdown';
 
-const UserProfile = ({ user, isCurrentUser = true }) => {
+const UserProfile = ({ user = null, isCurrentUser = true }) => {
   const [showBreakdown, setShowBreakdown] = useState(false);
 
-  // Mock user data - in real app, this would come from props or API
+  // Default user data if none provided
   const userData = user || {
     name: 'John Doe',
     email: 'john@example.com',

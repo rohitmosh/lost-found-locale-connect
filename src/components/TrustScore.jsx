@@ -32,7 +32,7 @@ const TrustScore = ({ score = 85, size = 'md', showLabel = true, className = '' 
 
   return (
     <div className={`flex items-center space-x-3 ${className}`}>
-      <div className={`${sizeClasses[size]} ${getScoreColor(score)} rounded-full flex items-center justify-center font-bold border-2 border-current/20 hover:scale-105 transition-transform duration-200`}>
+      <div className={`${sizeClasses[size]} ${getScoreColor(score)} rounded-full flex items-center justify-center font-bold border-2 border-current/20 hover:scale-105 transition-transform duration-200 relative`}>
         <Shield size={iconSizes[size]} className="absolute opacity-10" />
         <span className="relative z-10">{score}</span>
       </div>
