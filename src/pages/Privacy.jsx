@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Shield, Eye, Database, Lock, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +7,10 @@ import SimpleHeader from '../components/SimpleHeader';
 import Footer from '../components/Footer';
 
 const Privacy = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
       <SimpleHeader />
@@ -206,35 +210,6 @@ const Privacy = () => {
               </ul>
               <p className="text-gray-600 dark:text-gray-400">
                 You can control cookie settings through your browser preferences.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Children's Privacy */}
-          <Card>
-            <CardHeader>
-              <CardTitle>8. Children's Privacy</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-400">
-                FindIt is not intended for children under 13. We do not knowingly collect personal 
-                information from children under 13. If you believe we have collected such information, 
-                please contact us immediately.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Contact */}
-          <Card>
-            <CardHeader>
-              <CardTitle>9. Contact Us</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-400">
-                For privacy-related questions or to exercise your rights, contact us at{' '}
-                <a href="mailto:privacy@findit.com" className="text-purple-600 hover:text-purple-700 dark:text-purple-400">
-                  privacy@findit.com
-                </a>
               </p>
             </CardContent>
           </Card>

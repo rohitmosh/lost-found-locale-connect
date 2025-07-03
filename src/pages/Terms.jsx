@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Shield, FileText, Users, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +7,10 @@ import SimpleHeader from '../components/SimpleHeader';
 import Footer from '../components/Footer';
 
 const Terms = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
       <SimpleHeader />
@@ -158,21 +162,6 @@ const Terms = () => {
                 We reserve the right to update these terms at any time. Users will be notified of significant 
                 changes via email or platform notifications. Continued use of the service constitutes acceptance 
                 of the updated terms.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Contact */}
-          <Card>
-            <CardHeader>
-              <CardTitle>7. Contact Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-400">
-                For questions about these terms, please contact us at{' '}
-                <a href="mailto:legal@findit.com" className="text-purple-600 hover:text-purple-700 dark:text-purple-400">
-                  legal@findit.com
-                </a>
               </p>
             </CardContent>
           </Card>
