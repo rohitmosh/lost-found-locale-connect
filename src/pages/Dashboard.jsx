@@ -6,6 +6,8 @@ import Navbar from '../components/Navbar';
 import NotificationSidebar from '../components/NotificationSidebar';
 import NotificationButton from '../components/NotificationButton';
 import Footer from '../components/Footer';
+import TrustScore from '../components/TrustScore';
+import UserProfile from '../components/UserProfile';
 
 // Animation variants
 const containerVariants = {
@@ -53,7 +55,8 @@ const itemVariants = {
 
 const Dashboard = () => {
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(2); // Mock unread count
+  const [unreadNotifications, setUnreadNotifications] = useState(2);
+  const [showProfile, setShowProfile] = useState(false);
 
   const stats = [
     { label: 'Items Found', value: '12', icon: Search, color: 'text-green-600' },
@@ -108,49 +111,85 @@ const Dashboard = () => {
             >
               Dashboard
             </motion.h1>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-            >
-              <NotificationButton 
-                unreadCount={unreadNotifications} 
-                onClick={toggleNotificationSidebar} 
-                isOpen={isNotificationSidebarOpen} 
-              />
-            </motion.div>
+            <div className="flex items-center space-x-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+              >
+                <TrustScore score={85} size="sm" showLabel={false} />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+              >
+                <NotificationButton 
+                  unreadCount={unreadNotifications} 
+                  onClick={toggleNotificationSidebar} 
+                  isOpen={isNotificationSidebarOpen} 
+                />
+              </motion.div>
+            </div>
           </div>
           
           {/* Welcome Banner */}
-                      <motion.div 
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 300, 
-                damping: 25,
-                delay: 0.1 
-              }}
-              whileHover={{ scale: 1.003 }}
+          <motion.div 
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 25,
+              delay: 0.1 
+            }}
+            whileHover={{ scale: 1.003 }}
             className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-8 mb-8 text-white shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300"
           >
-            <motion.h1 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-3xl font-bold mb-2 text-shadow-lg"
-            >
-              Welcome back, John! 👋
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-purple-100 text-lg"
-            >
-              Ready to help your community find their lost items today?
-            </motion.p>
+            <div className="flex justify-between items-start">
+              <div>
+                <motion.h1 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-3xl font-bold mb-2 text-shadow-lg"
+                >
+                  Welcome back, John! 👋
+                </motion.h1>
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-purple-100 text-lg"
+                >
+                  Ready to help your community find their lost items today?
+                </motion.p>
+              </div>
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+                whileHover={{ scale: 1.05 }}
+                onClick={() => setShowProfile(!showProfile)}
+                className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium"
+              >
+                {showProfile ? 'Hide' : 'View'} Profile
+              </motion.button>
+            </div>
           </motion.div>
+
+          {/* User Profile Section */}
+          {showProfile && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mb-8"
+            >
+              <UserProfile />
+            </motion.div>
+          )}
 
           {/* Quick Actions */}
           <motion.div 
