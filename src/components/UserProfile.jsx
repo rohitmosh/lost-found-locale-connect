@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Calendar, Eye, EyeOff } from 'lucide-react';
 import TrustScore from './TrustScore';
 import TrustScoreBreakdown from './TrustScoreBreakdown';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const UserProfile = ({ user = null, isCurrentUser = true }) => {
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -18,7 +19,7 @@ const UserProfile = ({ user = null, isCurrentUser = true }) => {
     avatar: null,
     location: 'San Francisco, CA',
     joinDate: 'January 2024',
-    trustScore: 85,
+    trustScore: 103,
     reportsSubmitted: 8,
     itemsFound: 3,
     itemsLost: 2
@@ -27,7 +28,7 @@ const UserProfile = ({ user = null, isCurrentUser = true }) => {
   return (
     <div className="space-y-6">
       {/* Profile Header */}
-      <Card className="hover:shadow-lg transition-shadow duration-300">
+      <Card className="hover:shadow-lg transition-shadow duration-300 rounded-3xl">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-6">
@@ -53,17 +54,8 @@ const UserProfile = ({ user = null, isCurrentUser = true }) => {
               </div>
             </div>
             
-            <div className="flex flex-col items-end space-y-4">
-              <TrustScore score={userData.trustScore} size="lg" />
-              
-              <div className="flex items-center space-x-2">
-                <Badge variant="outline" className="text-purple-600 border-purple-300">
-                  Verified Member
-                </Badge>
-                <Badge variant="outline" className="text-green-600 border-green-300">
-                  Community Helper
-                </Badge>
-              </div>
+            <div className="flex items-center justify-center min-w-[180px]">
+              <TrustScore score={userData.trustScore} size="lg" showBadges={false} />
             </div>
           </div>
         </CardHeader>
@@ -85,11 +77,19 @@ const UserProfile = ({ user = null, isCurrentUser = true }) => {
       </Card>
 
       {/* Trust Score Breakdown */}
-      {showBreakdown && (
-        <div className="animate-fade-in">
-          <TrustScoreBreakdown />
-        </div>
-      )}
+      <AnimatePresence>
+        {showBreakdown && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -20 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <TrustScoreBreakdown score={userData.trustScore} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -139,7 +139,7 @@ const Dashboard = () => {
             whileHover={{ scale: 1.003 }}
             className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-8 mb-8 text-white shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300"
           >
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-center">
               <div>
                 <motion.h1 
                   initial={{ opacity: 0 }}

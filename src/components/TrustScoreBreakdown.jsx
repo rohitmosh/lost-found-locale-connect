@@ -12,7 +12,7 @@ import {
   MessageCircleX
 } from 'lucide-react';
 
-const TrustScoreBreakdown = ({ userStats = null }) => {
+const TrustScoreBreakdown = ({ userStats = null, score = 103 }) => {
   // Default stats if none provided
   const stats = userStats || {
     successfulMatches: 3,
@@ -89,10 +89,10 @@ const TrustScoreBreakdown = ({ userStats = null }) => {
 
   const totalPositive = positiveMetrics.reduce((sum, metric) => sum + metric.points, 0);
   const totalNegative = negativeMetrics.reduce((sum, metric) => sum + metric.points, 0);
-  const totalScore = Math.max(0, totalPositive + totalNegative);
+  const totalScore = score || Math.max(0, totalPositive + totalNegative);
 
   return (
-    <Card className="w-full hover:shadow-lg transition-shadow duration-300">
+    <Card className="w-full hover:shadow-lg transition-shadow duration-300 rounded-3xl">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <TrendingUp className="h-5 w-5 text-purple-600" />
@@ -113,7 +113,7 @@ const TrustScoreBreakdown = ({ userStats = null }) => {
             {positiveMetrics.map((metric) => (
               <div 
                 key={metric.label}
-                className="flex items-center justify-between p-3 rounded-lg border hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
+                className="flex items-center justify-between p-3 rounded-lg border border-green-200 bg-green-50 dark:bg-green-900/10"
               >
                 <div className="flex items-center space-x-3">
                   <div className={`p-2 rounded-lg ${metric.color}`}>
