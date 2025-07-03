@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +10,6 @@ import {
   TrendingUp,
   AlertTriangle,
   UserX,
-  Spam,
   MessageCircleX
 } from 'lucide-react';
 
@@ -94,7 +92,7 @@ const TrustScoreBreakdown = ({ userStats }) => {
       label: 'Spam Posts',
       value: stats.spamPosts,
       points: stats.spamPosts * -3,
-      icon: Spam,
+      icon: AlertTriangle,
       color: 'text-red-600 bg-red-100'
     },
     {
