@@ -5,8 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { 
   CheckCircle, 
   Clock, 
-  MessageSquare, 
-  Camera, 
   Calendar,
   TrendingUp,
   AlertTriangle,
@@ -20,8 +18,6 @@ const TrustScoreBreakdown = ({ userStats = null }) => {
     successfulMatches: 3,
     reportAccuracy: 8,
     quickResponses: 12,
-    completeProfiles: 5,
-    communityEngagement: 15,
     accountMonths: 6,
     falseReports: 0,
     noShows: 1,
@@ -50,20 +46,6 @@ const TrustScoreBreakdown = ({ userStats = null }) => {
       points: stats.quickResponses * 3,
       icon: Clock,
       color: 'text-purple-600 bg-purple-100'
-    },
-    {
-      label: 'Complete Profiles',
-      value: stats.completeProfiles,
-      points: stats.completeProfiles * 2,
-      icon: Camera,
-      color: 'text-indigo-600 bg-indigo-100'
-    },
-    {
-      label: 'Community Engagement',
-      value: stats.communityEngagement,
-      points: stats.communityEngagement * 1,
-      icon: MessageSquare,
-      color: 'text-cyan-600 bg-cyan-100'
     },
     {
       label: 'Account Longevity',

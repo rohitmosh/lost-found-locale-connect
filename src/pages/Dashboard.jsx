@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, MapPin, Bell, TrendingUp } from 'lucide-react';
+import { Plus, Search, MapPin, Bell, TrendingUp, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import NotificationSidebar from '../components/NotificationSidebar';
@@ -116,13 +115,6 @@ const Dashboard = () => {
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-              >
-                <TrustScore score={85} size="sm" showLabel={false} />
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: 0.2 }}
               >
                 <NotificationButton 
@@ -172,9 +164,10 @@ const Dashboard = () => {
                 transition={{ delay: 0.5 }}
                 whileHover={{ scale: 1.05 }}
                 onClick={() => setShowProfile(!showProfile)}
-                className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium"
+                className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-full transition-colors duration-200 text-sm font-medium flex items-center space-x-2"
               >
-                {showProfile ? 'Hide' : 'View'} Profile
+                <User size={20} />
+                <span>{showProfile ? 'Hide' : 'View'} Profile</span>
               </motion.button>
             </div>
           </motion.div>

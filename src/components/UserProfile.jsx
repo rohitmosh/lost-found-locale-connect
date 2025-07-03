@@ -30,7 +30,7 @@ const UserProfile = ({ user = null, isCurrentUser = true }) => {
       <Card className="hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
           <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               <Avatar className="w-20 h-20 border-4 border-purple-200 hover:scale-105 transition-transform duration-200">
                 <AvatarImage src={userData.avatar} />
                 <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
@@ -38,7 +38,7 @@ const UserProfile = ({ user = null, isCurrentUser = true }) => {
                 </AvatarFallback>
               </Avatar>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {userData.name}
                 </h2>
@@ -53,38 +53,24 @@ const UserProfile = ({ user = null, isCurrentUser = true }) => {
               </div>
             </div>
             
-            <TrustScore score={userData.trustScore} size="lg" />
+            <div className="flex flex-col items-end space-y-4">
+              <TrustScore score={userData.trustScore} size="lg" />
+              
+              <div className="flex items-center space-x-2">
+                <Badge variant="outline" className="text-purple-600 border-purple-300">
+                  Verified Member
+                </Badge>
+                <Badge variant="outline" className="text-green-600 border-green-300">
+                  Community Helper
+                </Badge>
+              </div>
+            </div>
           </div>
         </CardHeader>
         
         <CardContent>
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-purple-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow duration-200">
-              <div className="text-2xl font-bold text-purple-600">{userData.reportsSubmitted}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Reports Submitted</div>
-            </div>
-            <div className="text-center p-4 bg-green-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow duration-200">
-              <div className="text-2xl font-bold text-green-600">{userData.itemsFound}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Items Found</div>
-            </div>
-            <div className="text-center p-4 bg-blue-50 dark:bg-gray-800 rounded-lg hover:shadow-md transition-shadow duration-200">
-              <div className="text-2xl font-bold text-blue-600">{userData.itemsLost}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Items Lost</div>
-            </div>
-          </div>
-
           {/* Trust Score Actions */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="text-purple-600 border-purple-300">
-                Verified Member
-              </Badge>
-              <Badge variant="outline" className="text-green-600 border-green-300">
-                Community Helper
-              </Badge>
-            </div>
-            
+          <div className="flex justify-center">
             <Button
               variant="outline"
               size="sm"
