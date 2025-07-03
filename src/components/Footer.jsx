@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, Bell, Mail } from 'lucide-react';
@@ -63,7 +64,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Support */}
           <div>
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
               Support
@@ -80,18 +81,18 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/about"
+                  to="/terms"
                   className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 text-sm"
                 >
-                  About Us
+                  Terms & Conditions
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/terms"
+                  to="/privacy"
                   className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 text-sm"
                 >
-                  Terms & Privacy
+                  Privacy Policy
                 </Link>
               </li>
             </ul>

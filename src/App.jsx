@@ -14,6 +14,8 @@ import ReportLostItem from "./pages/ReportLostItem";
 import ReportFoundItem from "./pages/ReportFoundItem";
 import Reports from "./pages/Reports";
 import HowItWorks from "./pages/HowItWorks";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
             <Route path="/report-found" element={<ReportFoundItem />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
