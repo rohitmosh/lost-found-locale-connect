@@ -1,36 +1,39 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
 import AuthHeader from '../components/AuthHeader';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(null); // Clear error when user types
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     
-    // Mock login
-    setTimeout(() => {
-      setIsLoading(false);
-      console.log('Login submitted:', formData);
-      
-      // Set authentication in localStorage
-      localStorage.setItem('isAuthenticated', 'true');
-      
-      // Redirect to dashboard
+    try {
+      await login(formData);
       navigate('/dashboard');
-    }, 1000);
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.response?.data?.error || 'Invalid email or password. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -50,6 +53,14 @@ const Login = () => {
                 Sign in to your account to continue
               </p>
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 flex items-start">
+                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">

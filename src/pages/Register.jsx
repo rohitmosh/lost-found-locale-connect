@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import AuthHeader from '../components/AuthHeader';
+import { useAuth } from '../contexts/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,26 +16,43 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(null); // Clear error when user types
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     
-    // Mock registration
-    setTimeout(() => {
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords don't match");
       setIsLoading(false);
-      console.log('Registration submitted:', formData);
-      
-      // Set authentication in localStorage
-      localStorage.setItem('isAuthenticated', 'true');
-      
-      // Redirect to dashboard
+      return;
+    }
+    
+    // Validate password length (max 10 characters as per DB requirement)
+    if (formData.password.length > 10) {
+      setError("Password must be 10 characters or less");
+      setIsLoading(false);
+      return;
+    }
+    
+    try {
+      // Remove confirmPassword before sending to API
+      const { confirmPassword, ...userData } = formData;
+      await register(userData);
       navigate('/dashboard');
-    }, 1000);
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err.response?.data?.error || 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,6 +72,14 @@ const Register = () => {
                 Create your account to start helping your community
               </p>
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 flex items-start">
+                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -97,7 +124,7 @@ const Register = () => {
               {/* Password Field */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Password
+                  Password (10 characters max)
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -105,10 +132,11 @@ const Register = () => {
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     required
+                    maxLength={10}
                     value={formData.password}
                     onChange={handleChange}
                     className="w-full pl-10 pr-12 py-3 border border-purple-200 dark:border-purple-800 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Create a password"
+                    placeholder="Create a password (max 10 chars)"
                   />
                   <button
                     type="button"
@@ -131,6 +159,7 @@ const Register = () => {
                     type={showConfirmPassword ? 'text' : 'password'}
                     name="confirmPassword"
                     required
+                    maxLength={10}
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className="w-full pl-10 pr-12 py-3 border border-purple-200 dark:border-purple-800 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"

@@ -3,6 +3,7 @@
     "uid": "user001",
     "email": "aditya.sharma@gmail.com",
     "name": "Aditya Sharma",
+    "password": "Aditya@123",
     "phone": "+91 9876543210",
     "profilePic": "https://randomuser.me/api/portraits/men/1.jpg",
     "location": {
@@ -28,6 +29,7 @@
     "uid": "user002",
     "email": "priya.patel@outlook.com",
     "name": "Priya Patel",
+    "password": "Priya@123",
     "phone": "+91 8765432109",
     "profilePic": "https://randomuser.me/api/portraits/women/2.jpg",
     "location": {
@@ -53,6 +55,7 @@
     "uid": "user003",
     "email": "rahul.verma@gmail.com",
     "name": "Rahul Verma",
+    "password": "Rahul@123",
     "phone": "+91 7654321098",
     "profilePic": "https://randomuser.me/api/portraits/men/3.jpg",
     "location": {
@@ -78,6 +81,7 @@
     "uid": "user004",
     "email": "ananya.gupta@yahoo.com",
     "name": "Ananya Gupta",
+    "password": "Ananya@12",
     "phone": "+91 6543210987",
     "profilePic": "https://randomuser.me/api/portraits/women/4.jpg",
     "location": {
@@ -103,6 +107,7 @@
     "uid": "user005",
     "email": "vikram.singh@hotmail.com",
     "name": "Vikram Singh",
+    "password": "Vikram@12",
     "phone": "+91 5432109876",
     "profilePic": "https://randomuser.me/api/portraits/men/5.jpg",
     "location": {
@@ -128,6 +133,7 @@
     "uid": "user006",
     "email": "meera.krishnan@gmail.com",
     "name": "Meera Krishnan",
+    "password": "Meera@123",
     "phone": "+91 9876123456",
     "profilePic": "https://randomuser.me/api/portraits/women/6.jpg",
     "location": {
@@ -153,6 +159,7 @@
     "uid": "user007",
     "email": "arjun.nair@outlook.com",
     "name": "Arjun Nair",
+    "password": "Arjun@123",
     "phone": "+91 8765123456",
     "profilePic": "https://randomuser.me/api/portraits/men/7.jpg",
     "location": {
@@ -178,6 +185,7 @@
     "uid": "user008",
     "email": "neha.reddy@gmail.com",
     "name": "Neha Reddy",
+    "password": "Neha@1234",
     "phone": "+91 7654123456",
     "profilePic": "https://randomuser.me/api/portraits/women/8.jpg",
     "location": {
@@ -203,6 +211,7 @@
     "uid": "user009",
     "email": "karthik.menon@yahoo.com",
     "name": "Karthik Menon",
+    "password": "Karthik@1",
     "phone": "+91 6543123456",
     "profilePic": "https://randomuser.me/api/portraits/men/9.jpg",
     "location": {
@@ -228,6 +237,7 @@
     "uid": "user010",
     "email": "divya.kumar@gmail.com",
     "name": "Divya Kumar",
+    "password": "Divya@123",
     "phone": "+91 5432123456",
     "profilePic": "https://randomuser.me/api/portraits/women/10.jpg",
     "location": {

@@ -15,6 +15,7 @@ import HowItWorks from "./pages/HowItWorks";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -24,17 +25,24 @@ const App = () => (
       <Toaster />
       <Sonner />
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/map" element={<Map />} />
-        <Route path="/report-lost" element={<ReportLostItem />} />
-        <Route path="/report-found" element={<ReportFoundItem />} />
-        <Route path="/reports" element={<Reports />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+        
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/map" element={<Map />} />
+          <Route path="/report-lost" element={<ReportLostItem />} />
+          <Route path="/report-found" element={<ReportFoundItem />} />
+          <Route path="/reports" element={<Reports />} />
+        </Route>
+        
+        {/* 404 Route */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </TooltipProvider>

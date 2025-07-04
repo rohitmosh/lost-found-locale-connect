@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:full": "concurrently \"npm run dev\" \"npm run dev:server\"",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint . --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -12,7 +13,9 @@
     "server": "node server/server.js",
     "dev:server": "nodemon server/server.js",
     "setup:env": "node server/createEnvFile.js",
-    "test:db": "node server/testConnection.js"
+    "test:db": "node server/testConnection.js",
+    "import:mockdata": "node server/importMockData.js",
+    "check:db": "node server/checkCollections.js"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.10",
@@ -85,6 +88,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.0",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",

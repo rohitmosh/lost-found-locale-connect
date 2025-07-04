@@ -1,95 +1,66 @@
-
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { MapPin, Calendar, Eye, EyeOff } from 'lucide-react';
+import React from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { LogOut, Settings, User as UserIcon } from 'lucide-react';
 import TrustScore from './TrustScore';
-import TrustScoreBreakdown from './TrustScoreBreakdown';
-import { motion, AnimatePresence } from 'framer-motion';
 
-const UserProfile = ({ user = null, isCurrentUser = true }) => {
-  const [showBreakdown, setShowBreakdown] = useState(false);
+const UserProfile = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-  // Default user data if none provided
-  const userData = user || {
-    name: 'John Doe',
-    email: 'john@example.com',
-    avatar: null,
-    location: 'San Francisco, CA',
-    joinDate: 'January 2024',
-    trustScore: 103,
-    reportsSubmitted: 8,
-    itemsFound: 3,
-    itemsLost: 2
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Profile Header */}
-      <Card className="hover:shadow-lg transition-shadow duration-300 rounded-3xl">
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-6">
-              <Avatar className="w-20 h-20 border-4 border-purple-200 hover:scale-105 transition-transform duration-200">
-                <AvatarImage src={userData.avatar} />
-                <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
-                  {userData.name.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="space-y-3">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {userData.name}
-                </h2>
-                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                  <MapPin size={16} />
-                  <span>{userData.location}</span>
-                </div>
-                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                  <Calendar size={16} />
-                  <span>Member since {userData.joinDate}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-center min-w-[180px]">
-              <TrustScore score={userData.trustScore} size="lg" showBadges={false} />
-            </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent>
-          {/* Trust Score Actions */}
-          <div className="flex justify-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowBreakdown(!showBreakdown)}
-              className="flex items-center space-x-2 hover:bg-purple-50 dark:hover:bg-gray-800"
-            >
-              {showBreakdown ? <EyeOff size={16} /> : <Eye size={16} />}
-              <span>{showBreakdown ? 'Hide' : 'Show'} Score Details</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+  if (!user) {
+    return null;
+  }
 
-      {/* Trust Score Breakdown */}
-      <AnimatePresence>
-        {showBreakdown && (
-          <motion.div
-            initial={{ opacity: 0, height: 0, y: -20 }}
-            animate={{ opacity: 1, height: 'auto', y: 0 }}
-            exit={{ opacity: 0, height: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 w-full">
+      <div className="flex items-center mb-6">
+        <div className="relative">
+          {user.profilePicture ? (
+            <img
+              src={user.profilePicture}
+              alt={user.name}
+              className="w-20 h-20 rounded-full object-cover border-2 border-purple-500"
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+              <UserIcon className="w-10 h-10 text-purple-500" />
+            </div>
+          )}
+          <div className="absolute -bottom-2 -right-2 bg-green-500 w-5 h-5 rounded-full border-2 border-white dark:border-gray-800"></div>
+        </div>
+        <div className="ml-4 flex-1">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user.name}</h2>
+          <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
+          <div className="mt-2">
+            <TrustScore score={user.trustScore || 0} size="sm" />
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => navigate('/profile/settings')}
+            className="flex items-center text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
           >
-            <TrustScoreBreakdown score={userData.trustScore} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <Settings className="w-4 h-4 mr-2" />
+            <span>Settings</span>
+          </button>
+          <button
+            onClick={handleLogout}
+            className="flex items-center text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

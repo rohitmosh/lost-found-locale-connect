@@ -44,7 +44,7 @@ const connectDB = require('./db/connection');
 connectDB();
 
 // Route files
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require('./routes/auth');
 const lostItemRoutes = require('./routes/lostItemRoutes');
 const foundItemRoutes = require('./routes/foundItemRoutes');
 
