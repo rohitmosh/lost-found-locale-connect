@@ -625,18 +625,18 @@ const Map = () => {
       // Request the user's location
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const location = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
+        const location = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
           
           // Update state with the new location
-          setUserLocation(location);
+        setUserLocation(location);
           
           // If the map is initialized, pan to the location
-          if (googleMapRef.current) {
-            googleMapRef.current.panTo(location);
-            googleMapRef.current.setZoom(15);
+        if (googleMapRef.current) {
+          googleMapRef.current.panTo(location);
+          googleMapRef.current.setZoom(15);
             
             // Add user location marker if it doesn't exist
             const userMarker = new window.google.maps.Marker({
