@@ -23,7 +23,7 @@ const authenticateToken = async (req, res, next) => {
     
     // Connect to MongoDB
     await client.connect();
-    const db = client.db('lost_found_db');
+    const db = client.db('lostfoundapp');
     const usersCollection = db.collection('users');
     
     // Find user by ID
@@ -56,7 +56,7 @@ router.post('/register', async (req, res) => {
     
     // Connect to MongoDB
     await client.connect();
-    const db = client.db('lost_found_db');
+    const db = client.db('lostfoundapp');
     const usersCollection = db.collection('users');
     
     // Check if user already exists
@@ -120,24 +120,32 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Please provide email and password.' });
     }
     
+    console.log(`Attempting login for email: ${email}`);
+    
     // Connect to MongoDB
     await client.connect();
-    const db = client.db('lost_found_db');
+    const db = client.db('lostfoundapp');
     const usersCollection = db.collection('users');
     
     // Find user by email
     const user = await usersCollection.findOne({ email });
     
     if (!user) {
+      console.log(`User not found with email: ${email}`);
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
+    
+    console.log(`User found: ${user.name}, checking password...`);
     
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     
     if (!isMatch) {
+      console.log('Password does not match');
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
+    
+    console.log('Password matches, generating token...');
     
     // Create JWT token
     const token = jwt.sign(
@@ -153,6 +161,8 @@ router.post('/login', async (req, res) => {
       email: user.email,
       trustScore: user.trustScore || 0
     };
+    
+    console.log('Login successful, returning user data and token');
     
     res.json({
       success: true,
@@ -187,7 +197,7 @@ router.put('/me', authenticateToken, async (req, res) => {
     
     // Connect to MongoDB
     await client.connect();
-    const db = client.db('lost_found_db');
+    const db = client.db('lostfoundapp');
     const usersCollection = db.collection('users');
     
     // Check if email is already taken by another user
@@ -239,7 +249,7 @@ router.put('/change-password', authenticateToken, async (req, res) => {
     
     // Connect to MongoDB
     await client.connect();
-    const db = client.db('lost_found_db');
+    const db = client.db('lostfoundapp');
     const usersCollection = db.collection('users');
     
     // Find user by ID

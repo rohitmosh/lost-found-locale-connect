@@ -20,24 +20,47 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Add response interceptor for debugging
+api.interceptors.response.use(
+  (response) => {
+    console.log('API Response:', response);
+    return response;
+  },
+  (error) => {
+    console.error('API Error:', error.response || error);
+    return Promise.reject(error);
+  }
+);
+
 // Auth services
 export const authService = {
   register: async (userData) => {
     const response = await api.post('/auth/register', userData);
-    if (response.data.data.token) {
+    if (response.data && response.data.success && response.data.data && response.data.data.token) {
       localStorage.setItem('token', response.data.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.data));
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
     }
     return response.data;
   },
   
   login: async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
-    if (response.data.data.token) {
-      localStorage.setItem('token', response.data.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.data));
+    console.log('Login attempt with:', credentials);
+    try {
+      const response = await api.post('/auth/login', credentials);
+      console.log('Login response:', response);
+      
+      if (response.data && response.data.success && response.data.data && response.data.data.token) {
+        localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data.user));
+        return response.data;
+      } else {
+        console.error('Login response missing token or user data:', response.data);
+        throw new Error('Invalid response format from server');
+      }
+    } catch (error) {
+      console.error('Login error in service:', error);
+      throw error;
     }
-    return response.data;
   },
   
   logout: () => {

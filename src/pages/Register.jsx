@@ -43,13 +43,27 @@ const Register = () => {
     }
     
     try {
+      console.log('Submitting registration form with:', formData);
+      
       // Remove confirmPassword before sending to API
       const { confirmPassword, ...userData } = formData;
-      await register(userData);
+      const response = await register(userData);
+      console.log('Registration response in component:', response);
+      
+      // If we got here, registration was successful
       navigate('/dashboard');
     } catch (err) {
-      console.error('Registration error:', err);
-      setError(err.response?.data?.error || 'Registration failed. Please try again.');
+      console.error('Registration error in component:', err);
+      
+      // Try to extract the error message from the response
+      let errorMessage = 'Registration failed. Please try again.';
+      if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -26,11 +26,24 @@ const Login = () => {
     setError(null);
     
     try {
-      await login(formData);
+      console.log('Submitting login form with:', formData);
+      const response = await login(formData);
+      console.log('Login response in component:', response);
+      
+      // If we got here, login was successful
       navigate('/dashboard');
     } catch (err) {
-      console.error('Login error:', err);
-      setError(err.response?.data?.error || 'Invalid email or password. Please try again.');
+      console.error('Login error in component:', err);
+      
+      // Try to extract the error message from the response
+      let errorMessage = 'Invalid email or password. Please try again.';
+      if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
