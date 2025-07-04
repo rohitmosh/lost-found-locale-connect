@@ -54,7 +54,32 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
   const handleUseCurrentLocation = async () => {
     try {
       setIsLoading(true);
-      const location = await getUserLocation();
+      
+      // Request user's location with a promise
+      const position = await new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error('Geolocation is not supported by your browser'));
+          return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+          (position) => resolve(position),
+          (error) => reject(error),
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+      });
+      
+      // Extract coordinates
+      const location = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      
+      // Update map center if map is available
       if (location && mapRef.current) {
         // Update map center
         mapRef.current.panTo(location);
@@ -70,7 +95,26 @@ const MapSelector = ({ onLocationChange, initialLocation, containerClassName }) 
       }
     } catch (error) {
       console.error('Error getting user location:', error);
-      // Could show a toast notification here
+      
+      // Show appropriate error message based on error code
+      let errorMessage = 'Could not get your location.';
+      
+      if (error.code) {
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Location permission denied. Please enable location services for this website.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information is unavailable. Please try again.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out. Please try again.';
+            break;
+        }
+      }
+      
+      // Show error message
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }

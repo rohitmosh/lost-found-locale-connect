@@ -210,23 +210,28 @@ const Map = () => {
       setMapInitialized(true);
 
       // Get user location if available
+      let initialLocation = { lat: 40.7589, lng: -73.9851 }; // Default to NYC
+      
       try {
         if (navigator.geolocation) {
           const position = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
               enableHighAccuracy: true,
-              timeout: 5000,
+              timeout: 10000, // Increased timeout to 10 seconds
               maximumAge: 0
             });
           });
           
-          setUserLocation({
+          initialLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
-          });
+          };
+          
+          setUserLocation(initialLocation);
         }
       } catch (error) {
         console.log('Could not get user location:', error.message);
+        // Continue with default location
       }
 
       // Create custom map style for dark mode
@@ -273,7 +278,7 @@ const Map = () => {
 
       // Create map
       const mapOptions = {
-        center: userLocation || { lat: 40.7589, lng: -73.9851 }, // Use user location or default to NYC
+        center: initialLocation, // Use user location or default
         zoom: 13,
         styles: isDark ? darkMapStyle : [],
         disableDefaultUI: true,
@@ -289,9 +294,9 @@ const Map = () => {
       googleMapRef.current = new window.google.maps.Map(mapRef.current, mapOptions);
       
       // Add user location marker if available
-      if (userLocation) {
+      if (initialLocation && (initialLocation.lat !== 40.7589 || initialLocation.lng !== -73.9851)) {
         const userMarker = new window.google.maps.Marker({
-          position: userLocation,
+          position: initialLocation,
           map: googleMapRef.current,
           icon: {
             path: window.google.maps.SymbolPath.CIRCLE,
@@ -307,7 +312,7 @@ const Map = () => {
         
         // Add pulsing effect
         const pulseMarker = new window.google.maps.Marker({
-          position: userLocation,
+          position: initialLocation,
           map: googleMapRef.current,
           icon: {
             path: window.google.maps.SymbolPath.CIRCLE,
@@ -367,7 +372,7 @@ const Map = () => {
     } else {
       initMap();
     }
-  }, [isDark, userLocation]);
+  }, [isDark]);
 
   // Update markers when filtered items change
   useEffect(() => {
@@ -610,20 +615,111 @@ const Map = () => {
   // Handle my location button click
   const handleMyLocation = () => {
     if (userLocation && googleMapRef.current) {
+      // If we already have the user's location, just pan to it
       googleMapRef.current.panTo(userLocation);
       googleMapRef.current.setZoom(15);
     } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const location = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        setUserLocation(location);
-        if (googleMapRef.current) {
-          googleMapRef.current.panTo(location);
-          googleMapRef.current.setZoom(15);
+      // Show loading state
+      setIsLoading(true);
+      
+      // Request the user's location
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          // Update state with the new location
+          setUserLocation(location);
+          
+          // If the map is initialized, pan to the location
+          if (googleMapRef.current) {
+            googleMapRef.current.panTo(location);
+            googleMapRef.current.setZoom(15);
+            
+            // Add user location marker if it doesn't exist
+            const userMarker = new window.google.maps.Marker({
+              position: location,
+              map: googleMapRef.current,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                fillColor: '#8B5CF6',
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 2,
+                scale: 8
+              },
+              title: 'Your Location',
+              zIndex: 1000
+            });
+            
+            // Add pulsing effect
+            const pulseMarker = new window.google.maps.Marker({
+              position: location,
+              map: googleMapRef.current,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                fillColor: '#8B5CF6',
+                fillOpacity: 0.4,
+                strokeColor: '#8B5CF6',
+                strokeWeight: 1,
+                scale: 16
+              },
+              zIndex: 999
+            });
+            
+            // Animate pulsing effect
+            let scale = 16;
+            const animateMarker = () => {
+              scale = scale === 16 ? 24 : 16;
+              pulseMarker.setIcon({
+                ...pulseMarker.getIcon(),
+                scale: scale
+              });
+              setTimeout(animateMarker, 1000);
+            };
+            
+            animateMarker();
+          }
+          
+          // Hide loading state
+          setIsLoading(false);
+        },
+        (error) => {
+          // Handle errors
+          console.error('Error getting location:', error);
+          
+          // Show appropriate error message based on error code
+          let errorMessage = 'Could not get your location.';
+          
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location permission denied. Please enable location services for this website.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information is unavailable. Please try again.';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out. Please try again.';
+              break;
+          }
+          
+          // You could show a toast notification here with the error message
+          alert(errorMessage);
+          
+          // Hide loading state
+          setIsLoading(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
-      });
+      );
+    } else {
+      // Browser doesn't support geolocation
+      alert('Geolocation is not supported by your browser');
     }
   };
 

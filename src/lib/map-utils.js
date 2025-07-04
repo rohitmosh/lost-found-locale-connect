@@ -52,21 +52,47 @@ export const getUserLocation = () => {
       return;
     }
     
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
+    const successCallback = (position) => {
+      if (position && position.coords) {
         resolve({
           lat: position.coords.latitude,
           lng: position.coords.longitude
         });
-      },
-      (error) => {
-        reject(error);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
+      } else {
+        reject(new Error('Invalid position data received'));
       }
+    };
+    
+    const errorCallback = (error) => {
+      console.error('Geolocation error:', error.message);
+      
+      // Provide more specific error messages based on error code
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          reject(new Error('Location permission denied. Please enable location services for this website.'));
+          break;
+        case error.POSITION_UNAVAILABLE:
+          reject(new Error('Location information is unavailable. Please try again.'));
+          break;
+        case error.TIMEOUT:
+          reject(new Error('Location request timed out. Please try again.'));
+          break;
+        default:
+          reject(new Error(`Location error: ${error.message}`));
+      }
+    };
+    
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000, // Increased timeout to 10 seconds
+      maximumAge: 0
+    };
+    
+    // Try to get current position
+    navigator.geolocation.getCurrentPosition(
+      successCallback,
+      errorCallback,
+      options
     );
   });
 };
