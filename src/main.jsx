@@ -6,14 +6,33 @@ import './index.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
-createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </ThemeProvider>
-    </BrowserRouter>
-  </React.StrictMode>
-);
+// Error boundary for development
+if (import.meta.env.DEV) {
+  window.addEventListener('error', (event) => {
+    console.error('Global error caught:', event.error);
+  });
+}
+
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  console.error("Failed to find the root element");
+} else {
+  const root = createRoot(rootElement);
+  
+  try {
+    root.render(
+      <React.StrictMode>
+        <BrowserRouter>
+          <ThemeProvider>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </ThemeProvider>
+        </BrowserRouter>
+      </React.StrictMode>
+    );
+  } catch (error) {
+    console.error("Error rendering the app:", error);
+  }
+}
