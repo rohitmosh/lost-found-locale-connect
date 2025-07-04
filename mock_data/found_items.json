@@ -1,0 +1,167 @@
+[
+  {
+    "reportId": "FI-2024-123456",
+    "userId": "user002",
+    "title": "Found iPhone in Leather Case",
+    "description": "Found an iPhone 13 Pro with black leather case on a table at Phoenix Marketcity food court. The screen protector is cracked but phone works fine.",
+    "category": "Electronics",
+    "subcategory": "Mobile Phone",
+    "itemValue": "High",
+    "foundDate": "2024-05-12T19:30:00Z",
+    "location": {
+      "address": "Phoenix Marketcity, Whitefield",
+      "area": "Whitefield",
+      "landmark": "Food court, table near KFC",
+      "lat": 12.9958,
+      "lng": 77.6969
+    },
+    "currentItemLocation": "have-with-me",
+    "images": ["https://example.com/images/found-iphone13.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What is the lock screen wallpaper?",
+      "What is the phone number associated with the device?",
+      "What is the phone's color?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": true,
+      "preferredMethod": "app"
+    },
+    "returnMethod": "meet-in-person",
+    "createdAt": "2024-05-12T20:15:00Z",
+    "updatedAt": "2024-05-12T20:15:00Z",
+    "tags": ["iphone", "phone", "mobile", "electronics", "apple"]
+  },
+  {
+    "reportId": "FI-2024-234567",
+    "userId": "user004",
+    "title": "Gold Ring Found at The Leela",
+    "description": "Found a gold ring with a ruby stone in the women's restroom at The Leela Palace hotel. Seems to be an antique design.",
+    "category": "Jewelry",
+    "subcategory": "Rings",
+    "itemValue": "High",
+    "foundDate": "2024-05-08T22:15:00Z",
+    "location": {
+      "address": "The Leela Palace, Old Airport Road",
+      "area": "Old Airport Road",
+      "landmark": "Women's restroom near the ballroom",
+      "lat": 12.9606,
+      "lng": 77.6484
+    },
+    "currentItemLocation": "security-authority",
+    "images": ["https://example.com/images/found-gold-ring.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What specific design elements does the ring have?",
+      "What is engraved inside the ring?",
+      "When and where did you lose it?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": true,
+      "preferredMethod": "app"
+    },
+    "returnMethod": "meet-in-person",
+    "createdAt": "2024-05-09T09:30:00Z",
+    "updatedAt": "2024-05-09T09:30:00Z",
+    "tags": ["jewelry", "ring", "gold", "ruby", "valuable"]
+  },
+  {
+    "reportId": "FI-2024-345678",
+    "userId": "user007",
+    "title": "Blue Nike Backpack Found",
+    "description": "Found a navy blue Nike backpack on a bench in Cubbon Park. Contains textbooks and a water bottle. Will keep it safe until the owner claims it.",
+    "category": "Bags & Luggage",
+    "subcategory": "Backpack",
+    "itemValue": "Medium",
+    "foundDate": "2024-05-10T15:00:00Z",
+    "location": {
+      "address": "Cubbon Park, Bangalore",
+      "area": "Central Bangalore",
+      "landmark": "Bench near the library entrance",
+      "lat": 12.9763,
+      "lng": 77.5929
+    },
+    "currentItemLocation": "have-with-me",
+    "images": ["https://example.com/images/found-blue-backpack.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What brand of water bottle is inside?",
+      "What specific textbooks are in the bag?",
+      "Is there anything else distinctive inside the bag?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": false,
+      "preferredMethod": "email"
+    },
+    "returnMethod": "meet-in-person",
+    "createdAt": "2024-05-10T16:20:00Z",
+    "updatedAt": "2024-05-10T16:20:00Z",
+    "tags": ["backpack", "blue", "nike", "school"]
+  },
+  {
+    "reportId": "FI-2024-456789",
+    "userId": "user009",
+    "title": "Car Keys Found in Koramangala Park",
+    "description": "Found Honda car keys with a red keychain in the park at Koramangala 4th Block. Has remote fob attached.",
+    "category": "Keys",
+    "subcategory": "Car Keys",
+    "itemValue": "Medium",
+    "foundDate": "2024-05-12T20:30:00Z",
+    "location": {
+      "address": "Koramangala 4th Block Park",
+      "area": "Koramangala",
+      "landmark": "Near the children's play area",
+      "lat": 12.9336,
+      "lng": 77.6142
+    },
+    "currentItemLocation": "have-with-me",
+    "images": ["https://example.com/images/found-honda-keys.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What is attached to the keychain besides the car key?",
+      "What is the exact car model these keys belong to?",
+      "What color is your vehicle?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": false,
+      "preferredMethod": "both"
+    },
+    "returnMethod": "meet-in-person",
+    "createdAt": "2024-05-12T21:15:00Z",
+    "updatedAt": "2024-05-12T21:15:00Z",
+    "tags": ["keys", "car", "honda", "keychain"]
+  },
+  {
+    "reportId": "FI-2024-567890",
+    "userId": "user005",
+    "title": "AirPods Pro Found at Starbucks",
+    "description": "Found AirPods Pro with charging case at Starbucks Indiranagar. The case has a scratch on the back. Left them with the store manager.",
+    "category": "Electronics",
+    "subcategory": "Audio Equipment",
+    "itemValue": "Medium",
+    "foundDate": "2024-05-11T12:00:00Z",
+    "location": {
+      "address": "Starbucks, 100 Feet Road, Indiranagar",
+      "area": "Indiranagar",
+      "landmark": "Window seating area",
+      "lat": 12.9784,
+      "lng": 77.6408
+    },
+    "currentItemLocation": "security-authority",
+    "images": ["https://example.com/images/found-airpods.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What is the device name of these AirPods?",
+      "Do you know the serial number or any identifying details?",
+      "When exactly did you leave them at Starbucks?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": true,
+      "preferredMethod": "app"
+    },
+    "returnMethod": "pickup",
+    "createdAt": "2024-05-11T13:45:00Z",
+    "updatedAt": "2024-05-11T13:45:00Z",
+    "tags": ["airpods", "apple", "electronics", "headphones"]
+  }
+] 

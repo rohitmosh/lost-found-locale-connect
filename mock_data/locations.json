@@ -1,0 +1,233 @@
+[
+  {
+    "_id": "loc001",
+    "itemId": "LF-2024-123456",
+    "itemType": "lost",
+    "category": "Bags & Luggage",
+    "title": "Blue Nike Backpack",
+    "description": "Navy blue Nike backpack with white logo",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.5929, 12.9763]
+    },
+    "address": "Cubbon Park, Bangalore",
+    "area": "Central Bangalore",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Near the library",
+    "createdAt": "2024-05-10T16:45:00Z",
+    "updatedAt": "2024-05-10T16:45:00Z",
+    "status": "active"
+  },
+  {
+    "_id": "loc002",
+    "itemId": "LF-2024-234567",
+    "itemType": "lost",
+    "category": "Electronics",
+    "title": "iPhone 13 Pro with Black Case",
+    "description": "iPhone 13 Pro with black leather case",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.6969, 12.9958]
+    },
+    "address": "Phoenix Marketcity, Whitefield",
+    "area": "Whitefield",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Food court area",
+    "createdAt": "2024-05-12T20:30:00Z",
+    "updatedAt": "2024-05-12T20:30:00Z",
+    "status": "active"
+  },
+  {
+    "_id": "loc003",
+    "itemId": "LF-2024-345678",
+    "itemType": "lost",
+    "category": "Jewelry",
+    "title": "Gold Ring with Ruby Stone",
+    "description": "Gold ring with ruby stone, antique design",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.6484, 12.9606]
+    },
+    "address": "The Leela Palace, Old Airport Road",
+    "area": "Old Airport Road",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Hotel ballroom",
+    "createdAt": "2024-05-09T10:15:00Z",
+    "updatedAt": "2024-05-09T10:15:00Z",
+    "status": "active"
+  },
+  {
+    "_id": "loc004",
+    "itemId": "LF-2024-456789",
+    "itemType": "lost",
+    "category": "Electronics",
+    "title": "White AirPods Pro with Case",
+    "description": "AirPods Pro with charging case",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.6408, 12.9784]
+    },
+    "address": "Starbucks, 100 Feet Road, Indiranagar",
+    "area": "Indiranagar",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Window seating area",
+    "createdAt": "2024-05-11T14:25:00Z",
+    "updatedAt": "2024-05-11T14:25:00Z",
+    "status": "active"
+  },
+  {
+    "_id": "loc005",
+    "itemId": "LF-2024-567890",
+    "itemType": "lost",
+    "category": "Personal Accessories",
+    "title": "Black Leather Wallet",
+    "description": "Black leather wallet with ID cards and cash",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.6072, 12.9719]
+    },
+    "address": "Brigade Road, Bangalore",
+    "area": "Central Bangalore",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Near Starbucks",
+    "createdAt": "2024-05-13T17:30:00Z",
+    "updatedAt": "2024-05-13T17:30:00Z",
+    "status": "active"
+  },
+  {
+    "_id": "loc006",
+    "itemId": "LF-2024-678901",
+    "itemType": "lost",
+    "category": "Keys",
+    "title": "Car Keys with Remote Fob",
+    "description": "Honda City car keys with red keychain",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.6142, 12.9336]
+    },
+    "address": "Koramangala 4th Block",
+    "area": "Koramangala",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Near the park",
+    "createdAt": "2024-05-12T21:45:00Z",
+    "updatedAt": "2024-05-12T21:45:00Z",
+    "status": "active"
+  },
+  {
+    "_id": "loc007",
+    "itemId": "FI-2024-123456",
+    "itemType": "found",
+    "category": "Electronics",
+    "title": "Found iPhone in Leather Case",
+    "description": "iPhone 13 Pro with black leather case",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.6969, 12.9958]
+    },
+    "address": "Phoenix Marketcity, Whitefield",
+    "area": "Whitefield",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Food court, table near KFC",
+    "createdAt": "2024-05-12T20:15:00Z",
+    "updatedAt": "2024-05-12T20:15:00Z",
+    "status": "active"
+  },
+  {
+    "_id": "loc008",
+    "itemId": "FI-2024-234567",
+    "itemType": "found",
+    "category": "Jewelry",
+    "title": "Gold Ring Found at The Leela",
+    "description": "Gold ring with ruby stone, antique design",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.6484, 12.9606]
+    },
+    "address": "The Leela Palace, Old Airport Road",
+    "area": "Old Airport Road",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Women's restroom near the ballroom",
+    "createdAt": "2024-05-09T09:30:00Z",
+    "updatedAt": "2024-05-09T09:30:00Z",
+    "status": "active"
+  },
+  {
+    "_id": "loc009",
+    "itemId": "FI-2024-345678",
+    "itemType": "found",
+    "category": "Bags & Luggage",
+    "title": "Blue Nike Backpack Found",
+    "description": "Navy blue Nike backpack with textbooks",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.5929, 12.9763]
+    },
+    "address": "Cubbon Park, Bangalore",
+    "area": "Central Bangalore",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Bench near the library entrance",
+    "createdAt": "2024-05-10T16:20:00Z",
+    "updatedAt": "2024-05-10T16:20:00Z",
+    "status": "active"
+  },
+  {
+    "_id": "loc010",
+    "itemId": "FI-2024-456789",
+    "itemType": "found",
+    "category": "Keys",
+    "title": "Car Keys Found in Koramangala Park",
+    "description": "Honda car keys with red keychain",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.6142, 12.9336]
+    },
+    "address": "Koramangala 4th Block Park",
+    "area": "Koramangala",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Near the children's play area",
+    "createdAt": "2024-05-12T21:15:00Z",
+    "updatedAt": "2024-05-12T21:15:00Z",
+    "status": "active"
+  },
+  {
+    "_id": "loc011",
+    "itemId": "FI-2024-567890",
+    "itemType": "found",
+    "category": "Electronics",
+    "title": "AirPods Pro Found at Starbucks",
+    "description": "AirPods Pro with charging case",
+    "position": {
+      "type": "Point",
+      "coordinates": [77.6408, 12.9784]
+    },
+    "address": "Starbucks, 100 Feet Road, Indiranagar",
+    "area": "Indiranagar",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "landmark": "Window seating area",
+    "createdAt": "2024-05-11T13:45:00Z",
+    "updatedAt": "2024-05-11T13:45:00Z",
+    "status": "active"
+  }
+] 

@@ -1,0 +1,192 @@
+[
+  {
+    "reportId": "LF-2024-123456",
+    "userId": "user001",
+    "title": "Blue Nike Backpack",
+    "description": "Lost my navy blue Nike backpack with a white logo. Contains textbooks and a water bottle. Last seen at Cubbon Park.",
+    "category": "Bags & Luggage",
+    "subcategory": "Backpack",
+    "itemValue": "Medium",
+    "lostDate": "2024-05-10T14:30:00Z",
+    "location": {
+      "address": "Cubbon Park, Bangalore",
+      "area": "Central Bangalore",
+      "landmark": "Near the library",
+      "lat": 12.9763,
+      "lng": 77.5929
+    },
+    "images": ["https://example.com/images/blue-backpack1.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What is the brand of the water bottle inside?",
+      "What specific textbooks are in the bag?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": false,
+      "preferredMethod": "email"
+    },
+    "reward": 500,
+    "createdAt": "2024-05-10T16:45:00Z",
+    "updatedAt": "2024-05-10T16:45:00Z",
+    "tags": ["backpack", "blue", "nike", "school"]
+  },
+  {
+    "reportId": "LF-2024-234567",
+    "userId": "user003",
+    "title": "iPhone 13 Pro with Black Case",
+    "description": "Lost my iPhone 13 Pro with a black leather case. The phone has a cracked screen protector. Last used at Phoenix Marketcity mall.",
+    "category": "Electronics",
+    "subcategory": "Mobile Phone",
+    "itemValue": "High",
+    "lostDate": "2024-05-12T19:15:00Z",
+    "location": {
+      "address": "Phoenix Marketcity, Whitefield",
+      "area": "Whitefield",
+      "landmark": "Food court area",
+      "lat": 12.9958,
+      "lng": 77.6969
+    },
+    "images": ["https://example.com/images/iphone13pro.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What is the lock screen wallpaper?",
+      "What is the phone number associated with the device?",
+      "What are some apps installed on the home screen?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": true,
+      "preferredMethod": "phone"
+    },
+    "reward": 2000,
+    "createdAt": "2024-05-12T20:30:00Z",
+    "updatedAt": "2024-05-12T20:30:00Z",
+    "tags": ["iphone", "phone", "mobile", "electronics", "apple"]
+  },
+  {
+    "reportId": "LF-2024-345678",
+    "userId": "user006",
+    "title": "Gold Ring with Ruby Stone",
+    "description": "Lost my grandmother's gold ring with a ruby stone. Has sentimental value. Last worn at a wedding at The Leela Palace.",
+    "category": "Jewelry",
+    "subcategory": "Rings",
+    "itemValue": "High",
+    "lostDate": "2024-05-08T21:00:00Z",
+    "location": {
+      "address": "The Leela Palace, Old Airport Road",
+      "area": "Old Airport Road",
+      "landmark": "Hotel ballroom",
+      "lat": 12.9606,
+      "lng": 77.6484
+    },
+    "images": ["https://example.com/images/gold-ruby-ring.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What specific design elements does the ring have?",
+      "What is engraved inside the ring?",
+      "Exact time and place you think you lost it?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": true,
+      "preferredMethod": "email"
+    },
+    "reward": 5000,
+    "createdAt": "2024-05-09T10:15:00Z",
+    "updatedAt": "2024-05-09T10:15:00Z",
+    "tags": ["jewelry", "ring", "gold", "ruby", "valuable"]
+  },
+  {
+    "reportId": "LF-2024-456789",
+    "userId": "user008",
+    "title": "White AirPods Pro with Case",
+    "description": "Lost my AirPods Pro with charging case. The case has a small scratch on the back. Last used at Starbucks in Indiranagar.",
+    "category": "Electronics",
+    "subcategory": "Audio Equipment",
+    "itemValue": "Medium",
+    "lostDate": "2024-05-11T11:20:00Z",
+    "location": {
+      "address": "Starbucks, 100 Feet Road, Indiranagar",
+      "area": "Indiranagar",
+      "landmark": "Near the window seating area",
+      "lat": 12.9784,
+      "lng": 77.6408
+    },
+    "images": ["https://example.com/images/airpods-pro.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What is the device name set for these AirPods?",
+      "What are the first 4 digits of the serial number?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": false,
+      "preferredMethod": "both"
+    },
+    "reward": 1000,
+    "createdAt": "2024-05-11T14:25:00Z",
+    "updatedAt": "2024-05-11T14:25:00Z",
+    "tags": ["airpods", "apple", "electronics", "headphones"]
+  },
+  {
+    "reportId": "LF-2024-567890",
+    "userId": "user010",
+    "title": "Black Leather Wallet",
+    "description": "Lost my black leather wallet with my ID cards, credit cards, and about Rs. 500 cash. Last used at Brigade Road while shopping.",
+    "category": "Personal Accessories",
+    "subcategory": "Wallet",
+    "itemValue": "Medium",
+    "lostDate": "2024-05-13T16:40:00Z",
+    "location": {
+      "address": "Brigade Road, Bangalore",
+      "area": "Central Bangalore",
+      "landmark": "Near Starbucks",
+      "lat": 12.9719,
+      "lng": 77.6072
+    },
+    "images": ["https://example.com/images/black-wallet.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What bank issued your credit card?",
+      "What ID cards are in the wallet?",
+      "Is there anything unique about the wallet design?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": true,
+      "preferredMethod": "phone"
+    },
+    "reward": 800,
+    "createdAt": "2024-05-13T17:30:00Z",
+    "updatedAt": "2024-05-13T17:30:00Z",
+    "tags": ["wallet", "leather", "ID", "cards", "cash"]
+  },
+  {
+    "reportId": "LF-2024-678901",
+    "userId": "user005",
+    "title": "Car Keys with Remote Fob",
+    "description": "Lost my Honda City car keys with remote fob attached to a red keychain. Lost somewhere in Koramangala.",
+    "category": "Keys",
+    "subcategory": "Car Keys",
+    "itemValue": "Medium",
+    "lostDate": "2024-05-12T20:15:00Z",
+    "location": {
+      "address": "Koramangala 4th Block",
+      "area": "Koramangala",
+      "landmark": "Near the park",
+      "lat": 12.9336,
+      "lng": 77.6142
+    },
+    "images": ["https://example.com/images/honda-keys.jpg"],
+    "status": "Active",
+    "verificationQuestions": [
+      "What is attached to the keychain besides the car key?",
+      "What is the model year of the Honda City?",
+      "What color is the vehicle these keys belong to?"
+    ],
+    "contactPreferences": {
+      "hideContactInfo": false,
+      "preferredMethod": "both"
+    },
+    "reward": 1000,
+    "createdAt": "2024-05-12T21:45:00Z",
+    "updatedAt": "2024-05-12T21:45:00Z",
+    "tags": ["keys", "car", "honda", "keychain"]
+  }
+] 

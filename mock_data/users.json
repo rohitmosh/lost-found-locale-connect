@@ -1,0 +1,252 @@
+[
+  {
+    "uid": "user001",
+    "email": "aditya.sharma@gmail.com",
+    "name": "Aditya Sharma",
+    "phone": "+91 9876543210",
+    "profilePic": "https://randomuser.me/api/portraits/men/1.jpg",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "lastKnownPosition": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      }
+    },
+    "trustScore": 92,
+    "accountCreated": "2023-08-15T10:30:00Z",
+    "verifiedEmail": true,
+    "verifiedPhone": true,
+    "notificationPreferences": {
+      "email": true,
+      "push": true,
+      "sms": false
+    }
+  },
+  {
+    "uid": "user002",
+    "email": "priya.patel@outlook.com",
+    "name": "Priya Patel",
+    "phone": "+91 8765432109",
+    "profilePic": "https://randomuser.me/api/portraits/women/2.jpg",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "lastKnownPosition": {
+        "lat": 12.9302,
+        "lng": 77.6784
+      }
+    },
+    "trustScore": 87,
+    "accountCreated": "2023-09-22T14:20:00Z",
+    "verifiedEmail": true,
+    "verifiedPhone": true,
+    "notificationPreferences": {
+      "email": true,
+      "push": true,
+      "sms": true
+    }
+  },
+  {
+    "uid": "user003",
+    "email": "rahul.verma@gmail.com",
+    "name": "Rahul Verma",
+    "phone": "+91 7654321098",
+    "profilePic": "https://randomuser.me/api/portraits/men/3.jpg",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "lastKnownPosition": {
+        "lat": 12.9352,
+        "lng": 77.6245
+      }
+    },
+    "trustScore": 78,
+    "accountCreated": "2023-10-05T09:15:00Z",
+    "verifiedEmail": true,
+    "verifiedPhone": false,
+    "notificationPreferences": {
+      "email": true,
+      "push": true,
+      "sms": false
+    }
+  },
+  {
+    "uid": "user004",
+    "email": "ananya.gupta@yahoo.com",
+    "name": "Ananya Gupta",
+    "phone": "+91 6543210987",
+    "profilePic": "https://randomuser.me/api/portraits/women/4.jpg",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "lastKnownPosition": {
+        "lat": 13.0298,
+        "lng": 77.5968
+      }
+    },
+    "trustScore": 95,
+    "accountCreated": "2023-07-11T11:45:00Z",
+    "verifiedEmail": true,
+    "verifiedPhone": true,
+    "notificationPreferences": {
+      "email": true,
+      "push": false,
+      "sms": false
+    }
+  },
+  {
+    "uid": "user005",
+    "email": "vikram.singh@hotmail.com",
+    "name": "Vikram Singh",
+    "phone": "+91 5432109876",
+    "profilePic": "https://randomuser.me/api/portraits/men/5.jpg",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "lastKnownPosition": {
+        "lat": 12.9783,
+        "lng": 77.6408
+      }
+    },
+    "trustScore": 83,
+    "accountCreated": "2023-11-18T16:30:00Z",
+    "verifiedEmail": true,
+    "verifiedPhone": true,
+    "notificationPreferences": {
+      "email": false,
+      "push": true,
+      "sms": false
+    }
+  },
+  {
+    "uid": "user006",
+    "email": "meera.krishnan@gmail.com",
+    "name": "Meera Krishnan",
+    "phone": "+91 9876123456",
+    "profilePic": "https://randomuser.me/api/portraits/women/6.jpg",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "lastKnownPosition": {
+        "lat": 12.9150,
+        "lng": 77.6212
+      }
+    },
+    "trustScore": 89,
+    "accountCreated": "2023-06-25T13:10:00Z",
+    "verifiedEmail": true,
+    "verifiedPhone": true,
+    "notificationPreferences": {
+      "email": true,
+      "push": true,
+      "sms": true
+    }
+  },
+  {
+    "uid": "user007",
+    "email": "arjun.nair@outlook.com",
+    "name": "Arjun Nair",
+    "phone": "+91 8765123456",
+    "profilePic": "https://randomuser.me/api/portraits/men/7.jpg",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "lastKnownPosition": {
+        "lat": 12.9121,
+        "lng": 77.6446
+      }
+    },
+    "trustScore": 76,
+    "accountCreated": "2023-12-03T08:45:00Z",
+    "verifiedEmail": true,
+    "verifiedPhone": true,
+    "notificationPreferences": {
+      "email": true,
+      "push": true,
+      "sms": false
+    }
+  },
+  {
+    "uid": "user008",
+    "email": "neha.reddy@gmail.com",
+    "name": "Neha Reddy",
+    "phone": "+91 7654123456",
+    "profilePic": "https://randomuser.me/api/portraits/women/8.jpg",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "lastKnownPosition": {
+        "lat": 13.0422,
+        "lng": 77.6126
+      }
+    },
+    "trustScore": 91,
+    "accountCreated": "2023-08-30T15:20:00Z",
+    "verifiedEmail": true,
+    "verifiedPhone": true,
+    "notificationPreferences": {
+      "email": true,
+      "push": true,
+      "sms": true
+    }
+  },
+  {
+    "uid": "user009",
+    "email": "karthik.menon@yahoo.com",
+    "name": "Karthik Menon",
+    "phone": "+91 6543123456",
+    "profilePic": "https://randomuser.me/api/portraits/men/9.jpg",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "lastKnownPosition": {
+        "lat": 12.9791,
+        "lng": 77.5912
+      }
+    },
+    "trustScore": 84,
+    "accountCreated": "2023-09-14T10:10:00Z",
+    "verifiedEmail": true,
+    "verifiedPhone": false,
+    "notificationPreferences": {
+      "email": true,
+      "push": false,
+      "sms": false
+    }
+  },
+  {
+    "uid": "user010",
+    "email": "divya.kumar@gmail.com",
+    "name": "Divya Kumar",
+    "phone": "+91 5432123456",
+    "profilePic": "https://randomuser.me/api/portraits/women/10.jpg",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "lastKnownPosition": {
+        "lat": 12.9010,
+        "lng": 77.6845
+      }
+    },
+    "trustScore": 93,
+    "accountCreated": "2023-10-20T12:35:00Z",
+    "verifiedEmail": true,
+    "verifiedPhone": true,
+    "notificationPreferences": {
+      "email": true,
+      "push": true,
+      "sms": false
+    }
+  }
+] 
