@@ -150,6 +150,15 @@ mongoose.connect(process.env.MONGODB_URI)
       await mongoose.connection.createCollection('item_matches');
       console.log('Empty item_matches collection created');
       
+      // Verify user passwords are correctly set
+      const testUser = await User.findOne({ email: 'divya.kumar@gmail.com' }).select('+password');
+      if (testUser) {
+        const isMatch = await bcrypt.compare('Divya@123', testUser.password);
+        console.log(`Test user (Divya) password verification: ${isMatch ? 'Success' : 'Failed'}`);
+      } else {
+        console.log('Test user (Divya) not found');
+      }
+      
       console.log('\x1b[32m%s\x1b[0m', 'All mock data imported successfully!');
       process.exit(0);
     } catch (error) {

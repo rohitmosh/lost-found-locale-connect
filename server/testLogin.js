@@ -2,11 +2,11 @@ const axios = require('axios');
 
 async function testLogin() {
   try {
-    console.log('Testing login API...');
+    console.log('Testing login API with Divya\'s credentials...');
     
     const response = await axios.post('http://localhost:5000/api/auth/login', {
-      email: 'aditya.sharma@gmail.com',
-      password: 'Aditya@123'
+      email: 'divya.kumar@gmail.com',
+      password: 'Divya@123'
     });
     
     console.log('Login successful!');

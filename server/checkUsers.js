@@ -1,6 +1,8 @@
 const { MongoClient } = require('mongodb');
 require('dotenv').config({ path: '.env.local' });
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 
 async function checkUsers() {
   try {
@@ -29,6 +31,39 @@ async function checkUsers() {
       console.log(`  Password: ${user.password ? '[ENCRYPTED]' : '[MISSING]'}`);
       console.log(`  Trust Score: ${user.trustScore || 0}`);
     });
+    
+    // Load mock data to get passwords
+    console.log('\nLoading mock data to fix missing passwords...');
+    const mockDataPath = path.resolve(__dirname, '../mock_data/users.json');
+    const mockUsers = JSON.parse(fs.readFileSync(mockDataPath, 'utf8'));
+    
+    // Create a map of email to password from mock data
+    const emailToPasswordMap = {};
+    mockUsers.forEach(mockUser => {
+      emailToPasswordMap[mockUser.email] = mockUser.password;
+    });
+    
+    // Update users with missing passwords
+    let updatedCount = 0;
+    for (const user of users) {
+      if (!user.password && emailToPasswordMap[user.email]) {
+        console.log(`\nAdding password for ${user.email}...`);
+        
+        // Hash the password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(emailToPasswordMap[user.email], salt);
+        
+        // Update the user with the password
+        await usersCollection.updateOne(
+          { _id: user._id },
+          { $set: { password: hashedPassword } }
+        );
+        
+        updatedCount++;
+      }
+    }
+    
+    console.log(`\nUpdated passwords for ${updatedCount} users`);
     
     // Check if test user exists
     const testEmail = 'aditya.sharma@gmail.com';
@@ -97,6 +132,29 @@ async function checkUsers() {
       
       const result = await usersCollection.insertOne(newUser);
       console.log(`Test user created with ID: ${result.insertedId}`);
+    }
+    
+    // Check Divya's user specifically
+    const divyaEmail = 'divya.kumar@gmail.com';
+    const divyaPassword = 'Divya@123';
+    
+    const divyaUser = await usersCollection.findOne({ email: divyaEmail });
+    
+    if (divyaUser) {
+      console.log('\nDivya user found:');
+      console.log(`  ID: ${divyaUser._id}`);
+      console.log(`  Name: ${divyaUser.name}`);
+      console.log(`  Email: ${divyaUser.email}`);
+      
+      // Test password match if password exists
+      if (divyaUser.password) {
+        const isMatch = await bcrypt.compare(divyaPassword, divyaUser.password);
+        console.log(`  Password matches 'Divya@123': ${isMatch}`);
+      } else {
+        console.log('  Password: [MISSING]');
+      }
+    } else {
+      console.log('\nDivya user not found');
     }
     
     await client.close();
