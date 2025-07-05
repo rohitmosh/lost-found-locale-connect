@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose'); // Added for direct MongoDB interaction
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -190,6 +191,54 @@ exports.changePassword = async (req, res) => {
       message: 'Password updated successfully'
     });
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+// @desc    Get user statistics
+// @route   GET /api/auth/stats
+// @access  Private
+exports.getUserStats = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Get all found items by this user
+    const foundItems = await mongoose.connection.collection('founditems').find({ 
+      userId: new mongoose.Types.ObjectId(userId) 
+    }).toArray();
+    
+    // Get active reports by this user (both lost and found items)
+    const activeLostItems = await mongoose.connection.collection('lostitems').find({ 
+      userId: new mongoose.Types.ObjectId(userId),
+      status: 'active'
+    }).toArray();
+    
+    const activeFoundItems = await mongoose.connection.collection('founditems').find({ 
+      userId: new mongoose.Types.ObjectId(userId),
+      status: 'active'
+    }).toArray();
+    
+    // Get resolved found items by this user
+    const resolvedFoundItems = await mongoose.connection.collection('founditems').find({ 
+      userId: new mongoose.Types.ObjectId(userId),
+      status: 'claimed'
+    }).toArray();
+    
+    const stats = {
+      totalFoundItems: foundItems.length,
+      activeReports: activeLostItems.length + activeFoundItems.length,
+      communityHelps: resolvedFoundItems.length
+    };
+    
+    res.status(200).json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    console.error('Error getting user stats:', error);
     res.status(500).json({
       success: false,
       error: error.message

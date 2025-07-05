@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, MapPin, Bell, TrendingUp, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Bell, TrendingUp, User, Plus, MapPin, ChevronRight, Calendar, Tag, Clock } from 'lucide-react';
+
 import Navbar from '../components/Navbar';
 import NotificationSidebar from '../components/NotificationSidebar';
 import NotificationButton from '../components/NotificationButton';
-import Footer from '../components/Footer';
-import TrustScore from '../components/TrustScore';
 import UserProfile from '../components/UserProfile';
+import Footer from '../components/Footer';
 import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/api';
 
 // Animation variants
 const containerVariants = {
@@ -60,6 +61,12 @@ const Dashboard = () => {
   const [unreadNotifications, setUnreadNotifications] = useState(2);
   const [showProfile, setShowProfile] = useState(false);
   const [firstName, setFirstName] = useState('');
+  const [userStats, setUserStats] = useState({
+    totalFoundItems: 0,
+    activeReports: 0,
+    communityHelps: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     if (user && user.name) {
@@ -68,10 +75,58 @@ const Dashboard = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      try {
+        setIsLoading(true);
+        const response = await authService.getUserStats();
+        if (response && response.success && response.data) {
+          setUserStats({
+            totalFoundItems: response.data.totalFoundItems || 0,
+            activeReports: response.data.activeReports || 0,
+            communityHelps: response.data.communityHelps || 0
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+        // Set default values on error
+        setUserStats({
+          totalFoundItems: 0,
+          activeReports: 0,
+          communityHelps: 0
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchUserStats();
+    }
+  }, [user]);
+
   const stats = [
-    { label: 'Items Found', value: '12', icon: Search, color: 'text-green-600' },
-    { label: 'Active Reports', value: '3', icon: Bell, color: 'text-blue-600' },
-    { label: 'Community Helps', value: '8', icon: TrendingUp, color: 'text-purple-600' },
+    { 
+      label: 'Items Found', 
+      value: isLoading ? '...' : userStats.totalFoundItems.toString(), 
+      icon: Search, 
+      color: 'text-green-600',
+      emptyText: 'No items found yet'
+    },
+    { 
+      label: 'Active Reports', 
+      value: isLoading ? '...' : userStats.activeReports.toString(), 
+      icon: Bell, 
+      color: 'text-blue-600',
+      emptyText: 'No active reports'
+    },
+    { 
+      label: 'Community Helps', 
+      value: isLoading ? '...' : userStats.communityHelps.toString(), 
+      icon: TrendingUp, 
+      color: 'text-purple-600',
+      emptyText: 'No resolved reports yet'
+    },
   ];
 
   const recentActivity = [

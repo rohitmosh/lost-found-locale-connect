@@ -73,6 +73,11 @@ export const authService = {
     return response.data;
   },
   
+  getUserStats: async () => {
+    const response = await api.get('/auth/stats');
+    return response.data;
+  },
+  
   updateProfile: async (userData) => {
     const response = await api.put('/auth/me', userData);
     return response.data;
