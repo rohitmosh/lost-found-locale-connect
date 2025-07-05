@@ -34,8 +34,12 @@ exports.register = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        phoneNumber: user.phoneNumber,
         profilePicture: user.profilePicture,
         trustScore: user.trustScore,
+        createdAt: user.createdAt,
+        verifiedEmail: user.verifiedEmail,
+        verifiedPhone: user.verifiedPhone,
         token
       }
     });
@@ -83,8 +87,12 @@ exports.login = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        phoneNumber: user.phoneNumber,
         profilePicture: user.profilePicture,
         trustScore: user.trustScore,
+        createdAt: user.createdAt,
+        verifiedEmail: user.verifiedEmail,
+        verifiedPhone: user.verifiedPhone,
         token
       }
     });

@@ -8,6 +8,7 @@ import NotificationButton from '../components/NotificationButton';
 import Footer from '../components/Footer';
 import TrustScore from '../components/TrustScore';
 import UserProfile from '../components/UserProfile';
+import { useAuth } from '../contexts/AuthContext';
 
 // Animation variants
 const containerVariants = {
@@ -54,9 +55,18 @@ const itemVariants = {
 };
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(2);
   const [showProfile, setShowProfile] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  
+  useEffect(() => {
+    if (user && user.name) {
+      // Extract first name from full name
+      setFirstName(user.name.split(' ')[0]);
+    }
+  }, [user]);
 
   const stats = [
     { label: 'Items Found', value: '12', icon: Search, color: 'text-green-600' },
@@ -147,7 +157,7 @@ const Dashboard = () => {
                   transition={{ delay: 0.3 }}
                   className="text-3xl font-bold mb-2 text-shadow-lg"
                 >
-                  Welcome back, John! 👋
+                  Welcome back, {firstName || 'Friend'}! 👋
                 </motion.h1>
                 <motion.p 
                   initial={{ opacity: 0 }}

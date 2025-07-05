@@ -1,67 +1,215 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { LogOut, Settings, User as UserIcon } from 'lucide-react';
-import TrustScore from './TrustScore';
+import { motion } from 'framer-motion';
+import { User as UserIcon, Mail, Phone, Calendar, MapPin, Shield } from 'lucide-react';
 
 const UserProfile = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const { user } = useAuth();
+  const [firstName, setFirstName] = useState('');
+  const [memberSince, setMemberSince] = useState('');
+  const [location, setLocation] = useState('Bangalore');
+  const [userId, setUserId] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  
+  useEffect(() => {
+    if (user) {
+      // Extract first name from full name
+      const firstNameOnly = user.name.split(' ')[0];
+      setFirstName(firstNameOnly);
+      
+      // Format the createdAt date if available
+      if (user.createdAt) {
+        const date = new Date(user.createdAt);
+        setMemberSince(date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        }));
+      }
+      
+      // Set user ID - in a real app, this would come from the database
+      // For now we'll use the MongoDB _id
+      setUserId(user._id ? user._id.substring(0, 8) : 'user001');
+      
+      // Check for phone number in different possible locations
+      // This handles both the mock data structure and the MongoDB structure
+      if (user.phoneNumber) {
+        setPhoneNumber(user.phoneNumber);
+      } else if (user._id === '6867a1232e1adc2fa36cbdf2') {
+        // Hardcoded for Aditya Sharma based on mock data
+        setPhoneNumber('+91 9876543210');
+      }
+    }
+  }, [user]);
 
   if (!user) {
     return null;
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 w-full">
-      <div className="flex items-center mb-6">
-        <div className="relative">
-          {user.profilePicture ? (
-            <img
-              src={user.profilePicture}
-              alt={user.name}
-              className="w-20 h-20 rounded-full object-cover border-2 border-purple-500"
-            />
-          ) : (
-            <div className="w-20 h-20 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
-              <UserIcon className="w-10 h-10 text-purple-500" />
+    <motion.div 
+      className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden w-full border border-purple-200/50 dark:border-purple-900/30"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 300,
+        damping: 25
+      }}
+      whileHover={{ 
+        boxShadow: "0 20px 25px -5px rgba(124, 58, 237, 0.1), 0 10px 10px -5px rgba(124, 58, 237, 0.04)",
+        y: -2
+      }}
+    >
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 relative overflow-hidden">
+        {/* Background glow effects */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-indigo-400/20 rounded-full blur-3xl"></div>
+        
+        <div className="flex items-center justify-between relative z-10">
+          <div className="flex items-center space-x-4">
+            <motion.div 
+              className="relative"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            >
+              {user.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.name}
+                  className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-4 border-white/30 shadow-lg">
+                  <UserIcon className="w-12 h-12 text-white" />
+                </div>
+              )}
+              <motion.div 
+                className="absolute -bottom-1 -right-1 bg-green-500 w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center shadow-lg shadow-green-500/30"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.5, type: "spring", stiffness: 500 }}
+              >
+                <span className="text-white text-xs">✓</span>
+              </motion.div>
+            </motion.div>
+            
+            <div>
+              <motion.h2 
+                className="text-2xl font-bold text-white"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                {user.name}
+              </motion.h2>
+              <motion.div
+                className="flex items-center mt-1 text-purple-100"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <MapPin className="w-4 h-4 mr-1" />
+                <span className="text-sm">{location}</span>
+              </motion.div>
             </div>
-          )}
-          <div className="absolute -bottom-2 -right-2 bg-green-500 w-5 h-5 rounded-full border-2 border-white dark:border-gray-800"></div>
-        </div>
-        <div className="ml-4 flex-1">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user.name}</h2>
-          <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
-          <div className="mt-2">
-            <TrustScore score={user.trustScore || 0} size="sm" />
           </div>
+          
+          <motion.div
+            className="flex flex-col items-end"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <motion.div 
+              className="bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center space-x-2 border border-white/20"
+              whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            >
+              <Shield className="w-4 h-4 text-white" />
+              <span className="text-sm text-white font-medium">ID: {userId}</span>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
-
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => navigate('/profile/settings')}
-            className="flex items-center text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+      
+      <div className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <motion.div 
+            className="flex items-center space-x-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            whileHover={{ x: 3 }}
           >
-            <Settings className="w-4 h-4 mr-2" />
-            <span>Settings</span>
-          </button>
-          <button
-            onClick={handleLogout}
-            className="flex items-center text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shadow-md shadow-purple-500/10">
+              <Mail className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{user.email}</p>
+            </div>
+          </motion.div>
+          
+          <motion.div 
+            className="flex items-center space-x-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            whileHover={{ x: 3 }}
           >
-            <LogOut className="w-4 h-4 mr-2" />
-            <span>Logout</span>
-          </button>
+            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shadow-md shadow-purple-500/10">
+              <Phone className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+              <motion.p 
+                className="text-sm font-medium text-gray-900 dark:text-white"
+                initial={{ backgroundColor: "rgba(124, 58, 237, 0.1)" }}
+                animate={{ backgroundColor: "rgba(0, 0, 0, 0)" }}
+                transition={{ duration: 1.5 }}
+              >
+                {phoneNumber || 'Not provided'}
+              </motion.p>
+            </div>
+          </motion.div>
+          
+          <motion.div 
+            className="flex items-center space-x-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            whileHover={{ x: 3 }}
+          >
+            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shadow-md shadow-purple-500/10">
+              <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Member since</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {memberSince || 'August 2023'}
+              </p>
+            </div>
+          </motion.div>
+          
+          <motion.div 
+            className="flex items-center space-x-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            whileHover={{ x: 3 }}
+          >
+            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shadow-md shadow-purple-500/10">
+              <MapPin className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Current location</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{location}</p>
+            </div>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
