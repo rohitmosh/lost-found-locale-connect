@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { User as UserIcon, Mail, Phone, Calendar, MapPin, Shield, TrendingUp } from 'lucide-react';
 
-const UserProfile = () => {
+const UserProfile = ({ showTrustScore = false }) => {
   const user = {
     name: 'Alex Doe',
     email: 'alex.doe@example.com',
@@ -203,8 +203,8 @@ const UserProfile = () => {
             whileHover={{ scale: 1.02, y: -1 }}
             whileTap={{ scale: 0.98 }}
           >
-            <TrendingUp className="w-5 h-5" />
-            <span>View Trust Score Details</span>
+            <TrendingUp className={`w-5 h-5 ${showTrustScore ? 'rotate-180' : ''}`} />
+            <span>{showTrustScore ? 'Hide Score Details' : 'View Trust Score Details'}</span>
           </motion.button>
         </motion.div>
       </div>

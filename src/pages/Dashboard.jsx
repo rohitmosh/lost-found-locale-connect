@@ -203,7 +203,7 @@ const Dashboard = () => {
                 transition={{ duration: 0.3 }}
                 className="mb-8"
               >
-                <UserProfile />
+                <UserProfile showTrustScore={showTrustScore} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -230,19 +230,6 @@ const Dashboard = () => {
                   transition={{ duration: 0.3 }}
                   className="relative"
                 >
-                  {/* Hide Score Details Button */}
-                  <motion.button
-                    onClick={() => setShowTrustScore(false)}
-                    className="absolute top-4 right-4 z-10 flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg transition-all duration-300 text-gray-700 dark:text-gray-300 font-medium shadow-lg hover:shadow-xl"
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <TrendingUp className="w-4 h-4 rotate-180" />
-                    <span>Hide Score Details</span>
-                  </motion.button>
                   
                   <motion.div
                     className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-xl shadow-purple-500/10 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 border border-purple-200/50 dark:border-purple-900/30"
