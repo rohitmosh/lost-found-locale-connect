@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar';
 import NotificationSidebar from '../components/NotificationSidebar';
 import NotificationButton from '../components/NotificationButton';
 import UserProfile from '../components/UserProfile';
+import TrustScoreBreakdown from '../components/TrustScoreBreakdown';
 import Footer from '../components/Footer';
 
 
@@ -58,6 +59,7 @@ const Dashboard = () => {
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(2);
   const [showProfile, setShowProfile] = useState(false);
+  const [showTrustScore, setShowTrustScore] = useState(false);
 
   const stats = [
     { 
@@ -92,6 +94,16 @@ const Dashboard = () => {
   const toggleNotificationSidebar = () => {
     setIsNotificationSidebarOpen(!isNotificationSidebarOpen);
   };
+
+  // Listen for trust score toggle event
+  useEffect(() => {
+    const handleToggleTrustScore = () => {
+      setShowTrustScore(!showTrustScore);
+    };
+
+    window.addEventListener('toggleTrustScore', handleToggleTrustScore);
+    return () => window.removeEventListener('toggleTrustScore', handleToggleTrustScore);
+  }, [showTrustScore]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -192,6 +204,53 @@ const Dashboard = () => {
                 className="mb-8"
               >
                 <UserProfile />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Trust Score Breakdown Section */}
+          <AnimatePresence>
+            {showTrustScore && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, y: -20 }}
+                animate={{ opacity: 1, height: 'auto', y: 0 }}
+                exit={{ opacity: 0, height: 0, y: -20 }}
+                transition={{ 
+                  duration: 0.4,
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 25
+                }}
+                className="mb-8"
+              >
+                <motion.div
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                  className="relative"
+                >
+                  {/* Hide Score Details Button */}
+                  <motion.button
+                    onClick={() => setShowTrustScore(false)}
+                    className="absolute top-4 right-4 z-10 flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-4 py-2 rounded-lg transition-all duration-300 text-gray-700 dark:text-gray-300 font-medium shadow-lg hover:shadow-xl"
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <TrendingUp className="w-4 h-4 rotate-180" />
+                    <span>Hide Score Details</span>
+                  </motion.button>
+                  
+                  <motion.div
+                    className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-xl shadow-purple-500/10 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 border border-purple-200/50 dark:border-purple-900/30"
+                    whileHover={{ y: -2 }}
+                  >
+                    <TrustScoreBreakdown />
+                  </motion.div>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>

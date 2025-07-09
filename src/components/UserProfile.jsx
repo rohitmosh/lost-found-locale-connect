@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { motion } from 'framer-motion';
-import { User as UserIcon, Mail, Phone, Calendar, MapPin, Shield } from 'lucide-react';
+import { User as UserIcon, Mail, Phone, Calendar, MapPin, Shield, TrendingUp } from 'lucide-react';
 
 const UserProfile = () => {
   const user = {
@@ -86,11 +86,22 @@ const UserProfile = () => {
           </div>
           
           <motion.div
-            className="flex flex-col items-end"
+            className="flex flex-col items-end space-y-3"
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
+            {/* Trust Score Circle */}
+            <motion.div 
+              className="bg-white/10 backdrop-blur-sm w-20 h-20 rounded-full flex flex-col items-center justify-center border border-white/20 shadow-lg shadow-white/10"
+              whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            >
+              <div className="text-2xl font-bold text-white">103</div>
+              <div className="text-xs text-white/80">Trust Score</div>
+            </motion.div>
+            
+            {/* User ID */}
             <motion.div 
               className="bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center space-x-2 border border-white/20"
               whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
@@ -178,6 +189,24 @@ const UserProfile = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* View Trust Score Details Button */}
+        <motion.div 
+          className="mt-6 flex justify-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <motion.button
+            onClick={() => window.dispatchEvent(new CustomEvent('toggleTrustScore'))}
+            className="flex items-center space-x-2 bg-purple-100 dark:bg-purple-900/30 hover:bg-purple-200 dark:hover:bg-purple-800/40 px-6 py-3 rounded-xl transition-all duration-300 text-purple-700 dark:text-purple-300 font-medium shadow-lg shadow-purple-500/10 hover:shadow-xl hover:shadow-purple-500/20"
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <TrendingUp className="w-5 h-5" />
+            <span>View Trust Score Details</span>
+          </motion.button>
+        </motion.div>
       </div>
     </motion.div>
   );
