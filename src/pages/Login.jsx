@@ -2,51 +2,23 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
 import AuthHeader from '../components/AuthHeader';
-import { useAuth } from '../contexts/AuthContext';
+
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(null); // Clear error when user types
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      console.log('Submitting login form with:', formData);
-      const response = await login(formData);
-      console.log('Login response in component:', response);
-      
-      // If we got here, login was successful
-      navigate('/dashboard');
-    } catch (err) {
-      console.error('Login error in component:', err);
-      
-      // Try to extract the error message from the response
-      let errorMessage = 'Invalid email or password. Please try again.';
-      if (err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    navigate('/dashboard');
   };
 
   return (
@@ -68,12 +40,7 @@ const Login = () => {
             </div>
 
             {/* Error Message */}
-            {error && (
-              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 flex items-start">
-                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
-                <span>{error}</span>
-              </div>
-            )}
+            
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -144,17 +111,9 @@ const Login = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isLoading}
                 className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                    Signing in...
-                  </div>
-                ) : (
-                  'Sign In'
-                )}
+                Sign In
               </button>
             </form>
 

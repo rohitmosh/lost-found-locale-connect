@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import AuthHeader from '../components/AuthHeader';
-import { useAuth } from '../contexts/AuthContext';
+
 
 const Register = () => {
   const navigate = useNavigate();
-  const { register } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,7 +14,6 @@ const Register = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleChange = (e) => {
@@ -23,50 +21,23 @@ const Register = () => {
     setError(null); // Clear error when user types
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(null);
-    
+
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match");
-      setIsLoading(false);
       return;
     }
-    
+
     // Validate password length (max 10 characters as per DB requirement)
     if (formData.password.length > 10) {
       setError("Password must be 10 characters or less");
-      setIsLoading(false);
       return;
     }
-    
-    try {
-      console.log('Submitting registration form with:', formData);
-      
-      // Remove confirmPassword before sending to API
-      const { confirmPassword, ...userData } = formData;
-      const response = await register(userData);
-      console.log('Registration response in component:', response);
-      
-      // If we got here, registration was successful
-      navigate('/dashboard');
-    } catch (err) {
-      console.error('Registration error in component:', err);
-      
-      // Try to extract the error message from the response
-      let errorMessage = 'Registration failed. Please try again.';
-      if (err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+
+    navigate('/dashboard');
   };
 
   return (
@@ -211,17 +182,9 @@ const Register = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isLoading}
                 className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                    Creating Account...
-                  </div>
-                ) : (
-                  'Create Account'
-                )}
+                Create Account
               </button>
             </form>
 

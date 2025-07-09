@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import './index.css';
-import { AuthProvider } from './contexts/AuthContext';
+
 import { ThemeProvider } from './contexts/ThemeContext';
 
 // Error boundary for development
@@ -25,9 +25,7 @@ if (!rootElement) {
       <React.StrictMode>
         <BrowserRouter>
           <ThemeProvider>
-            <AuthProvider>
               <App />
-            </AuthProvider>
           </ThemeProvider>
         </BrowserRouter>
       </React.StrictMode>

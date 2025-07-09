@@ -1,50 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+
 import { motion } from 'framer-motion';
 import { User as UserIcon, Mail, Phone, Calendar, MapPin, Shield } from 'lucide-react';
 
 const UserProfile = () => {
-  const { user } = useAuth();
-  const [firstName, setFirstName] = useState('');
-  const [memberSince, setMemberSince] = useState('');
-  const [location, setLocation] = useState('Bangalore');
-  const [userId, setUserId] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  
-  useEffect(() => {
-    if (user) {
-      // Extract first name from full name
-      const firstNameOnly = user.name.split(' ')[0];
-      setFirstName(firstNameOnly);
-      
-      // Format the createdAt date if available
-      if (user.createdAt) {
-        const date = new Date(user.createdAt);
-        setMemberSince(date.toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        }));
-      }
-      
-      // Set user ID - in a real app, this would come from the database
-      // For now we'll use the MongoDB _id
-      setUserId(user._id ? user._id.substring(0, 8) : 'user001');
-      
-      // Check for phone number in different possible locations
-      // This handles both the mock data structure and the MongoDB structure
-      if (user.phoneNumber) {
-        setPhoneNumber(user.phoneNumber);
-      } else if (user._id === '6867a1232e1adc2fa36cbdf2') {
-        // Hardcoded for Aditya Sharma based on mock data
-        setPhoneNumber('+91 9876543210');
-      }
-    }
-  }, [user]);
+  const user = {
+    name: 'Alex Doe',
+    email: 'alex.doe@example.com',
+    profilePicture: null,
+  };
 
-  if (!user) {
-    return null;
-  }
+  const firstName = 'Alex';
+  const memberSince = 'January 1, 2024';
+  const location = 'San Francisco';
+  const userId = 'user001';
+  const phoneNumber = '+1 123-456-7890';
 
   return (
     <motion.div 

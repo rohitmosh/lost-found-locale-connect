@@ -8,8 +8,7 @@ import NotificationSidebar from '../components/NotificationSidebar';
 import NotificationButton from '../components/NotificationButton';
 import UserProfile from '../components/UserProfile';
 import Footer from '../components/Footer';
-import { useAuth } from '../contexts/AuthContext';
-import { authService } from '../services/api';
+
 
 // Animation variants
 const containerVariants = {
@@ -56,73 +55,28 @@ const itemVariants = {
 };
 
 const Dashboard = () => {
-  const { user } = useAuth();
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(2);
   const [showProfile, setShowProfile] = useState(false);
-  const [firstName, setFirstName] = useState('');
-  const [userStats, setUserStats] = useState({
-    totalFoundItems: 0,
-    activeReports: 0,
-    communityHelps: 0
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    if (user && user.name) {
-      // Extract first name from full name
-      setFirstName(user.name.split(' ')[0]);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    const fetchUserStats = async () => {
-      try {
-        setIsLoading(true);
-        const response = await authService.getUserStats();
-        if (response && response.success && response.data) {
-          setUserStats({
-            totalFoundItems: response.data.totalFoundItems || 0,
-            activeReports: response.data.activeReports || 0,
-            communityHelps: response.data.communityHelps || 0
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching user stats:', error);
-        // Set default values on error
-        setUserStats({
-          totalFoundItems: 0,
-          activeReports: 0,
-          communityHelps: 0
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (user) {
-      fetchUserStats();
-    }
-  }, [user]);
 
   const stats = [
     { 
       label: 'Items Found', 
-      value: isLoading ? '...' : userStats.totalFoundItems.toString(), 
+      value: '12',
       icon: Search, 
       color: 'text-green-600',
       emptyText: 'No items found yet'
     },
     { 
       label: 'Active Reports', 
-      value: isLoading ? '...' : userStats.activeReports.toString(), 
+      value: '3',
       icon: Bell, 
       color: 'text-blue-600',
       emptyText: 'No active reports'
     },
     { 
       label: 'Community Helps', 
-      value: isLoading ? '...' : userStats.communityHelps.toString(), 
+      value: '8',
       icon: TrendingUp, 
       color: 'text-purple-600',
       emptyText: 'No resolved reports yet'
@@ -206,22 +160,12 @@ const Dashboard = () => {
           >
             <div className="flex justify-between items-center">
               <div>
-                <motion.h1 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-3xl font-bold mb-2 text-shadow-lg"
-                >
-                  Welcome back, {firstName || 'Friend'}! 👋
-                </motion.h1>
-                <motion.p 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-purple-100 text-lg"
-                >
+                <h1 className="text-3xl font-bold mb-2 text-shadow-lg">
+                  Welcome back, Friend! 👋
+                </h1>
+                <p className="text-purple-100 text-lg">
                   Ready to help your community find their lost items today?
-                </motion.p>
+                </p>
               </div>
               <motion.button
                 initial={{ opacity: 0, scale: 0.8 }}

@@ -15,7 +15,7 @@ import HowItWorks from "./pages/HowItWorks";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
+
 
 const queryClient = new QueryClient();
 
@@ -33,14 +33,12 @@ const App = () => (
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/map" element={<Map />} />
-          <Route path="/report-lost" element={<ReportLostItem />} />
-          <Route path="/report-found" element={<ReportFoundItem />} />
-          <Route path="/reports" element={<Reports />} />
-        </Route>
+        {/* Formerly Protected Routes */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/map" element={<Map />} />
+        <Route path="/report-lost" element={<ReportLostItem />} />
+        <Route path="/report-found" element={<ReportFoundItem />} />
+        <Route path="/reports" element={<Reports />} />
         
         {/* 404 Route */}
         <Route path="*" element={<NotFound />} />
