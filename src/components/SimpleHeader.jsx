@@ -25,10 +25,16 @@ const SimpleHeader = () => {
             
             <div className="flex items-center space-x-3">
               <Link
-                to="/auth"
+                to="/login"
+                className="px-4 py-2 text-sm font-medium text-purple-700 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors duration-200"
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
                 className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25"
               >
-                Sign In
+                Register
               </Link>
             </div>
           </div>
