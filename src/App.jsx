@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -20,6 +21,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
+  <AuthProvider>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -45,6 +47,7 @@ const App = () => (
       </Routes>
     </TooltipProvider>
   </QueryClientProvider>
+  </AuthProvider>
 );
 
 export default App;

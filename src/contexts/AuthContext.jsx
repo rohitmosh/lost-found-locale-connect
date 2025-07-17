@@ -43,21 +43,32 @@ export const AuthProvider = ({ children }) => {
   }, [navigate]);
 
   const signUp = async (email, password, fullName) => {
+    console.log('Attempting to sign up with email:', email);
     const redirectUrl = `${window.location.origin}/dashboard`;
     
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
-          name: fullName
-        }
-      }
-    });
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+            name: fullName,
+          },
+        },
+      });
 
-    return { data, error };
+      if (error) {
+        console.error('Supabase signUp error:', error);
+      } else {
+        console.log('Supabase signUp success:', data);
+      }
+      return { data, error };
+    } catch (err) {
+      console.error('Error in signUp function:', err);
+      return { data: null, error: err };
+    }
   };
 
   const signIn = async (email, password) => {

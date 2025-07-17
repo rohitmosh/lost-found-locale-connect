@@ -58,6 +58,7 @@ const Register = () => {
         // User will be redirected automatically by AuthContext
       }
     } catch (err) {
+            console.error('Registration Error:', err);
       setError('An unexpected error occurred. Please try again.');
     }
     
