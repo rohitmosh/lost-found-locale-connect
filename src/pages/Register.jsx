@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import AuthHeader from '../components/AuthHeader';
+import { useAuth } from '../contexts/AuthContext';
 
 
 const Register = () => {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,29 +17,51 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError(null); // Clear error when user types
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match");
+      setLoading(false);
       return;
     }
 
-    // Validate password length (max 10 characters as per DB requirement)
-    if (formData.password.length > 10) {
-      setError("Password must be 10 characters or less");
+    // Validate password length
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setLoading(false);
       return;
     }
 
-    navigate('/dashboard');
+    try {
+      const { data, error } = await signUp(formData.email, formData.password, formData.name);
+      
+      if (error) {
+        if (error.message.includes('already registered')) {
+          setError('This email is already registered. Please use a different email or try logging in.');
+        } else {
+          setError(error.message || 'Failed to create account');
+        }
+      } else {
+        // Success message
+        setError(null);
+        // User will be redirected automatically by AuthContext
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    }
+    
+    setLoading(false);
   };
 
   return (
@@ -109,7 +133,7 @@ const Register = () => {
               {/* Password Field */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Password (10 characters max)
+                  Password
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -117,11 +141,11 @@ const Register = () => {
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     required
-                    maxLength={10}
+                    minLength={6}
                     value={formData.password}
                     onChange={handleChange}
                     className="w-full pl-10 pr-12 py-3 border border-purple-200 dark:border-purple-800 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Create a password (max 10 chars)"
+                    placeholder="Create a password (min 6 chars)"
                   />
                   <button
                     type="button"
@@ -144,7 +168,7 @@ const Register = () => {
                     type={showConfirmPassword ? 'text' : 'password'}
                     name="confirmPassword"
                     required
-                    maxLength={10}
+                    minLength={6}
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className="w-full pl-10 pr-12 py-3 border border-purple-200 dark:border-purple-800 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
@@ -182,9 +206,10 @@ const Register = () => {
               {/* Submit Button */}
               <button
                 type="submit"
+                disabled={loading}
                 className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Account
+                {loading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
 
