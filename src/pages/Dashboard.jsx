@@ -208,8 +208,12 @@ const Dashboard = () => {
                 transition={{ delay: 0.5 }}
                 whileHover={{ scale: 1.05 }}
                 onClick={() => {
-                  setShowProfile(!showProfile);
-                  if (!showProfile) setShowTrustScore(false);
+                  const newShowProfile = !showProfile;
+                  setShowProfile(newShowProfile);
+                  // Close trust score when hiding profile or when opening profile
+                  if (!newShowProfile || !showProfile) {
+                    setShowTrustScore(false);
+                  }
                 }}
                 className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-full transition-colors duration-200 text-sm font-medium flex items-center space-x-2"
               >
