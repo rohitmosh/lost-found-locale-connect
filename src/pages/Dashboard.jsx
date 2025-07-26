@@ -9,6 +9,8 @@ import NotificationButton from '../components/NotificationButton';
 import UserProfile from '../components/UserProfile';
 import TrustScoreBreakdown from '../components/TrustScoreBreakdown';
 import Footer from '../components/Footer';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 
 // Animation variants
@@ -56,10 +58,12 @@ const itemVariants = {
 };
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(2);
   const [showProfile, setShowProfile] = useState(false);
   const [showTrustScore, setShowTrustScore] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
 
   const stats = [
     { 
@@ -94,6 +98,25 @@ const Dashboard = () => {
   const toggleNotificationSidebar = () => {
     setIsNotificationSidebarOpen(!isNotificationSidebarOpen);
   };
+
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.id) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (data) {
+          setUserProfile(data);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   // Listen for trust score toggle event
   useEffect(() => {
@@ -173,7 +196,7 @@ const Dashboard = () => {
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-3xl font-bold mb-2 text-shadow-lg">
-                  Welcome back, Friend! 👋
+                  Hello, {userProfile?.name?.split(' ')[0] || 'Friend'}! 👋
                 </h1>
                 <p className="text-purple-100 text-lg">
                   Ready to help your community find their lost items today?
@@ -184,7 +207,14 @@ const Dashboard = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.5 }}
                 whileHover={{ scale: 1.05 }}
-                onClick={() => setShowProfile(!showProfile)}
+                onClick={() => {
+                  const newShowProfile = !showProfile;
+                  setShowProfile(newShowProfile);
+                  // Close trust score when hiding profile or when opening profile
+                  if (!newShowProfile || !showProfile) {
+                    setShowTrustScore(false);
+                  }
+                }}
                 className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-full transition-colors duration-200 text-sm font-medium flex items-center space-x-2"
               >
                 <User size={20} />
@@ -203,7 +233,7 @@ const Dashboard = () => {
                 transition={{ duration: 0.3 }}
                 className="mb-8"
               >
-                <UserProfile showTrustScore={showTrustScore} />
+                <UserProfile showTrustScore={showTrustScore} userProfile={userProfile} user={user} />
               </motion.div>
             )}
           </AnimatePresence>

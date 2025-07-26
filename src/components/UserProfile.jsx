@@ -1,20 +1,93 @@
 import React, { useEffect, useState } from 'react';
 
 import { motion } from 'framer-motion';
-import { User as UserIcon, Mail, Phone, Calendar, MapPin, Shield, TrendingUp } from 'lucide-react';
+import { User as UserIcon, Mail, Phone, Calendar, MapPin, Shield, TrendingUp, Plus } from 'lucide-react';
+import { Button } from './ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-const UserProfile = ({ showTrustScore = false }) => {
-  const user = {
-    name: 'Alex Doe',
-    email: 'alex.doe@example.com',
-    profilePicture: null,
+const UserProfile = ({ showTrustScore = false, userProfile, user }) => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  
+  const displayName = userProfile?.name || user?.user_metadata?.full_name || 'User';
+  const displayEmail = userProfile?.email || user?.email || 'Not provided';
+  const memberSince = userProfile?.created_at ? new Date(userProfile.created_at).toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  }) : 'Recently';
+  const phoneNumber = userProfile?.phone_number;
+  const trustScore = userProfile?.trust_score || 0;
+  const userId = user?.id?.slice(-6).toUpperCase() || 'XXXXXX';
+
+  const handleAddPhone = async () => {
+    const phone = prompt('Enter your phone number:');
+    if (!phone || phone.trim() === '') return;
+
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ phone_number: phone.trim() })
+        .eq('id', user.id);
+
+      if (error) {
+        toast.error('Failed to update phone number');
+        console.error('Error updating phone:', error);
+      } else {
+        toast.success('Phone number updated successfully');
+        // Trigger a refresh of the user profile
+        window.location.reload();
+      }
+    } catch (error) {
+      toast.error('An error occurred while updating phone number');
+      console.error('Error:', error);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
-  const firstName = 'Alex';
-  const memberSince = 'January 1, 2024';
-  const location = 'San Francisco';
-  const userId = 'user001';
-  const phoneNumber = '+1 123-456-7890';
+  const handleSetLocation = async () => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by this browser');
+      return;
+    }
+
+    setIsUpdating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          
+          // Use reverse geocoding to get address (simplified approach)
+          const response = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbG02czJ6dGkzOXhuM3FvM3huNGJ2dmN5In0.WQn2XNOMWfFKNfnk5fPfqA&types=address`
+          );
+          const data = await response.json();
+          const address = data.features?.[0]?.place_name || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+
+          // For now, we'll just show a success message since there's no location field in profiles table
+          toast.success(`Location set to: ${address}`);
+          console.log('User location:', { latitude, longitude, address });
+        } catch (error) {
+          toast.error('Failed to get location details');
+          console.error('Geocoding error:', error);
+        } finally {
+          setIsUpdating(false);
+        }
+      },
+      (error) => {
+        setIsUpdating(false);
+        toast.error('Failed to get your location');
+        console.error('Geolocation error:', error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000
+      }
+    );
+  };
 
   return (
     <motion.div 
@@ -43,10 +116,10 @@ const UserProfile = ({ showTrustScore = false }) => {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
             >
-              {user.profilePicture ? (
+              {userProfile?.profile_picture ? (
                 <img
-                  src={user.profilePicture}
-                  alt={user.name}
+                  src={userProfile.profile_picture}
+                  alt={displayName}
                   className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg"
                 />
               ) : (
@@ -71,7 +144,7 @@ const UserProfile = ({ showTrustScore = false }) => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                {user.name}
+                {displayName}
               </motion.h2>
               <motion.div
                 className="flex items-center mt-1 text-purple-100"
@@ -80,7 +153,7 @@ const UserProfile = ({ showTrustScore = false }) => {
                 transition={{ delay: 0.3 }}
               >
                 <MapPin className="w-4 h-4 mr-1" />
-                <span className="text-sm">{location}</span>
+                <span className="text-sm">Location not set</span>
               </motion.div>
             </div>
           </div>
@@ -97,7 +170,7 @@ const UserProfile = ({ showTrustScore = false }) => {
               whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
-              <div className="text-2xl font-bold text-white">103</div>
+              <div className="text-2xl font-bold text-white">{trustScore}</div>
               <div className="text-xs text-white/80">Trust Score</div>
             </motion.div>
             
@@ -128,7 +201,7 @@ const UserProfile = ({ showTrustScore = false }) => {
             </div>
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{user.email}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{displayEmail}</p>
             </div>
           </motion.div>
           
@@ -144,14 +217,27 @@ const UserProfile = ({ showTrustScore = false }) => {
             </div>
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
-              <motion.p 
-                className="text-sm font-medium text-gray-900 dark:text-white"
-                initial={{ backgroundColor: "rgba(124, 58, 237, 0.1)" }}
-                animate={{ backgroundColor: "rgba(0, 0, 0, 0)" }}
-                transition={{ duration: 1.5 }}
-              >
-                {phoneNumber || 'Not provided'}
-              </motion.p>
+              {phoneNumber ? (
+                <motion.p 
+                  className="text-sm font-medium text-gray-900 dark:text-white"
+                  initial={{ backgroundColor: "rgba(124, 58, 237, 0.1)" }}
+                  animate={{ backgroundColor: "rgba(0, 0, 0, 0)" }}
+                  transition={{ duration: 1.5 }}
+                >
+                  {phoneNumber}
+                </motion.p>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 text-xs mt-1"
+                  onClick={handleAddPhone}
+                  disabled={isUpdating}
+                >
+                  <Plus className="w-3 h-3 mr-1" />
+                  Add Phone
+                </Button>
+              )}
             </div>
           </motion.div>
           
@@ -185,7 +271,16 @@ const UserProfile = ({ showTrustScore = false }) => {
             </div>
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">Current location</p>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{location}</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-7 text-xs mt-1"
+                onClick={handleSetLocation}
+                disabled={isUpdating}
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Set Location
+              </Button>
             </div>
           </motion.div>
         </div>
