@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, TrendingUp, User, Plus, MapPin, ChevronRight, Calendar, Tag, Clock } from 'lucide-react';
+import { Search, Bell, TrendingUp, User, Plus, MapPin, ChevronRight, Calendar, Tag, Clock, RefreshCw } from 'lucide-react';
 
 import Navbar from '../components/Navbar';
 import NotificationSidebar from '../components/NotificationSidebar';
@@ -57,61 +57,274 @@ const itemVariants = {
   }
 };
 
+/**
+ * Dashboard Component - Displays real-time user data from the database
+ *
+ * Features:
+ * - Real user statistics (items found, active reports, community helps)
+ * - Recent activity from user's reports
+ * - Trust score breakdown with actual metrics
+ * - Loading states and empty state handling
+ * - Refresh functionality
+ */
 const Dashboard = () => {
   const { user } = useAuth();
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(2);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [notifications, setNotifications] = useState([]);
   const [showProfile, setShowProfile] = useState(false);
   const [showTrustScore, setShowTrustScore] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
-
-  const stats = [
-    { 
-      label: 'Items Found', 
-      value: '12',
-      icon: Search, 
+  const [stats, setStats] = useState([
+    {
+      label: 'Items Found',
+      value: '0',
+      icon: Search,
       color: 'text-green-600',
       emptyText: 'No items found yet'
     },
-    { 
-      label: 'Active Reports', 
-      value: '3',
-      icon: Bell, 
+    {
+      label: 'Active Reports',
+      value: '0',
+      icon: Bell,
       color: 'text-blue-600',
       emptyText: 'No active reports'
     },
-    { 
-      label: 'Community Helps', 
-      value: '8',
-      icon: TrendingUp, 
+    {
+      label: 'Community Helps',
+      value: '0',
+      icon: TrendingUp,
       color: 'text-purple-600',
       emptyText: 'No resolved reports yet'
     },
-  ];
-
-  const recentActivity = [
-    { id: 1, type: 'found', item: 'Blue Backpack', location: 'Central Park', time: '2 hours ago' },
-    { id: 2, type: 'lost', item: 'Car Keys', location: 'Library', time: '4 hours ago' },
-    { id: 3, type: 'found', item: 'Phone Case', location: 'Coffee Shop', time: '1 day ago' },
-  ];
+  ]);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [trustMetrics, setTrustMetrics] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const toggleNotificationSidebar = () => {
     setIsNotificationSidebarOpen(!isNotificationSidebarOpen);
+  };
+
+  const refreshDashboard = async () => {
+    if (user?.id) {
+      setLoading(true);
+      await Promise.all([
+        fetchUserStats(user.id),
+        fetchRecentActivity(user.id),
+        fetchTrustMetrics(user.id),
+        fetchNotifications(user.id)
+      ]);
+      setLoading(false);
+    }
+  };
+
+  // Helper function to format time ago
+  const formatTimeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} minutes ago`;
+    } else if (diffInMinutes < 1440) {
+      const hours = Math.floor(diffInMinutes / 60);
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else {
+      const days = Math.floor(diffInMinutes / 1440);
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    }
+  };
+
+  // Fetch user statistics
+  const fetchUserStats = async (userId) => {
+    try {
+      // Get user's found items count (reports where user found something)
+      const { data: foundItems, error: foundError } = await supabase
+        .from('reports')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('report_type', 'found');
+
+      // Get user's active reports count
+      const { data: activeReports, error: activeError } = await supabase
+        .from('reports')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('status', 'active');
+
+      // Get user's community helps (successful matches + resolved reports)
+      const { data: trustData, error: trustError } = await supabase
+        .from('user_trust_metrics')
+        .select('successful_matches, accurate_reports')
+        .eq('user_id', userId)
+        .single();
+
+      // Get resolved reports count (items that were successfully returned)
+      const { data: resolvedReports, error: resolvedError } = await supabase
+        .from('reports')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('status', 'resolved');
+
+      if (!foundError && !activeError) {
+        const successfulMatches = trustData?.successful_matches || 0;
+        const resolvedCount = resolvedReports?.length || 0;
+        const communityHelps = successfulMatches + resolvedCount;
+
+        setStats([
+          {
+            label: 'Items Found',
+            value: foundItems?.length?.toString() || '0',
+            icon: Search,
+            color: 'text-green-600',
+            emptyText: 'No items found yet'
+          },
+          {
+            label: 'Active Reports',
+            value: activeReports?.length?.toString() || '0',
+            icon: Bell,
+            color: 'text-blue-600',
+            emptyText: 'No active reports'
+          },
+          {
+            label: 'Community Helps',
+            value: communityHelps.toString(),
+            icon: TrendingUp,
+            color: 'text-purple-600',
+            emptyText: 'No resolved reports yet'
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    }
+  };
+
+  // Fetch recent activity
+  const fetchRecentActivity = async (userId) => {
+    try {
+      const { data: reports, error } = await supabase
+        .from('reports')
+        .select(`
+          id,
+          title,
+          report_type,
+          address,
+          created_at,
+          categories (name)
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (!error && reports) {
+        const formattedActivity = reports.map(report => ({
+          id: report.id,
+          type: report.report_type,
+          item: report.title,
+          location: report.address?.split(',')[0] || 'Unknown location',
+          time: formatTimeAgo(report.created_at)
+        }));
+
+        setRecentActivity(formattedActivity);
+      }
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+    }
+  };
+
+  // Fetch user trust metrics
+  const fetchTrustMetrics = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_trust_metrics')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (!error && data) {
+        setTrustMetrics(data);
+      }
+    } catch (error) {
+      console.error('Error fetching trust metrics:', error);
+    }
+  };
+
+  // Fetch user notifications
+  const fetchNotifications = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select(`
+          id,
+          type,
+          title,
+          message,
+          is_read,
+          created_at,
+          related_report_id,
+          related_match_id,
+          related_user_id,
+          reports (
+            title,
+            report_type,
+            address
+          )
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (!error && data) {
+        const formattedNotifications = data.map(notification => ({
+          id: notification.id,
+          type: notification.type,
+          title: notification.title,
+          description: notification.message,
+          time: formatTimeAgo(notification.created_at),
+          read: notification.is_read,
+          relatedReportId: notification.related_report_id,
+          relatedMatchId: notification.related_match_id,
+          relatedUserId: notification.related_user_id,
+          reportTitle: notification.reports?.title,
+          reportType: notification.reports?.report_type,
+          location: notification.reports?.address?.split(',')[0] || 'Unknown location'
+        }));
+
+        setNotifications(formattedNotifications);
+        setUnreadNotifications(formattedNotifications.filter(n => !n.read).length);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
   };
 
   // Fetch user profile data
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user?.id) {
+        setLoading(true);
+
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
-        
+
         if (data) {
           setUserProfile(data);
         }
+
+        // Fetch all dashboard data
+        await Promise.all([
+          fetchUserStats(user.id),
+          fetchRecentActivity(user.id),
+          fetchTrustMetrics(user.id),
+          fetchNotifications(user.id)
+        ]);
+
+        setLoading(false);
       }
     };
 
@@ -133,9 +346,16 @@ const Dashboard = () => {
       <Navbar />
       
       {/* Notification Sidebar */}
-      <NotificationSidebar 
-        isOpen={isNotificationSidebarOpen} 
-        onClose={() => setIsNotificationSidebarOpen(false)} 
+      <NotificationSidebar
+        isOpen={isNotificationSidebarOpen}
+        onClose={() => setIsNotificationSidebarOpen(false)}
+        notifications={notifications}
+        onNotificationRead={(id) => {
+          setNotifications(prev => prev.map(n =>
+            n.id === id ? { ...n, read: true } : n
+          ));
+          setUnreadNotifications(prev => Math.max(0, prev - 1));
+        }}
       />
       
       {/* Notification Toggle Button (Mobile) */}
@@ -166,15 +386,28 @@ const Dashboard = () => {
               Dashboard
             </motion.h1>
             <div className="flex items-center space-x-4">
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={refreshDashboard}
+                disabled={loading}
+                className="p-2 rounded-lg bg-purple-100 dark:bg-gray-800 text-purple-600 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50"
+                title="Refresh Dashboard"
+              >
+                <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+              </motion.button>
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: 0.2 }}
               >
-                <NotificationButton 
-                  unreadCount={unreadNotifications} 
-                  onClick={toggleNotificationSidebar} 
-                  isOpen={isNotificationSidebarOpen} 
+                <NotificationButton
+                  unreadCount={unreadNotifications}
+                  onClick={toggleNotificationSidebar}
+                  isOpen={isNotificationSidebarOpen}
                 />
               </motion.div>
             </div>
@@ -265,7 +498,19 @@ const Dashboard = () => {
                     className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-xl shadow-purple-500/10 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 border border-purple-200/50 dark:border-purple-900/30"
                     whileHover={{ y: -2 }}
                   >
-                    <TrustScoreBreakdown />
+                    <TrustScoreBreakdown
+                      userStats={trustMetrics ? {
+                        successfulMatches: trustMetrics.successful_matches || 0,
+                        reportAccuracy: trustMetrics.accurate_reports || 0,
+                        quickResponses: trustMetrics.quick_responses || 0,
+                        accountMonths: trustMetrics.account_longevity_months || 0,
+                        falseReports: trustMetrics.false_reports || 0,
+                        noShows: trustMetrics.no_shows || 0,
+                        spamPosts: trustMetrics.spam_posts || 0,
+                        unresponsive: trustMetrics.unresponsive_incidents || 0
+                      } : null}
+                      score={userProfile?.trust_score || 0}
+                    />
                   </motion.div>
                 </motion.div>
               </motion.div>
@@ -329,70 +574,109 @@ const Dashboard = () => {
             animate="visible"
             className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8"
           >
-            {stats.map((stat, index) => (
-              <motion.div 
-                key={stat.label} 
-                variants={itemVariants}
-                custom={index + 2}
-                whileHover="hover"
-                className="bg-purple-100 dark:bg-gray-800 p-6 rounded-3xl border border-purple-300 dark:border-gray-700 hover:shadow-xl hover:shadow-purple-500/20 dark:hover:shadow-purple-900/30 transition-all duration-300 hover:glow-purple"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.label}</p>
-                    <motion.p 
-                      initial={{ scale: 0.8 }}
-                      animate={{ scale: 1 }}
-                      transition={{ 
-                        type: "spring", 
-                        stiffness: 300, 
-                        delay: 0.3 + (index * 0.1)
-                      }}
-                      className="text-3xl font-bold text-gray-900 dark:text-white"
-                    >
-                      {stat.value}
-                    </motion.p>
+            {loading ? (
+              // Loading skeleton for stats
+              [1, 2, 3].map((i) => (
+                <div key={i} className="bg-purple-100 dark:bg-gray-800 p-6 rounded-3xl border border-purple-300 dark:border-gray-700 animate-pulse">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-24 mb-2" />
+                      <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-16" />
+                    </div>
+                    <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-xl" />
                   </div>
-                  <motion.div 
-                    whileHover={{ scale: 1.03, rotate: 1 }}
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center bg-purple-200/80 dark:bg-gray-700 ${stat.color}`}
-                  >
-                    <stat.icon className="h-6 w-6" />
-                  </motion.div>
                 </div>
-              </motion.div>
-            ))}
+              ))
+            ) : (
+              stats.map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  variants={itemVariants}
+                  custom={index + 2}
+                  whileHover="hover"
+                  className="bg-purple-100 dark:bg-gray-800 p-6 rounded-3xl border border-purple-300 dark:border-gray-700 hover:shadow-xl hover:shadow-purple-500/20 dark:hover:shadow-purple-900/30 transition-all duration-300 hover:glow-purple"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.label}</p>
+                      <motion.p
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          delay: 0.3 + (index * 0.1)
+                        }}
+                        className="text-3xl font-bold text-gray-900 dark:text-white"
+                      >
+                        {stat.value}
+                      </motion.p>
+                    </div>
+                    <motion.div
+                      whileHover={{ scale: 1.03, rotate: 1 }}
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center bg-purple-200/80 dark:bg-gray-700 ${stat.color}`}
+                    >
+                      <stat.icon className="h-6 w-6" />
+                    </motion.div>
+                  </div>
+                </motion.div>
+              ))
+            )}
           </motion.div>
 
           {/* Recent Activity */}
           <div className="bg-purple-100 dark:bg-gray-800 rounded-3xl border border-purple-300 dark:border-gray-700 p-6 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Recent Activity</h2>
             <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div 
-                  key={activity.id} 
-                  className={`flex items-center space-x-4 p-4 bg-purple-50 dark:bg-gray-700/50 rounded-xl hover:shadow-md ${
-                    activity.type === 'found' ? 'hover:shadow-green-500/10 hover:border-green-200 hover:glow-green' : 'hover:shadow-red-500/10 hover:border-red-200 hover:glow-red'
-                  } transition-all duration-300`}
-                >
-                  <div 
-                    className={`w-2 h-2 rounded-full ${
-                      activity.type === 'found' ? 'bg-green-500' : 'bg-red-500'
-                    }`} 
-                  />
-                  <div className="flex-1">
-                    <p className="text-gray-900 dark:text-white font-medium">
-                      {activity.type === 'found' ? 'Found:' : 'Lost:'} {activity.item}
-                    </p>
-                    <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                      <MapPin className="h-4 w-4" />
-                      <span>{activity.location}</span>
-                      <span>•</span>
-                      <span>{activity.time}</span>
+              {loading ? (
+                // Loading skeleton
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center space-x-4 p-4 bg-purple-50 dark:bg-gray-700/50 rounded-xl animate-pulse">
+                      <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600" />
+                      <div className="flex-1">
+                        <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2" />
+                        <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : recentActivity.length > 0 ? (
+                recentActivity.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className={`flex items-center space-x-4 p-4 bg-purple-50 dark:bg-gray-700/50 rounded-xl hover:shadow-md ${
+                      activity.type === 'found' ? 'hover:shadow-green-500/10 hover:border-green-200 hover:glow-green' : 'hover:shadow-red-500/10 hover:border-red-200 hover:glow-red'
+                    } transition-all duration-300`}
+                  >
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        activity.type === 'found' ? 'bg-green-500' : 'bg-red-500'
+                      }`}
+                    />
+                    <div className="flex-1">
+                      <p className="text-gray-900 dark:text-white font-medium">
+                        {activity.type === 'found' ? 'Found:' : 'Lost:'} {activity.item}
+                      </p>
+                      <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                        <MapPin className="h-4 w-4" />
+                        <span>{activity.location}</span>
+                        <span>•</span>
+                        <span>{activity.time}</span>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                // Empty state
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Clock className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">No recent activity yet</p>
+                  <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">Start by reporting a lost or found item</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

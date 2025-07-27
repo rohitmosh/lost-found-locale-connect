@@ -1,115 +1,84 @@
 import React, { useState } from 'react';
-import { Bell, X, User, Clock } from 'lucide-react';
+import { Bell, X, User, Clock, MapPin, Search, AlertTriangle, CheckCircle, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// Updated mock notifications to match the image
-const mockNotifications = [
-  {
-    id: 1,
-    type: 'lost',
-    title: 'New Lost Item Nearby',
-    description: 'iPhone 14 Pro lost near Central Park',
-    time: '5 minutes ago',
-    distance: '0.3 km',
-    read: false,
-    icon: 'location'
-  },
-  {
-    id: 2,
-    type: 'found',
-    title: 'Item Found Match',
-    description: 'Brown leather wallet found - matches your search',
-    time: '1 hour ago',
-    distance: '1.2 km',
-    read: false,
-    icon: 'bell'
-  },
-  {
-    id: 3,
-    type: 'alert',
-    title: 'Search Alert',
-    description: 'New electronics items in your area',
-    time: '3 hours ago',
-    distance: '2.1 km',
-    read: false,
-    icon: 'user'
-  }
-];
+import { useNavigate } from 'react-router-dom';
 
 // Icon components based on notification type
 const NotificationIcon = ({ type }) => {
   const baseClasses = "w-10 h-10 rounded-full flex items-center justify-center";
-  
-  if (type === 'lost') {
-    return (
-      <div className={`${baseClasses} bg-red-900/20`}>
-        <motion.div
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={{ 
-            type: "spring",
-            stiffness: 400,
-            damping: 10
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-        </motion.div>
-      </div>
-    );
-  } else if (type === 'found') {
-    return (
-      <div className={`${baseClasses} bg-green-900/20`}>
-        <motion.div
-          initial={{ rotate: -10 }}
-          animate={{ rotate: 0 }}
-          transition={{ 
-            type: "spring",
-            stiffness: 400,
-            damping: 10
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-          </svg>
-        </motion.div>
-      </div>
-    );
-  } else {
-    return (
-      <div className={`${baseClasses} bg-blue-900/20`}>
-        <motion.div
-          initial={{ y: 2 }}
-          animate={{ y: 0 }}
-          transition={{ 
-            type: "spring",
-            stiffness: 400,
-            damping: 10
-          }}
-        >
-          <User className="w-5 h-5 text-blue-400" />
-        </motion.div>
-      </div>
-    );
-  }
+
+  const getIconConfig = (type) => {
+    switch (type) {
+      case 'match_found':
+        return { icon: Search, color: 'text-green-400', bg: 'bg-green-900/20' };
+      case 'status_update':
+        return { icon: AlertTriangle, color: 'text-yellow-400', bg: 'bg-yellow-900/20' };
+      case 'item_anniversary':
+        return { icon: Clock, color: 'text-blue-400', bg: 'bg-blue-900/20' };
+      case 'stale_reminder':
+        return { icon: Clock, color: 'text-orange-400', bg: 'bg-orange-900/20' };
+      case 'search_alert':
+        return { icon: Bell, color: 'text-purple-400', bg: 'bg-purple-900/20' };
+      case 'community_help':
+        return { icon: CheckCircle, color: 'text-green-400', bg: 'bg-green-900/20' };
+      case 'new_message':
+        return { icon: MessageCircle, color: 'text-blue-400', bg: 'bg-blue-900/20' };
+      case 'report_created':
+        return { icon: CheckCircle, color: 'text-green-400', bg: 'bg-green-900/20' };
+      default:
+        return { icon: Bell, color: 'text-gray-400', bg: 'bg-gray-900/20' };
+    }
+  };
+
+  const { icon: IconComponent, color, bg } = getIconConfig(type);
+
+  return (
+    <div className={`${baseClasses} ${bg}`}>
+      <motion.div
+        initial={{ scale: 0.8 }}
+        animate={{ scale: 1 }}
+        transition={{
+          type: "spring",
+          stiffness: 400,
+          damping: 10
+        }}
+      >
+        <IconComponent className={`w-5 h-5 ${color}`} />
+      </motion.div>
+    </div>
+  );
 };
 
-const NotificationSidebar = ({ isOpen, onClose }) => {
-  const [notifications, setNotifications] = useState(mockNotifications);
-  
+const NotificationSidebar = ({ isOpen, onClose, notifications = [], onNotificationRead }) => {
+  const navigate = useNavigate();
+
   const unreadCount = notifications.filter(n => !n.read).length;
   
   const markAsRead = (id) => {
-    setNotifications(notifications.map(notification => 
-      notification.id === id ? { ...notification, read: true } : notification
-    ));
+    if (onNotificationRead) {
+      onNotificationRead(id);
+    }
   };
-  
+
   const markAllAsRead = () => {
-    setNotifications(notifications.map(notification => ({ ...notification, read: true })));
+    notifications.forEach(notification => {
+      if (!notification.read && onNotificationRead) {
+        onNotificationRead(notification.id);
+      }
+    });
+  };
+
+  const handleNotificationClick = (notification) => {
+    markAsRead(notification.id);
+
+    // Navigate based on notification type
+    if (notification.type === 'match_found' && notification.relatedReportId) {
+      navigate(`/map?report=${notification.relatedReportId}`);
+    } else if (notification.relatedReportId) {
+      navigate(`/reports/${notification.relatedReportId}`);
+    }
+
+    onClose();
   };
 
   const sidebarVariants = {
@@ -227,7 +196,7 @@ const NotificationSidebar = ({ isOpen, onClose }) => {
                       variants={itemVariants}
                       whileHover="hover"
                       className="p-4 bg-gray-800/80 rounded-xl border border-purple-900/30 cursor-pointer relative overflow-hidden group"
-                      onClick={() => markAsRead(notification.id)}
+                      onClick={() => handleNotificationClick(notification)}
                     >
                       {!notification.read && (
                         <motion.div 
@@ -254,7 +223,12 @@ const NotificationSidebar = ({ isOpen, onClose }) => {
                               <Clock className="h-3 w-3 mr-1" />
                               <span>{notification.time}</span>
                             </div>
-                            <span className="text-purple-400">{notification.distance}</span>
+                            {notification.location && (
+                              <div className="flex items-center text-purple-400">
+                                <MapPin className="h-3 w-3 mr-1" />
+                                <span>{notification.location}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

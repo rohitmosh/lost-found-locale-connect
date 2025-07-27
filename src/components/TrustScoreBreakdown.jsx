@@ -89,7 +89,8 @@ const TrustScoreBreakdown = ({ userStats = null, score = 103 }) => {
 
   const totalPositive = positiveMetrics.reduce((sum, metric) => sum + metric.points, 0);
   const totalNegative = negativeMetrics.reduce((sum, metric) => sum + metric.points, 0);
-  const totalScore = score || Math.max(0, totalPositive + totalNegative);
+  const calculatedScore = Math.max(0, totalPositive + totalNegative);
+  const totalScore = score > 0 ? score : calculatedScore;
 
   return (
     <Card className="w-full hover:shadow-lg transition-shadow duration-300 rounded-3xl">
