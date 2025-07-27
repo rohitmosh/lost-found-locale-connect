@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { motion } from 'framer-motion';
-import { User as UserIcon, Mail, Phone, Calendar, MapPin, Shield, TrendingUp, Plus } from 'lucide-react';
+import { User as UserIcon, Mail, Phone, Calendar, Shield, TrendingUp, Plus } from 'lucide-react';
 import { Button } from './ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -47,47 +47,7 @@ const UserProfile = ({ showTrustScore = false, userProfile, user }) => {
     }
   };
 
-  const handleSetLocation = async () => {
-    if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by this browser');
-      return;
-    }
 
-    setIsUpdating(true);
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
-          
-          // Use reverse geocoding to get address (simplified approach)
-          const response = await fetch(
-            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbG02czJ6dGkzOXhuM3FvM3huNGJ2dmN5In0.WQn2XNOMWfFKNfnk5fPfqA&types=address`
-          );
-          const data = await response.json();
-          const address = data.features?.[0]?.place_name || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-
-          // For now, we'll just show a success message since there's no location field in profiles table
-          toast.success(`Location set to: ${address}`);
-          console.log('User location:', { latitude, longitude, address });
-        } catch (error) {
-          toast.error('Failed to get location details');
-          console.error('Geocoding error:', error);
-        } finally {
-          setIsUpdating(false);
-        }
-      },
-      (error) => {
-        setIsUpdating(false);
-        toast.error('Failed to get your location');
-        console.error('Geolocation error:', error);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000
-      }
-    );
-  };
 
   return (
     <motion.div 
@@ -146,15 +106,7 @@ const UserProfile = ({ showTrustScore = false, userProfile, user }) => {
               >
                 {displayName}
               </motion.h2>
-              <motion.div
-                className="flex items-center mt-1 text-purple-100"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <MapPin className="w-4 h-4 mr-1" />
-                <span className="text-sm">Location not set</span>
-              </motion.div>
+
             </div>
           </div>
           
@@ -188,8 +140,8 @@ const UserProfile = ({ showTrustScore = false, userProfile, user }) => {
       </div>
       
       <div className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <motion.div 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <motion.div
             className="flex items-center space-x-3"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -204,8 +156,8 @@ const UserProfile = ({ showTrustScore = false, userProfile, user }) => {
               <p className="text-sm font-medium text-gray-900 dark:text-white">{displayEmail}</p>
             </div>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="flex items-center space-x-3"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -218,7 +170,7 @@ const UserProfile = ({ showTrustScore = false, userProfile, user }) => {
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
               {phoneNumber ? (
-                <motion.p 
+                <motion.p
                   className="text-sm font-medium text-gray-900 dark:text-white"
                   initial={{ backgroundColor: "rgba(124, 58, 237, 0.1)" }}
                   animate={{ backgroundColor: "rgba(0, 0, 0, 0)" }}
@@ -227,9 +179,9 @@ const UserProfile = ({ showTrustScore = false, userProfile, user }) => {
                   {phoneNumber}
                 </motion.p>
               ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="h-7 text-xs mt-1"
                   onClick={handleAddPhone}
                   disabled={isUpdating}
@@ -240,8 +192,8 @@ const UserProfile = ({ showTrustScore = false, userProfile, user }) => {
               )}
             </div>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="flex items-center space-x-3"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -256,31 +208,6 @@ const UserProfile = ({ showTrustScore = false, userProfile, user }) => {
               <p className="text-sm font-medium text-gray-900 dark:text-white">
                 {memberSince || 'August 2023'}
               </p>
-            </div>
-          </motion.div>
-          
-          <motion.div 
-            className="flex items-center space-x-3"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            whileHover={{ x: 3 }}
-          >
-            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shadow-md shadow-purple-500/10">
-              <MapPin className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Current location</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-7 text-xs mt-1"
-                onClick={handleSetLocation}
-                disabled={isUpdating}
-              >
-                <Plus className="w-3 h-3 mr-1" />
-                Set Location
-              </Button>
             </div>
           </motion.div>
         </div>
