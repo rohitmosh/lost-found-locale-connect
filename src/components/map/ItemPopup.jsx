@@ -77,7 +77,7 @@ const ItemPopup = ({ item, onClose }) => {
           <div className="px-5 pb-4 space-y-2">
             <div className={`flex items-center ${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm`}>
               <MapPin className={`h-4 w-4 mr-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
-              <span>{item.location?.address || "Location details unavailable"}</span>
+              <span>{item.address || "Location details unavailable"}</span>
             </div>
             
             <div className={`flex items-center ${isDark ? 'text-gray-400' : 'text-gray-500'} text-sm`}>
@@ -86,16 +86,21 @@ const ItemPopup = ({ item, onClose }) => {
             </div>
             
             {/* Contact Methods */}
-            <div className="flex items-center text-sm text-purple-400 mt-1">
-              <Phone className="h-4 w-4 mr-2" />
-              <span>Contact via Phone</span>
-            </div>
+            {(item.contactEmail || item.contactPhone) && (
+              <div className="flex items-center text-sm text-purple-400 mt-1">
+                <Phone className="h-4 w-4 mr-2" />
+                <span>
+                  {item.contactPhone ? 'Contact via Phone' : 'Contact via Email'}
+                  {item.ownerName && ` - ${item.ownerName}`}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Item ID */}
           <div className={`px-5 pb-5 flex justify-between items-center border-t ${isDark ? 'border-gray-700' : 'border-gray-200'} pt-3`}>
             <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-              {item.status === 'Lost' ? 'LF-' : 'FI-'}2024-{Math.floor(Math.random() * 900000) + 100000}
+              ID: {item.id}
             </span>
             
             <div className="flex space-x-2">

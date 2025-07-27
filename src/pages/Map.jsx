@@ -12,72 +12,31 @@ import MapMarker from '../components/map/MapMarker';
 import MarkerClusterer from '../components/map/MarkerClusterer';
 import NotificationSidebar from '../components/NotificationSidebar';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { supabase } from '@/integrations/supabase/client';
 
-// Mock data for demonstration
-const mockItems = [
-  {
-    id: 1,
-    title: 'iPhone 13 Pro',
-    description: 'Blue iPhone with cracked screen, lost near Central Park',
-    category: 'Electronics',
-    status: 'Lost',
-    date: '2024-01-15',
-    location: { lat: 40.7829, lng: -73.9654 },
-    image: null,
-    distance: '0.8 km'
-  },
-  {
-    id: 2,
-    title: 'Brown Leather Wallet',
-    description: 'Found at coffee shop, contains ID cards',
-    category: 'Personal Items',
-    status: 'Found',
-    date: '2024-01-14',
-    location: { lat: 40.7614, lng: -73.9776 },
-    image: '/placeholder.svg',
-    distance: '1.2 km'
-  },
-  {
-    id: 3,
-    title: 'Golden Retriever - Max',
-    description: 'Friendly dog, wearing blue collar with tags',
-    category: 'Pets',
-    status: 'Lost',
-    date: '2024-01-13',
-    location: { lat: 40.7505, lng: -73.9934 },
-    image: null,
-    distance: '2.1 km'
-  },
-  {
-    id: 4,
-    title: 'Silver MacBook Pro',
-    description: 'Left at library study area, has stickers on cover',
-    category: 'Electronics',
-    status: 'Lost',
-    date: '2024-01-10',
-    location: { lat: 40.7430, lng: -73.9800 },
-    image: null,
-    distance: '3.5 km'
-  },
-  {
-    id: 5,
-    title: 'House Keys with Red Keychain',
-    description: 'Found near subway entrance on 5th Avenue',
-    category: 'Keys',
-    status: 'Found',
-    date: '2024-01-12',
-    location: { lat: 40.7560, lng: -73.9780 },
-    image: null,
-    distance: '1.5 km'
-  }
-];
+// Bangalore coordinates for map center
+const BANGALORE_CENTER = { lat: 12.9716, lng: 77.5946 };
+
+// Calculate distance between two coordinates using Haversine formula
+const calculateDistance = (lat1, lng1, lat2, lng2) => {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c;
+  return distance < 1 ? `${Math.round(distance * 1000)}m` : `${distance.toFixed(1)}km`;
+};
 
 const Map = () => {
   const { isDark } = useTheme();
   const mapRef = useRef(null);
   const googleMapRef = useRef(null);
   const markersRef = useRef([]);
-  const mapPositionRef = useRef({ center: null, zoom: 13 });
+  const mapPositionRef = useRef({ center: BANGALORE_CENTER, zoom: 13 });
   const [isLoading, setIsLoading] = useState(true);
   const [mapInitialized, setMapInitialized] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,24 +44,104 @@ const Map = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [viewMode, setViewMode] = useState('map'); // 'map' or 'list'
-  const [userLocation, setUserLocation] = useState(null);
+  const [userLocation, setUserLocation] = useState(BANGALORE_CENTER);
   const [searchResults, setSearchResults] = useState([]);
   const [activeSearch, setActiveSearch] = useState('');
+  const [allItems, setAllItems] = useState([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
   const [filters, setFilters] = useState({
     categories: [],
     status: 'all',
     dateRange: 'all',
     radius: 5
   });
-  
-  const [filteredItems, setFilteredItems] = useState(mockItems);
+
+  const [filteredItems, setFilteredItems] = useState([]);
+
+  // Fetch all reports from database
+  const fetchReports = async () => {
+    setDataLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('reports')
+        .select('*')
+        .eq('status', 'active')
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching reports:', error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        console.log('No reports found');
+        return;
+      }
+
+      // Fetch categories for mapping
+      const { data: categories } = await supabase
+        .from('categories')
+        .select('id, name');
+
+      const categoryMap = {};
+      if (categories) {
+        categories.forEach(cat => {
+          categoryMap[cat.id] = cat.name;
+        });
+      }
+
+      // Format reports for the map
+      const formattedItems = data.map(report => {
+        const currentLocation = userLocation || BANGALORE_CENTER;
+        const distance = calculateDistance(
+          currentLocation.lat,
+          currentLocation.lng,
+          parseFloat(report.latitude),
+          parseFloat(report.longitude)
+        );
+
+        return {
+          id: report.id,
+          title: report.title,
+          description: report.description,
+          category: categoryMap[report.category_id] || 'Other',
+          status: report.report_type === 'lost' ? 'Lost' : 'Found',
+          date: new Date(report.incident_date || report.created_at).toLocaleDateString(),
+          location: { lat: parseFloat(report.latitude), lng: parseFloat(report.longitude) },
+          address: report.address,
+          image: report.photo_url,
+          distance: distance,
+          contactEmail: report.contact_email,
+          contactPhone: report.contact_phone,
+          ownerName: 'Anonymous',
+          createdAt: report.created_at,
+          reportType: report.report_type
+        };
+      });
+
+      setAllItems(formattedItems);
+      setFilteredItems(formattedItems);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  // Load reports when component mounts
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
   // Debounce search input to avoid excessive filtering
   useEffect(() => {
     const timerId = setTimeout(() => {
       setActiveSearch(searchQuery);
     }, 500);
-    
+
     return () => clearTimeout(timerId);
   }, [searchQuery]);
   
@@ -210,7 +249,7 @@ const Map = () => {
       setMapInitialized(true);
 
       // Get user location if available
-      let initialLocation = { lat: 40.7589, lng: -73.9851 }; // Default to NYC
+      let initialLocation = BANGALORE_CENTER; // Default to Bangalore
       
       try {
         if (navigator.geolocation) {
@@ -294,7 +333,7 @@ const Map = () => {
       googleMapRef.current = new window.google.maps.Map(mapRef.current, mapOptions);
       
       // Add user location marker if available
-      if (initialLocation && (initialLocation.lat !== 40.7589 || initialLocation.lng !== -73.9851)) {
+      if (initialLocation && (initialLocation.lat !== BANGALORE_CENTER.lat || initialLocation.lng !== BANGALORE_CENTER.lng)) {
         const userMarker = new window.google.maps.Marker({
           position: initialLocation,
           map: googleMapRef.current,
@@ -444,8 +483,8 @@ const Map = () => {
       markersRef.current.push(userMarkerRef);
     }
     
-    // Add new markers for each item
-    filteredItems.forEach((item) => {
+    // Add new markers for each item with staggered animation
+    filteredItems.forEach((item, index) => {
       // Create a marker reference to store the Google Maps marker instance
       const markerRef = { current: null };
       
@@ -471,16 +510,17 @@ const Map = () => {
         scaledSize: new window.google.maps.Size(48, 48),
       };
       
-      // Create marker instance
-      const marker = new window.google.maps.Marker({
-        position: item.location,
-        map: googleMapRef.current,
-        title: item.title,
-        icon: svgMarker,
-        animation: window.google.maps.Animation.DROP,
-        optimized: false, // Important for custom SVG markers
-        zIndex: 1
-      });
+      // Create marker instance with staggered animation
+      setTimeout(() => {
+        const marker = new window.google.maps.Marker({
+          position: item.location,
+          map: googleMapRef.current,
+          title: item.title,
+          icon: svgMarker,
+          animation: window.google.maps.Animation.DROP,
+          optimized: false, // Important for custom SVG markers
+          zIndex: 1
+        });
       
       // Add click listener
       marker.addListener('click', () => {
@@ -508,16 +548,17 @@ const Map = () => {
         marker.setIcon(icon);
       });
       
-      // Store marker reference for clustering
-      markerRef.current = marker;
-      markersRef.current.push(markerRef);
+        // Store marker reference for clustering
+        markerRef.current = marker;
+        markersRef.current.push(markerRef);
+      }, index * 100); // Staggered delay of 100ms per marker
     });
     
   }, [filteredItems, viewMode, googleMapRef.current]);
 
   // Filter items based on current filters
   useEffect(() => {
-    let filtered = mockItems;
+    let filtered = allItems;
 
     // Filter by search query
     if (searchQuery) {
@@ -542,7 +583,7 @@ const Map = () => {
     }
 
     setFilteredItems(filtered);
-  }, [searchQuery, filters]);
+  }, [searchQuery, filters, allItems]);
 
   // Handle item selection
   const handleItemClick = (item) => {
@@ -762,7 +803,7 @@ const Map = () => {
       setTimeout(() => {
         // Completely reinitialize the map
         const mapOptions = {
-          center: mapPositionRef.current.center || userLocation || { lat: 40.7589, lng: -73.9851 },
+          center: mapPositionRef.current.center || userLocation || BANGALORE_CENTER,
           zoom: mapPositionRef.current.zoom || 13,
           styles: isDark ? [
             { elementType: 'geometry', stylers: [{ color: '#0f172a' }] },
@@ -875,8 +916,8 @@ const Map = () => {
           markersRef.current.push({ current: userMarker });
         }
         
-        // Add item markers
-        filteredItems.forEach((item) => {
+        // Add item markers with staggered animation
+        filteredItems.forEach((item, index) => {
           // Create a marker reference to store the Google Maps marker instance
           const markerRef = { current: null };
           
@@ -902,16 +943,17 @@ const Map = () => {
             scaledSize: new window.google.maps.Size(48, 48),
           };
           
-          // Create marker instance
-          const marker = new window.google.maps.Marker({
-            position: item.location,
-            map: googleMapRef.current,
-            title: item.title,
-            icon: svgMarker,
-            animation: window.google.maps.Animation.DROP,
-            optimized: false, // Important for custom SVG markers
-            zIndex: 1
-          });
+          // Create marker instance with staggered animation
+          setTimeout(() => {
+            const marker = new window.google.maps.Marker({
+              position: item.location,
+              map: googleMapRef.current,
+              title: item.title,
+              icon: svgMarker,
+              animation: window.google.maps.Animation.DROP,
+              optimized: false, // Important for custom SVG markers
+              zIndex: 1
+            });
           
           // Add click listener
           marker.addListener('click', () => {
@@ -939,9 +981,10 @@ const Map = () => {
             marker.setIcon(icon);
           });
           
-          // Store marker reference for clustering
-          markerRef.current = marker;
-          markersRef.current.push(markerRef);
+            // Store marker reference for clustering
+            markerRef.current = marker;
+            markersRef.current.push(markerRef);
+          }, index * 100); // Staggered delay of 100ms per marker
         });
       }, 100); // Small delay to ensure DOM is updated
     }
@@ -1152,8 +1195,8 @@ const Map = () => {
             <>
               {/* Map Container */}
               <div className="relative h-[calc(100vh-10rem)]">
-                {isLoading && (
-                  <motion.div 
+                {(isLoading || dataLoading) && (
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -1161,7 +1204,9 @@ const Map = () => {
                   >
                     <div className="text-center">
                       <LoadingSpinner size="lg" />
-                      <p className="mt-4 text-gray-400">Loading map...</p>
+                      <p className="mt-4 text-gray-400">
+                        {dataLoading ? 'Loading reports...' : 'Loading map...'}
+                      </p>
                     </div>
                   </motion.div>
                 )}
@@ -1244,134 +1289,145 @@ const Map = () => {
           ) : (
             /* List View */
             <div className={`p-6 h-[calc(100vh-10rem)] overflow-y-auto ${isDark ? 'bg-gray-900' : 'bg-purple-100/30'}`}>
-              <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                <AnimatePresence>
-                  {filteredItems.map((item, index) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ 
-                        type: "spring", 
-                        damping: 25, 
-                        stiffness: 300,
-                        delay: index * 0.05
-                      }}
-                      whileHover={{ 
-                        y: -5, 
-                        scale: 1.02,
-                        boxShadow: "0 10px 25px rgba(139, 92, 246, 0.2)",
-                        borderColor: "rgba(139, 92, 246, 0.5)"
-                      }}
-                      className={`group ${isDark ? 'bg-gray-800/80' : 'bg-white/90'} backdrop-blur-sm rounded-2xl p-6 shadow-lg border ${isDark ? 'border-gray-700/50' : 'border-gray-200/70'} cursor-pointer overflow-hidden h-80 flex flex-col`}
-                      onClick={() => handleItemClick(item)}
-                    >
-                      {/* Image container with consistent height */}
-                      <div className="relative h-40 -mx-6 -mt-6 mb-4 overflow-hidden">
-                        {item.image ? (
-                          <motion.img
-                            src={item.image}
-                            alt={item.title}
-                            className="w-full h-full object-cover"
-                            whileHover={{ scale: 1.05 }}
-                            transition={{ duration: 0.4 }}
-                          />
-                        ) : (
-                          <div className={`w-full h-full ${isDark ? 'bg-gray-800' : 'bg-purple-100/50'} flex items-center justify-center`}>
-                            <Search className={`h-12 w-12 ${isDark ? 'text-gray-700' : 'text-purple-300'}`} />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
-                      </div>
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-purple-400 transition-colors duration-300`}>
-                          {item.title}
-                        </h3>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
-                            item.status === 'Lost'
-                              ? `${isDark ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-red-500/10 text-red-500 border border-red-500/20'} group-hover:shadow-lg group-hover:shadow-red-500/25`
-                              : `${isDark ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-green-500/10 text-green-600 border border-green-500/20'} group-hover:shadow-lg group-hover:shadow-green-500/25`
-                          }`}
-                        >
-                          {item.status}
-                        </span>
-                      </div>
-                      {/* Card content with flex grow to push footer to bottom */}
-                      <div className="flex-grow">
-                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-4 line-clamp-2`}>
-                          {item.description}
-                        </p>
-                      </div>
-                      
-                      {/* Card footer */}
-                      <div className={`flex items-center justify-between text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'} mt-auto`}>
-                        <span className={`${isDark ? 'bg-gray-700/50 border-gray-600/50' : 'bg-gray-200/70 border-gray-300/50'} px-3 py-1 rounded-lg border`}>
-                          {item.category}
-                        </span>
-                        <span className="flex items-center text-purple-400">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {item.distance}
-                        </span>
-                      </div>
-                      
-                      {/* Hover effect overlay with View Details button */}
-                      <motion.div 
-                        initial={{ opacity: 0 }}
-                        whileHover={{ opacity: 1 }}
-                        className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-purple-900/50 via-purple-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      >
-                        <div className="flex justify-center">
-                          <motion.button 
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent double triggering
-                              toggleViewMode('map');
-                              handleItemClick(item);
-                            }}
-                            className="text-white font-semibold text-sm px-4 py-2 transition-all duration-200 hover:text-purple-300"
-                          >
-                            View Details
-                          </motion.button>
-                        </div>
-                      </motion.div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-
-              {filteredItems.length === 0 && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ type: "spring", damping: 25, stiffness: 300, delay: 0.2 }}
-                  className={`text-center py-20 ${isDark ? '' : 'bg-white/40 rounded-2xl shadow-sm border border-purple-100/50'}`}
-                >
-                  <div className={`${isDark ? 'text-gray-600' : 'text-purple-300'} mb-6`}>
-                    <Search className="h-20 w-20 mx-auto mb-4 opacity-50" />
+              {dataLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <LoadingSpinner size="lg" />
+                    <p className="mt-4 text-gray-400">Loading reports...</p>
                   </div>
-                  <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-800'} mb-4`}>
-                    No items found
-                  </h3>
-                  <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} text-lg`}>
-                    Try adjusting your search or filters to find what you're looking for.
-                  </p>
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setFilters({
-                      categories: [],
-                      status: 'all',
-                      dateRange: 'all',
-                      radius: 5
-                    })}
-                    className={`mt-6 bg-purple-600 text-white px-6 py-2 rounded-xl ${isDark ? 'hover:bg-purple-700' : 'hover:bg-purple-500'} transition-colors ${!isDark && 'shadow-md shadow-purple-200/50'}`}
-                  >
-                    Clear Filters
-                  </motion.button>
-                </motion.div>
+                </div>
+              ) : (
+                <>
+                  <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <AnimatePresence>
+                      {filteredItems.map((item, index) => (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          transition={{
+                            type: "spring",
+                            damping: 25,
+                            stiffness: 300,
+                            delay: index * 0.05
+                          }}
+                          whileHover={{
+                            y: -5,
+                            scale: 1.02,
+                            boxShadow: "0 10px 25px rgba(139, 92, 246, 0.2)",
+                            borderColor: "rgba(139, 92, 246, 0.5)"
+                          }}
+                          className={`group ${isDark ? 'bg-gray-800/80' : 'bg-white/90'} backdrop-blur-sm rounded-2xl p-6 shadow-lg border ${isDark ? 'border-gray-700/50' : 'border-gray-200/70'} cursor-pointer overflow-hidden h-80 flex flex-col`}
+                          onClick={() => handleItemClick(item)}
+                        >
+                          {/* Image container with consistent height */}
+                          <div className="relative h-40 -mx-6 -mt-6 mb-4 overflow-hidden">
+                            {item.image ? (
+                              <motion.img
+                                src={item.image}
+                                alt={item.title}
+                                className="w-full h-full object-cover"
+                                whileHover={{ scale: 1.05 }}
+                                transition={{ duration: 0.4 }}
+                              />
+                            ) : (
+                              <div className={`w-full h-full ${isDark ? 'bg-gray-800' : 'bg-purple-100/50'} flex items-center justify-center`}>
+                                <Search className={`h-12 w-12 ${isDark ? 'text-gray-700' : 'text-purple-300'}`} />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
+                          </div>
+                          <div className="flex items-start justify-between mb-3">
+                            <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-purple-400 transition-colors duration-300`}>
+                              {item.title}
+                            </h3>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
+                                item.status === 'Lost'
+                                  ? `${isDark ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-red-500/10 text-red-500 border border-red-500/20'} group-hover:shadow-lg group-hover:shadow-red-500/25`
+                                  : `${isDark ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-green-500/10 text-green-600 border border-green-500/20'} group-hover:shadow-lg group-hover:shadow-green-500/25`
+                              }`}
+                            >
+                              {item.status}
+                            </span>
+                          </div>
+                          {/* Card content with flex grow to push footer to bottom */}
+                          <div className="flex-grow">
+                            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-4 line-clamp-2`}>
+                              {item.description}
+                            </p>
+                          </div>
+
+                          {/* Card footer */}
+                          <div className={`flex items-center justify-between text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'} mt-auto`}>
+                            <span className={`${isDark ? 'bg-gray-700/50 border-gray-600/50' : 'bg-gray-200/70 border-gray-300/50'} px-3 py-1 rounded-lg border`}>
+                              {item.category}
+                            </span>
+                            <span className="flex items-center text-purple-400">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {item.distance}
+                            </span>
+                          </div>
+
+                          {/* Hover effect overlay with View Details button */}
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            whileHover={{ opacity: 1 }}
+                            className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-purple-900/50 via-purple-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            >
+                            <div className="flex justify-center">
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent double triggering
+                                  toggleViewMode('map');
+                                  handleItemClick(item);
+                                }}
+                                className="text-white font-semibold text-sm px-4 py-2 transition-all duration-200 hover:text-purple-300"
+                              >
+                                View Details
+                              </motion.button>
+                            </div>
+                          </motion.div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </div>
+
+                  {filteredItems.length === 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ type: "spring", damping: 25, stiffness: 300, delay: 0.2 }}
+                      className={`text-center py-20 ${isDark ? '' : 'bg-white/40 rounded-2xl shadow-sm border border-purple-100/50'}`}
+                    >
+                      <div className={`${isDark ? 'text-gray-600' : 'text-purple-300'} mb-6`}>
+                        <Search className="h-20 w-20 mx-auto mb-4 opacity-50" />
+                      </div>
+                      <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-800'} mb-4`}>
+                        No items found
+                      </h3>
+                      <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} text-lg`}>
+                        Try adjusting your search or filters to find what you're looking for.
+                      </p>
+                      <motion.button
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setFilters({
+                          categories: [],
+                          status: 'all',
+                          dateRange: 'all',
+                          radius: 5
+                        })}
+                        className={`mt-6 bg-purple-600 text-white px-6 py-2 rounded-xl ${isDark ? 'hover:bg-purple-700' : 'hover:bg-purple-500'} transition-colors ${!isDark && 'shadow-md shadow-purple-200/50'}`}
+                      >
+                        Clear Filters
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </>
               )}
             </div>
           )}
