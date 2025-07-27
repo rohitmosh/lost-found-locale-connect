@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Camera, 
   MapPin, 
@@ -52,34 +52,74 @@ const itemCategories = [
 
 const FoundItemForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(1);
   const dateInputRef = useRef(null);
   const timeInputRef = useRef(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: '',
-    foundDate: '',
-    foundTime: '',
-    notSureWhen: false,
-    photo: null,
-    contactEmail: 'user@example.com', // Pre-filled from user profile in a real app
-    contactPhone: '',
-    allowNotifications: true,
-    hideContactInfo: false,
-    location: 'Current Location', // Text representation of coordinates
-    locationCoords: null, // Actual coordinates object {lat, lng}
-    itemLocation: 'have-with-me', // Where is the item now?
-    customItemLocation: '',
-    returnMethod: 'meet-in-person',
-    verificationQuestions: {
-      colorBrand: true,
-      uniqueMarks: true,
-      lostLocation: true,
-      customQuestion: ''
-    },
-    confirmMeetSafely: false,
-    confirmAccuracy: false,
+
+  // Check if we're in edit mode
+  const editMode = location.state?.editMode || false;
+  const existingReport = location.state?.report || null;
+  const [formData, setFormData] = useState(() => {
+    if (editMode && existingReport) {
+      // Pre-fill form with existing report data
+      const reportDate = existingReport.date ? new Date(existingReport.date) : new Date();
+      return {
+        title: existingReport.title || '',
+        description: existingReport.description || '',
+        category: existingReport.categoryId || '',
+        foundDate: reportDate.toISOString().split('T')[0],
+        foundTime: reportDate.toTimeString().split(' ')[0].slice(0, 5),
+        notSureWhen: false,
+        photo: null,
+        contactEmail: existingReport.contactEmail || 'user@example.com',
+        contactPhone: existingReport.contactPhone || '',
+        allowNotifications: true,
+        hideContactInfo: false,
+        location: existingReport.location || 'Current Location',
+        locationCoords: existingReport.latitude && existingReport.longitude ?
+          { lat: existingReport.latitude, lng: existingReport.longitude } : null,
+        itemLocation: 'have-with-me',
+        customItemLocation: '',
+        returnMethod: 'meet-in-person',
+        verificationQuestions: {
+          colorBrand: true,
+          uniqueMarks: true,
+          lostLocation: true,
+          customQuestion: ''
+        },
+        confirmMeetSafely: false,
+        confirmAccuracy: false,
+      };
+    }
+
+    // Default form data for new reports
+    return {
+      title: '',
+      description: '',
+      category: '',
+      foundDate: '',
+      foundTime: '',
+      notSureWhen: false,
+      photo: null,
+      contactEmail: 'user@example.com',
+      contactPhone: '',
+      allowNotifications: true,
+      hideContactInfo: false,
+      location: 'Current Location',
+      locationCoords: null,
+      itemLocation: 'have-with-me',
+      customItemLocation: '',
+      returnMethod: 'meet-in-person',
+      verificationQuestions: {
+        colorBrand: true,
+        uniqueMarks: true,
+        lostLocation: true,
+        customQuestion: ''
+      },
+      confirmMeetSafely: false,
+      confirmAccuracy: false,
+    };
   });
   
   // Form progress percentage
@@ -213,7 +253,7 @@ const FoundItemForm = () => {
           >
             <div className="bg-purple-100/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-300 dark:border-purple-900/50 rounded-2xl p-6 shadow-lg mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Report Found Item
+                {editMode ? 'Edit Found Item Report' : 'Report Found Item'}
               </h2>
               
               <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>

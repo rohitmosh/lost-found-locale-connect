@@ -371,7 +371,7 @@ const Dashboard = () => {
       
       <div
         className={`transition-all duration-300 ${
-          isNotificationSidebarOpen ? 'ml-96' : 'ml-0'
+          isNotificationSidebarOpen ? 'ml-[460px]' : 'ml-0'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

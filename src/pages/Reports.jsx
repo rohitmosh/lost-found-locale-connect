@@ -278,7 +278,77 @@ const Reports = () => {
   const [reportToDelete, setReportToDelete] = useState(null);
   const [selectedReport, setSelectedReport] = useState(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  
+
+  // Fetch user's reports from database
+  const fetchReports = async () => {
+    if (!user?.id) return;
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('reports')
+        .select(`
+          id,
+          title,
+          description,
+          report_type,
+          status,
+          address,
+          latitude,
+          longitude,
+          contact_email,
+          contact_phone,
+          photo_url,
+          incident_date,
+          created_at,
+          updated_at,
+          categories (
+            id,
+            name
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching reports:', error);
+        return;
+      }
+
+      // Format reports for the UI
+      const formattedReports = data.map(report => ({
+        id: report.id,
+        title: report.title,
+        description: report.description,
+        type: report.report_type,
+        status: report.status,
+        location: report.address,
+        latitude: report.latitude,
+        longitude: report.longitude,
+        contactEmail: report.contact_email,
+        contactPhone: report.contact_phone,
+        photoUrl: report.photo_url,
+        date: new Date(report.incident_date || report.created_at),
+        createdAt: new Date(report.created_at),
+        updatedAt: new Date(report.updated_at),
+        category: report.categories?.name || 'Other',
+        categoryId: report.categories?.id,
+        isOwner: true // All reports are user's own reports
+      }));
+
+      setReports(formattedReports);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load reports when component mounts or user changes
+  useEffect(() => {
+    fetchReports();
+  }, [user?.id]);
+
   // Reset all filters
   const resetFilters = () => {
     setSearchQuery('');
@@ -343,10 +413,30 @@ const Reports = () => {
   };
   
   // Handle actual deletion
-  const handleDelete = () => {
-    setReports(reports.filter(report => report.id !== reportToDelete));
-    setDeleteDialogOpen(false);
-    setReportToDelete(null);
+  const handleDelete = async () => {
+    if (!reportToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('reports')
+        .delete()
+        .eq('id', reportToDelete)
+        .eq('user_id', user.id); // Ensure user can only delete their own reports
+
+      if (error) {
+        console.error('Error deleting report:', error);
+        alert('Failed to delete report. Please try again.');
+        return;
+      }
+
+      // Remove from local state
+      setReports(reports.filter(report => report.id !== reportToDelete));
+      setDeleteDialogOpen(false);
+      setReportToDelete(null);
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      alert('Failed to delete report. Please try again.');
+    }
   };
 
   // Handle view details
@@ -357,6 +447,12 @@ const Reports = () => {
 
   // Handle edit report
   const handleEditReport = (report) => {
+    // Only allow editing of active reports
+    if (report.status !== 'active') {
+      alert('Only active reports can be edited.');
+      return;
+    }
+
     if (report.type === 'lost') {
       navigate('/report-lost', { state: { editMode: true, report } });
     } else {
@@ -462,7 +558,42 @@ const Reports = () => {
           
           {/* Results */}
           <AnimatePresence mode="wait">
-            {filteredReports.length === 0 ? (
+            {loading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="bg-white dark:bg-gray-800 rounded-3xl border border-purple-100 dark:border-purple-900/50 overflow-hidden animate-pulse">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 m-4" />
+                    <div className="px-4 pb-4">
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2" />
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-4" />
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded" />
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded" />
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
+                      </div>
+                    </div>
+                    <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/60 border-t border-purple-100 dark:border-purple-900/50 flex justify-between items-center">
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+                      <div className="flex space-x-2">
+                        <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                        <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                        <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            ) : filteredReports.length === 0 ? (
               <motion.div 
                 key="no-results"
                 initial={{ opacity: 0 }}
@@ -726,11 +857,11 @@ const Reports = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <div>
-                  {selectedReport.image ? (
+                  {selectedReport.photoUrl ? (
                     <div className="rounded-3xl overflow-hidden mb-4 border border-purple-200 dark:border-purple-900/50 shadow-md hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:scale-[1.02] transform">
-                      <img 
-                        src={selectedReport.image} 
-                        alt={selectedReport.title} 
+                      <img
+                        src={selectedReport.photoUrl}
+                        alt={selectedReport.title}
                         className="w-full h-48 object-cover"
                       />
                     </div>
@@ -781,36 +912,27 @@ const Reports = () => {
                     {selectedReport.description}
                   </p>
                   
-                  {selectedReport.additionalInfo && (
-                    <>
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                        Additional Information
-                      </h3>
-                      <p className="text-gray-700 dark:text-gray-300 mb-4 whitespace-pre-line">
-                        {selectedReport.additionalInfo}
-                      </p>
-                    </>
-                  )}
+
                   
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 flex items-center">
                     <User className="h-4 w-4 text-purple-500 mr-2" />
                     Contact Information
                   </h3>
                   <div className="bg-purple-50 dark:bg-purple-900/20 rounded-3xl p-4 mb-4 shadow-sm hover:shadow-md hover:shadow-purple-500/10 transition-all duration-300">
-                    <p className="text-gray-700 dark:text-gray-300 mb-2">
-                      <strong>Name:</strong> {selectedReport.contactInfo.name}
-                    </p>
-                    {selectedReport.contactInfo.email && (
+                    {selectedReport.contactEmail && (
                       <p className="text-gray-700 dark:text-gray-300 mb-2 flex items-center hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200">
                         <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                        {selectedReport.contactInfo.email}
+                        <strong>Email:</strong> <span className="ml-2">{selectedReport.contactEmail}</span>
                       </p>
                     )}
-                    {selectedReport.contactInfo.phone && (
+                    {selectedReport.contactPhone && (
                       <p className="text-gray-700 dark:text-gray-300 flex items-center hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200">
                         <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                        {selectedReport.contactInfo.phone}
+                        <strong>Phone:</strong> <span className="ml-2">{selectedReport.contactPhone}</span>
                       </p>
+                    )}
+                    {!selectedReport.contactEmail && !selectedReport.contactPhone && (
+                      <p className="text-gray-500 dark:text-gray-400 italic">No contact information available</p>
                     )}
                   </div>
                 </div>

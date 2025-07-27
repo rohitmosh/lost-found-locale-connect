@@ -142,7 +142,7 @@ const NotificationSidebar = ({ isOpen, onClose, notifications = [], onNotificati
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="fixed top-0 left-0 h-full w-96 bg-gray-900/95 border-r border-purple-900/30 shadow-xl shadow-purple-800/20 z-50 overflow-hidden backdrop-blur-sm"
+          className="fixed top-0 left-0 h-full w-[460px] bg-gray-900/95 border-r border-purple-900/30 shadow-xl shadow-purple-800/20 z-50 overflow-hidden backdrop-blur-sm"
         >
           <div className="p-4 border-b border-purple-900/30 flex justify-between items-center">
             <motion.div 
