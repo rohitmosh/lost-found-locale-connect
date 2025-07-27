@@ -47,6 +47,8 @@ import {
 } from "@/components/ui/dialog";
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 // Simplified mock data
 const MOCK_REPORTS = [
@@ -259,7 +261,9 @@ const formatTimeAgo = (date) => {
 
 const Reports = () => {
   const navigate = useNavigate();
-  const [reports, setReports] = useState(MOCK_REPORTS);
+  const { user } = useAuth();
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     status: 'all', // 'all', 'active', 'resolved'
