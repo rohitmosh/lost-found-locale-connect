@@ -2,43 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import { Search, Menu, X, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, signOut } = useAuth();
+  const isAuthenticated = !!user;
 
   // Check if user is on login or register page
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
-  // Mock login/logout functionality
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-    localStorage.setItem('isAuthenticated', 'true');
-    navigate('/dashboard');
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('isAuthenticated');
-    navigate('/');
-  };
-
-  // Check authentication status on component mount
-  useEffect(() => {
-    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-    setIsAuthenticated(authStatus);
-  }, []);
-
-  // Auto-login for demo purposes if on dashboard page
-  useEffect(() => {
-    if (location.pathname === '/dashboard' && !isAuthenticated) {
-      handleLogin();
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
-  }, [location.pathname, isAuthenticated]);
+  };
 
-  const navigation = isAuthenticated 
+
+
+  const navigation = isAuthenticated
     ? [
         { name: 'Dashboard', href: '/dashboard' },
         { name: 'Map', href: '/map' },
@@ -48,7 +35,6 @@ const Navbar = () => {
         { name: 'Home', href: '/' },
         { name: 'Map', href: '/map' },
         { name: 'Reports', href: '/reports' },
-        { name: 'Dashboard', href: '/dashboard' },
       ];
 
   const isActive = (path) => location.pathname === path;

@@ -15,7 +15,9 @@ import Reports from "./pages/Reports";
 import HowItWorks from "./pages/HowItWorks";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 const queryClient = new QueryClient();
@@ -29,17 +31,20 @@ const App = () => (
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         
-        {/* Formerly Protected Routes */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Protected Routes */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/report-lost" element={<ProtectedRoute><ReportLostItem /></ProtectedRoute>} />
+        <Route path="/report-found" element={<ProtectedRoute><ReportFoundItem /></ProtectedRoute>} />
+
+        {/* Public Routes that don't require authentication */}
         <Route path="/map" element={<Map />} />
-        <Route path="/report-lost" element={<ReportLostItem />} />
-        <Route path="/report-found" element={<ReportFoundItem />} />
         <Route path="/reports" element={<Reports />} />
         
         {/* 404 Route */}
