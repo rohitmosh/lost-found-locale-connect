@@ -43,9 +43,21 @@ const MarkerClusterer = ({ map, markers }) => {
         clustererRef.current = null;
       }
       
-      // Filter out any null or undefined markers
-      const validMarkers = markers.filter(marker => marker);
+      // Filter out any null or undefined markers and ensure they're Google Maps marker instances
+      const validMarkers = markers.filter(marker =>
+        marker &&
+        marker.getPosition &&
+        typeof marker.getPosition === 'function'
+      );
+      console.log('Total markers passed:', markers.length);
       console.log('Valid markers for clustering:', validMarkers.length);
+
+      // Debug: Log marker positions to verify uniqueness
+      const positions = validMarkers.map(marker => {
+        const pos = marker.getPosition();
+        return pos ? `${pos.lat()},${pos.lng()}` : 'no-position';
+      });
+      console.log('Marker positions:', positions);
       
       // Create beautiful cluster styles with glow effect
       const clusterStyles = [
@@ -113,40 +125,48 @@ const MarkerClusterer = ({ map, markers }) => {
       ];
       
       if (typeof window.MarkerClusterer === 'function') {
-        // Create the MarkerClusterer with optimized settings for faster clustering
+        // Create the MarkerClusterer with optimized settings for accurate and fast clustering
         clustererRef.current = new window.MarkerClusterer(map, validMarkers, {
-          gridSize: 40, // Even smaller grid size for more responsive clustering
+          gridSize: 80, // Larger grid size for more accurate proximity-based clustering
           minimumClusterSize: 2,
-          maxZoom: 15,
+          maxZoom: 17, // Allow clustering at higher zoom levels for better accuracy
           styles: clusterStyles,
           zoomOnClick: true,
           averageCenter: true,
-          batchSize: 200, // Increase batch size for faster rendering
-          batchSizeIE: 200,
+          batchSize: 1000, // Much larger batch size for faster rendering
+          batchSizeIE: 1000,
           title: '', // Empty title to improve performance
           ignoreHidden: true, // Improve performance by ignoring hidden markers
+          enableRetinaIcons: true, // Better performance on high-DPI displays
           calculator: function(markers, numStyles) {
-            // Custom calculator to determine which style to use based on number of markers
+            // Accurate count calculator - returns exact marker count
             const count = markers.length;
+            console.log(`Cluster created with ${count} markers`);
+
             let index = 0;
             if (count < 10) {
               index = 0;
-            } else if (count < 20) {
+            } else if (count < 25) {
               index = 1;
             } else {
               index = 2;
             }
+
             return {
-              text: count.toString(),
+              text: count.toString(), // Always show exact count
               index: index
             };
           }
         });
         
-        // Force immediate clustering refresh
+        // Force immediate clustering refresh for faster performance
         if (clustererRef.current) {
-          // This additional step forces a re-render of clusters
-          window.google.maps.event.trigger(map, 'idle');
+          // Use repaint for faster clustering updates
+          clustererRef.current.repaint();
+          // Trigger idle event for immediate clustering
+          setTimeout(() => {
+            window.google.maps.event.trigger(map, 'idle');
+          }, 0);
         }
         
         console.log('MarkerClusterer initialized successfully');
@@ -245,23 +265,22 @@ const MarkerClusterer = ({ map, markers }) => {
           }
         };
 
-        // Initialize MarkerClusterer with custom options
+        // Initialize MarkerClusterer with optimized options for accuracy and speed
         clustererRef.current = new window.markerClusterer.MarkerClusterer({
           map,
           markers: validMarkers,
           renderer,
-          gridSize: 40, // Smaller grid size for more responsive clustering
-          minimumClusterSize: 2,
-          maxZoom: 15,
-          algorithm: {
-            maxZoom: 15,
-            radius: 60, // Optimize for better clustering
-            viewportPadding: 0 // Remove padding for more immediate clustering
-          }
+          algorithm: new window.markerClusterer.GridAlgorithm({
+            maxZoom: 17, // Higher zoom for better accuracy
+            radius: 100, // Larger radius for more accurate proximity clustering
+            gridSize: 80 // Larger grid size for better accuracy
+          })
         });
         
-        // Force immediate clustering refresh
-        window.google.maps.event.trigger(map, 'idle');
+        // Force immediate clustering refresh for faster performance
+        setTimeout(() => {
+          window.google.maps.event.trigger(map, 'idle');
+        }, 0);
         
         console.log('MarkerClusterer (fallback) initialized successfully');
       } else {

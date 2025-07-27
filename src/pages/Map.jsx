@@ -380,7 +380,12 @@ const Map = () => {
 
       // Clean up markers array
       markersRef.current = [];
-      
+
+      // Create initial markers
+      setTimeout(() => {
+        createMarkers();
+      }, 100);
+
       // Set loading to false after map is loaded
       setIsLoading(false);
     };
@@ -415,146 +420,10 @@ const Map = () => {
 
   // Update markers when filtered items change
   useEffect(() => {
-    if (!googleMapRef.current || !window.google) return;
-
-    // Clear existing markers
-    markersRef.current.forEach(marker => {
-      if (marker && marker.setMap) {
-        marker.setMap(null);
-      }
-    });
-    
-    // Reset markers array
-    markersRef.current = [];
-    
-    // No need to add markers if we're in list view
-    if (viewMode !== 'map') return;
-    
-    // Add user location marker if available
-    if (userLocation) {
-      // Create a user location marker with a distinctive style
-      const userMarkerIcon = {
-        path: window.google.maps.SymbolPath.CIRCLE,
-        fillColor: '#8B5CF6', // Purple color
-        fillOpacity: 1,
-        strokeColor: '#ffffff',
-        strokeWeight: 2,
-        scale: 8
-      };
-      
-      const userMarker = new window.google.maps.Marker({
-        position: userLocation,
-        map: googleMapRef.current,
-        icon: userMarkerIcon,
-        title: 'Your Location',
-        zIndex: 1000
-      });
-      
-      // Add pulsing effect around user location
-      const pulseMarker = new window.google.maps.Marker({
-        position: userLocation,
-        map: googleMapRef.current,
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          fillColor: '#8B5CF6',
-          fillOpacity: 0.4,
-          strokeColor: '#8B5CF6',
-          strokeWeight: 1,
-          scale: 16
-        },
-        zIndex: 999
-      });
-      
-      // Animate pulsing effect
-      let scale = 16;
-      const animateMarker = () => {
-        scale = scale === 16 ? 24 : 16;
-        pulseMarker.setIcon({
-          ...pulseMarker.getIcon(),
-          scale: scale
-        });
-        setTimeout(animateMarker, 1000);
-      };
-      
-      animateMarker();
-      
-      // Store user marker reference
-      const userMarkerRef = { current: userMarker };
-      markersRef.current.push(userMarkerRef);
+    if (googleMapRef.current && window.google && viewMode === 'map') {
+      createMarkers();
     }
-    
-    // Add new markers for each item with staggered animation
-    filteredItems.forEach((item, index) => {
-      // Create a marker reference to store the Google Maps marker instance
-      const markerRef = { current: null };
-      
-      // Create a Google Maps marker with custom icon for each item
-      const svgMarker = {
-        url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-          item.status === 'Lost' 
-            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-                <circle cx="24" cy="20" r="18" fill="#ef4444" stroke="#ffffff" stroke-width="2" />
-                <circle cx="24" cy="20" r="8" fill="none" stroke="#ffffff" stroke-width="2" />
-                <line x1="29" y1="25" x2="36" y2="32" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-                <path d="M24 38 L20 46 L28 46 Z" fill="#ef4444" stroke="#ffffff" stroke-width="1" />
-              </svg>`
-            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-                <circle cx="24" cy="20" r="18" fill="#10b981" stroke="#ffffff" stroke-width="2" />
-                <line x1="24" y1="12" x2="24" y2="28" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-                <line x1="16" y1="20" x2="32" y2="20" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-                <path d="M24 38 L20 46 L28 46 Z" fill="#10b981" stroke="#ffffff" stroke-width="1" />
-              </svg>`
-        )}`,
-        size: new window.google.maps.Size(48, 48),
-        anchor: new window.google.maps.Point(24, 46),
-        scaledSize: new window.google.maps.Size(48, 48),
-      };
-      
-      // Create marker instance with staggered animation
-      setTimeout(() => {
-        const marker = new window.google.maps.Marker({
-          position: item.location,
-          map: googleMapRef.current,
-          title: item.title,
-          icon: svgMarker,
-          animation: window.google.maps.Animation.DROP,
-          optimized: false, // Important for custom SVG markers
-          zIndex: 1
-        });
-      
-      // Add click listener
-      marker.addListener('click', () => {
-        handleItemClick(item);
-      });
-      
-      // Add hover effects
-      marker.addListener('mouseover', () => {
-        marker.setZIndex(999);
-        
-        // Scale up the marker slightly
-        const icon = marker.getIcon();
-        icon.scaledSize = new window.google.maps.Size(56, 56);
-        icon.anchor = new window.google.maps.Point(28, 54);
-        marker.setIcon(icon);
-      });
-      
-      marker.addListener('mouseout', () => {
-        marker.setZIndex(1);
-        
-        // Scale back to normal
-        const icon = marker.getIcon();
-        icon.scaledSize = new window.google.maps.Size(48, 48);
-        icon.anchor = new window.google.maps.Point(24, 46);
-        marker.setIcon(icon);
-      });
-      
-        // Store marker reference for clustering
-        markerRef.current = marker;
-        markersRef.current.push(markerRef);
-      }, index * 100); // Staggered delay of 100ms per marker
-    });
-    
-  }, [filteredItems, viewMode, googleMapRef.current]);
+  }, [filteredItems, viewMode]);
 
   // Filter items based on current filters
   useEffect(() => {
@@ -784,6 +653,134 @@ const Map = () => {
     setShowFilters(!showFilters);
   };
 
+  // Function to create markers on the map
+  const createMarkers = () => {
+    if (!googleMapRef.current || !window.google) return;
+
+    // Clear existing markers
+    if (markersRef.current) {
+      markersRef.current.forEach(marker => {
+        if (marker && marker.current && marker.current.setMap) {
+          marker.current.setMap(null);
+        }
+      });
+    }
+    markersRef.current = [];
+
+    // Add user location marker if available (but don't include in clustering)
+    if (userLocation) {
+      const userMarker = new window.google.maps.Marker({
+        position: userLocation,
+        map: googleMapRef.current,
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          fillColor: '#8B5CF6',
+          fillOpacity: 1,
+          strokeColor: '#ffffff',
+          strokeWeight: 2,
+          scale: 8
+        },
+        title: 'Your Location',
+        zIndex: 1000
+      });
+
+      // Add pulsing effect
+      const pulseMarker = new window.google.maps.Marker({
+        position: userLocation,
+        map: googleMapRef.current,
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          fillColor: '#8B5CF6',
+          fillOpacity: 0.4,
+          strokeColor: '#8B5CF6',
+          strokeWeight: 1,
+          scale: 16
+        },
+        zIndex: 999
+      });
+
+      // Animate pulsing effect
+      let scale = 16;
+      const animateMarker = () => {
+        scale = scale === 16 ? 24 : 16;
+        pulseMarker.setIcon({
+          ...pulseMarker.getIcon(),
+          scale: scale
+        });
+        setTimeout(animateMarker, 1000);
+      };
+
+      animateMarker();
+      // Don't add user marker to clustering array
+    }
+
+    // Create all item markers immediately for accurate clustering
+    filteredItems.forEach((item, index) => {
+      // Create a Google Maps marker with custom icon for each item
+      const svgMarker = {
+        url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+          item.status === 'Lost'
+            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+                <circle cx="24" cy="20" r="18" fill="#ef4444" stroke="#ffffff" stroke-width="2" />
+                <circle cx="24" cy="20" r="8" fill="none" stroke="#ffffff" stroke-width="2" />
+                <line x1="29" y1="25" x2="36" y2="32" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+                <path d="M24 38 L20 46 L28 46 Z" fill="#ef4444" stroke="#ffffff" stroke-width="1" />
+              </svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+                <circle cx="24" cy="20" r="18" fill="#10b981" stroke="#ffffff" stroke-width="2" />
+                <line x1="24" y1="12" x2="24" y2="28" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+                <line x1="16" y1="20" x2="32" y2="20" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+                <path d="M24 38 L20 46 L28 46 Z" fill="#10b981" stroke="#ffffff" stroke-width="1" />
+              </svg>`
+        )}`,
+        size: new window.google.maps.Size(48, 48),
+        anchor: new window.google.maps.Point(24, 46),
+        scaledSize: new window.google.maps.Size(48, 48),
+      };
+
+      // Create marker instance immediately for accurate clustering
+      const marker = new window.google.maps.Marker({
+        position: item.location,
+        map: googleMapRef.current,
+        title: item.title,
+        icon: svgMarker,
+        animation: window.google.maps.Animation.DROP,
+        optimized: false, // Important for custom SVG markers
+        zIndex: 1
+      });
+
+      // Add click listener
+      marker.addListener('click', () => {
+        handleItemClick(item);
+      });
+
+      // Add hover effects
+      marker.addListener('mouseover', () => {
+        marker.setZIndex(999);
+
+        // Scale up the marker slightly
+        const icon = marker.getIcon();
+        icon.scaledSize = new window.google.maps.Size(56, 56);
+        icon.anchor = new window.google.maps.Point(28, 54);
+        marker.setIcon(icon);
+      });
+
+      marker.addListener('mouseout', () => {
+        marker.setZIndex(1);
+
+        // Scale back to normal
+        const icon = marker.getIcon();
+        icon.scaledSize = new window.google.maps.Size(48, 48);
+        icon.anchor = new window.google.maps.Point(24, 46);
+        marker.setIcon(icon);
+      });
+
+      // Store marker reference for clustering (only item markers, not user location)
+      const markerRef = { current: marker };
+      markersRef.current.push(markerRef);
+    });
+  };
+
   // Toggle view mode between map and list
   const toggleViewMode = (mode) => {
     // If switching from map to list, store current map position and zoom
@@ -793,10 +790,10 @@ const Map = () => {
         zoom: googleMapRef.current.getZoom()
       };
     }
-    
+
     // Set the view mode
     setViewMode(mode);
-    
+
     // If switching to map view, completely reinitialize the map
     if (mode === 'map' && window.google) {
       // Small timeout to ensure the DOM is updated
@@ -854,139 +851,12 @@ const Map = () => {
           gestureHandling: 'greedy'
         };
 
-        // Clear existing markers before reinitializing
-        if (markersRef.current) {
-          markersRef.current.forEach(marker => {
-            if (marker && marker.current && marker.current.setMap) {
-              marker.current.setMap(null);
-            }
-          });
-        }
-        markersRef.current = [];
-
         // Completely recreate the map
         googleMapRef.current = new window.google.maps.Map(mapRef.current, mapOptions);
-        
-        // Add user location marker if available
-        if (userLocation) {
-          const userMarker = new window.google.maps.Marker({
-            position: userLocation,
-            map: googleMapRef.current,
-            icon: {
-              path: window.google.maps.SymbolPath.CIRCLE,
-              fillColor: '#8B5CF6',
-              fillOpacity: 1,
-              strokeColor: '#ffffff',
-              strokeWeight: 2,
-              scale: 8
-            },
-            title: 'Your Location',
-            zIndex: 1000
-          });
-          
-          // Add pulsing effect
-          const pulseMarker = new window.google.maps.Marker({
-            position: userLocation,
-            map: googleMapRef.current,
-            icon: {
-              path: window.google.maps.SymbolPath.CIRCLE,
-              fillColor: '#8B5CF6',
-              fillOpacity: 0.4,
-              strokeColor: '#8B5CF6',
-              strokeWeight: 1,
-              scale: 16
-            },
-            zIndex: 999
-          });
-          
-          // Animate pulsing effect
-          let scale = 16;
-          const animateMarker = () => {
-            scale = scale === 16 ? 24 : 16;
-            pulseMarker.setIcon({
-              ...pulseMarker.getIcon(),
-              scale: scale
-            });
-            setTimeout(animateMarker, 1000);
-          };
-          
-          animateMarker();
-          
-          // Store user marker reference
-          markersRef.current.push({ current: userMarker });
-        }
-        
-        // Add item markers with staggered animation
-        filteredItems.forEach((item, index) => {
-          // Create a marker reference to store the Google Maps marker instance
-          const markerRef = { current: null };
-          
-          // Create a Google Maps marker with custom icon for each item
-          const svgMarker = {
-            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-              item.status === 'Lost' 
-                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-                    <circle cx="24" cy="20" r="18" fill="#ef4444" stroke="#ffffff" stroke-width="2" />
-                    <circle cx="24" cy="20" r="8" fill="none" stroke="#ffffff" stroke-width="2" />
-                    <line x1="29" y1="25" x2="36" y2="32" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-                    <path d="M24 38 L20 46 L28 46 Z" fill="#ef4444" stroke="#ffffff" stroke-width="1" />
-                  </svg>`
-                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-                    <circle cx="24" cy="20" r="18" fill="#10b981" stroke="#ffffff" stroke-width="2" />
-                    <line x1="24" y1="12" x2="24" y2="28" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-                    <line x1="16" y1="20" x2="32" y2="20" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-                    <path d="M24 38 L20 46 L28 46 Z" fill="#10b981" stroke="#ffffff" stroke-width="1" />
-                  </svg>`
-            )}`,
-            size: new window.google.maps.Size(48, 48),
-            anchor: new window.google.maps.Point(24, 46),
-            scaledSize: new window.google.maps.Size(48, 48),
-          };
-          
-          // Create marker instance with staggered animation
-          setTimeout(() => {
-            const marker = new window.google.maps.Marker({
-              position: item.location,
-              map: googleMapRef.current,
-              title: item.title,
-              icon: svgMarker,
-              animation: window.google.maps.Animation.DROP,
-              optimized: false, // Important for custom SVG markers
-              zIndex: 1
-            });
-          
-          // Add click listener
-          marker.addListener('click', () => {
-            handleItemClick(item);
-          });
-          
-          // Add hover effects
-          marker.addListener('mouseover', () => {
-            marker.setZIndex(999);
-            
-            // Scale up the marker slightly
-            const icon = marker.getIcon();
-            icon.scaledSize = new window.google.maps.Size(56, 56);
-            icon.anchor = new window.google.maps.Point(28, 54);
-            marker.setIcon(icon);
-          });
-          
-          marker.addListener('mouseout', () => {
-            marker.setZIndex(1);
-            
-            // Scale back to normal
-            const icon = marker.getIcon();
-            icon.scaledSize = new window.google.maps.Size(48, 48);
-            icon.anchor = new window.google.maps.Point(24, 46);
-            marker.setIcon(icon);
-          });
-          
-            // Store marker reference for clustering
-            markerRef.current = marker;
-            markersRef.current.push(markerRef);
-          }, index * 100); // Staggered delay of 100ms per marker
-        });
-      }, 100); // Small delay to ensure DOM is updated
+
+        // Create markers using the centralized function
+        createMarkers();
+      }, 50); // Reduced delay for faster clustering
     }
   };
 
