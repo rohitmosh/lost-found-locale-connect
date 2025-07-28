@@ -349,6 +349,18 @@ const Reports = () => {
     fetchReports();
   }, [user?.id]);
 
+  // Listen for report status changes to refresh reports
+  useEffect(() => {
+    const handleReportStatusChange = (event) => {
+      console.log('Report status changed:', event.detail);
+      // Refresh reports when a report status changes
+      fetchReports();
+    };
+
+    window.addEventListener('reportStatusChanged', handleReportStatusChange);
+    return () => window.removeEventListener('reportStatusChanged', handleReportStatusChange);
+  }, [user]);
+
   // Reset all filters
   const resetFilters = () => {
     setSearchQuery('');

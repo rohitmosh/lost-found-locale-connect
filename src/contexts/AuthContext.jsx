@@ -26,7 +26,8 @@ export const AuthProvider = ({ children }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        if (event === 'SIGNED_IN' && session?.user) {
+        // Only redirect to dashboard on actual sign-in, not on session refresh
+        if (event === 'SIGNED_IN' && session?.user && !user) {
           navigate('/dashboard');
         }
       }

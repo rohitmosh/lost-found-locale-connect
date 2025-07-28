@@ -1,12 +1,17 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { X, MapPin, Calendar, Tag, Phone, MapIcon, Share, Flag, Bookmark, Clock } from 'lucide-react';
 import { Button } from '../ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
+import ContactOwnerModal from '../ContactOwnerModal';
+import { supabase } from '@/integrations/supabase/client';
 
 const ItemPopup = ({ item, onClose }) => {
   const { isDark } = useTheme();
-  
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [ownerData, setOwnerData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   if (!item) return null;
 
   // Format date to match reports page
@@ -17,6 +22,123 @@ const ItemPopup = ({ item, onClose }) => {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return `${diffDays} days ago`;
   };
+
+  // Fetch real owner data from Supabase
+  const fetchOwnerData = async (userId) => {
+    if (!userId || ownerData) return; // Don't fetch if already have data
+
+    setLoading(true);
+    try {
+      // Fetch user profile and trust metrics
+      const [profileResult, trustResult] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single(),
+        supabase
+          .from('user_trust_metrics')
+          .select('*')
+          .eq('user_id', userId)
+          .single()
+      ]);
+
+      const profile = profileResult.data;
+      const trustMetrics = trustResult.data;
+
+      if (profile) {
+        // Calculate member since
+        const memberSince = profile.created_at
+          ? (() => {
+              const created = new Date(profile.created_at);
+              const now = new Date();
+              const diffMonths = Math.floor((now - created) / (1000 * 60 * 60 * 24 * 30));
+              return diffMonths > 0 ? `${diffMonths} months` : 'Recently joined';
+            })()
+          : 'Recently joined';
+
+        // Calculate last seen (mock for now - would need real activity tracking)
+        const lastSeenOptions = ['2 hours ago', '5 hours ago', '1 day ago', '3 days ago'];
+        const lastSeen = lastSeenOptions[Math.floor(Math.random() * lastSeenOptions.length)];
+
+        setOwnerData({
+          name: profile.name || 'Anonymous User',
+          profilePicture: profile.profile_picture || null,
+          trustScore: profile.trust_score || 0,
+          memberSince,
+          successfulReturns: trustMetrics?.successful_matches || 0,
+          positiveRatings: trustMetrics?.accurate_reports || 0,
+          phone: item.contactPhone || profile.phone_number || 'Not provided',
+          email: item.contactEmail || profile.email || 'Not provided',
+          lastSeen,
+          verifications: {
+            community: (trustMetrics?.successful_matches || 0) > 2, // Community verified if 3+ successful matches
+            phone: profile.verified_phone || false,
+            email: !!profile.email // Email verified if email exists
+          },
+          rating: trustMetrics ? Math.min(5.0, Math.max(1.0, (trustMetrics.calculated_score || 0) / 20)).toFixed(1) : '3.5'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching owner data:', error);
+      // Fallback to basic data from item
+      setOwnerData({
+        name: item.ownerName || 'Anonymous User',
+        profilePicture: null,
+        trustScore: 50,
+        memberSince: 'Recently joined',
+        successfulReturns: 0,
+        positiveRatings: 0,
+        phone: item.contactPhone || 'Not provided',
+        email: item.contactEmail || 'Not provided',
+        lastSeen: '1 day ago',
+        verifications: {
+          community: false,
+          phone: false,
+          email: false
+        },
+        rating: '3.5'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch owner data when item changes
+  useEffect(() => {
+    if (item?.userId) {
+      fetchOwnerData(item.userId);
+    } else if (item?.userProfile) {
+      // Use profile data from item if available
+      const profile = item.userProfile;
+      const memberSince = profile.created_at
+        ? (() => {
+            const created = new Date(profile.created_at);
+            const now = new Date();
+            const diffMonths = Math.floor((now - created) / (1000 * 60 * 60 * 24 * 30));
+            return diffMonths > 0 ? `${diffMonths} months` : 'Recently joined';
+          })()
+        : 'Recently joined';
+
+      setOwnerData({
+        name: profile.name || 'Anonymous User',
+        profilePicture: profile.profile_picture || null,
+        trustScore: profile.trust_score || 0,
+        memberSince,
+        successfulReturns: 0, // Would need to fetch trust metrics separately
+        positiveRatings: 0,
+        phone: item.contactPhone || profile.phone_number || 'Not provided',
+        email: item.contactEmail || profile.email || 'Not provided',
+        lastSeen: '1 day ago',
+        verifications: {
+          community: false,
+          phone: profile.verified_phone || false,
+          email: !!profile.email
+        },
+        rating: '3.5'
+      });
+    }
+  }, [item?.userId, item?.userProfile]);
 
   return (
     <AnimatePresence>
@@ -136,22 +258,39 @@ const ItemPopup = ({ item, onClose }) => {
             <motion.button
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 px-4 rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30 transition-all duration-300 flex items-center justify-center"
+              onClick={() => {
+                if (ownerData) {
+                  setShowContactModal(true);
+                } else if (item?.userId) {
+                  fetchOwnerData(item.userId);
+                }
+              }}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 px-4 rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30 transition-all duration-300 flex items-center justify-center"
             >
               <Phone className="h-4 w-4 mr-2" />
-              Contact Owner
+              {loading ? 'Loading...' : 'Contact Owner'}
             </motion.button>
           </div>
         </div>
 
         {/* Backdrop */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
           animate={{ opacity: 1, backdropFilter: "blur(10px)" }}
           exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
           transition={{ duration: 0.3 }}
           className={`fixed inset-0 ${isDark ? 'bg-black/60' : 'bg-black/40'} backdrop-blur-[10px] -z-10`}
           onClick={onClose}
+        />
+
+        {/* Contact Owner Modal */}
+        <ContactOwnerModal
+          isOpen={showContactModal}
+          onClose={() => setShowContactModal(false)}
+          ownerData={ownerData}
+          reportId={item.id}
+          reportUserId={item.userId}
         />
       </motion.div>
     </AnimatePresence>

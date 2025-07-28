@@ -65,7 +65,19 @@ const Map = () => {
     try {
       const { data, error } = await supabase
         .from('reports')
-        .select('*')
+        .select(`
+          *,
+          profiles (
+            id,
+            name,
+            email,
+            phone_number,
+            profile_picture,
+            trust_score,
+            verified_phone,
+            created_at
+          )
+        `)
         .eq('status', 'active')
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
@@ -116,9 +128,12 @@ const Map = () => {
           distance: distance,
           contactEmail: report.contact_email,
           contactPhone: report.contact_phone,
-          ownerName: 'Anonymous',
+          ownerName: report.profiles?.name || 'Anonymous',
           createdAt: report.created_at,
-          reportType: report.report_type
+          reportType: report.report_type,
+          // Add user profile data
+          userId: report.user_id,
+          userProfile: report.profiles
         };
       });
 
@@ -134,6 +149,18 @@ const Map = () => {
   // Load reports when component mounts
   useEffect(() => {
     fetchReports();
+  }, []);
+
+  // Listen for report status changes to refresh map data
+  useEffect(() => {
+    const handleReportStatusChange = (event) => {
+      console.log('Report status changed:', event.detail);
+      // Refresh map data when a report status changes
+      fetchReports();
+    };
+
+    window.addEventListener('reportStatusChanged', handleReportStatusChange);
+    return () => window.removeEventListener('reportStatusChanged', handleReportStatusChange);
   }, []);
 
   // Debounce search input to avoid excessive filtering

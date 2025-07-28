@@ -341,6 +341,18 @@ const Dashboard = () => {
     return () => window.removeEventListener('toggleTrustScore', handleToggleTrustScore);
   }, [showTrustScore]);
 
+  // Listen for report status changes to refresh dashboard data
+  useEffect(() => {
+    const handleReportStatusChange = (event) => {
+      console.log('Report status changed:', event.detail);
+      // Refresh dashboard data when a report status changes
+      refreshDashboard();
+    };
+
+    window.addEventListener('reportStatusChanged', handleReportStatusChange);
+    return () => window.removeEventListener('reportStatusChanged', handleReportStatusChange);
+  }, [user]);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Bell, X, User, Clock, MapPin, Search, AlertTriangle, CheckCircle, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import ConfirmReturnModal from './ConfirmReturnModal';
 
 // Icon components based on notification type
 const NotificationIcon = ({ type }) => {
@@ -51,6 +52,8 @@ const NotificationIcon = ({ type }) => {
 
 const NotificationSidebar = ({ isOpen, onClose, notifications = [], onNotificationRead }) => {
   const navigate = useNavigate();
+  const [showConfirmReturnModal, setShowConfirmReturnModal] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
 
   const unreadCount = notifications.filter(n => !n.read).length;
   
@@ -70,6 +73,13 @@ const NotificationSidebar = ({ isOpen, onClose, notifications = [], onNotificati
 
   const handleNotificationClick = (notification) => {
     markAsRead(notification.id);
+
+    // Handle resolution pending notifications differently
+    if (notification.type === 'resolution_pending') {
+      setSelectedNotification(notification);
+      setShowConfirmReturnModal(true);
+      return;
+    }
 
     // Navigate based on notification type
     if (notification.type === 'match_found' && notification.relatedReportId) {
@@ -263,6 +273,18 @@ const NotificationSidebar = ({ isOpen, onClose, notifications = [], onNotificati
           </motion.div>
         </motion.div>
       )}
+
+      {/* Confirm Return Modal */}
+      <ConfirmReturnModal
+        isOpen={showConfirmReturnModal}
+        onClose={() => {
+          setShowConfirmReturnModal(false);
+          setSelectedNotification(null);
+        }}
+        reportId={selectedNotification?.relatedReportId}
+        reportTitle={selectedNotification?.reportTitle || 'Unknown Item'}
+        ownerName={selectedNotification?.ownerName || 'the owner'}
+      />
     </AnimatePresence>
   );
 };
