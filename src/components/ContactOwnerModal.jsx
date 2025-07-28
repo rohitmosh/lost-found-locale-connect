@@ -181,9 +181,9 @@ const ContactOwnerModal = ({ isOpen, onClose, ownerData, reportId, reportUserId 
           style={{ 
             marginTop: '0.5rem', 
             marginBottom: '2rem',
-            width: '700px',
+            width: '600px',
             maxWidth: 'none',
-            minWidth: '700px'
+            minWidth: '600px'
           }}
         >
           <div className="overflow-y-auto max-h-full">
