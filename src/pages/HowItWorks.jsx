@@ -185,18 +185,18 @@ const HowItWorks = () => {
       </section>
 
       {/* Step-by-Step Workflow */}
-      <section className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+      <section className="py-8 relative">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
               Simple 5-Step Process
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-base text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
               From reporting to reunion, our streamlined workflow makes lost & found effortless
             </p>
           </div>
 
-          <div className="space-y-16">
+          <div className="space-y-6">
             {steps.map((step, index) => (
               <div
                 key={step.id}
@@ -205,36 +205,36 @@ const HowItWorks = () => {
                   index % 2 === 0 ? 'translate-x-[-100px]' : 'translate-x-[100px]'
                 }`}
               >
-                <div className={`flex flex-col lg:flex-row items-center gap-12 ${
+                <div className={`flex flex-col lg:flex-row items-center justify-between gap-6 ${
                   index % 2 === 1 ? 'lg:flex-row-reverse' : ''
                 }`}>
                   {/* Step Content */}
-                  <div className="flex-1 space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg animate-glow-pulse">
+                  <div className="flex-1 lg:max-w-md space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg animate-glow-pulse">
                         {step.id}
                       </div>
-                      <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium rounded-full">
+                      <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-full">
                         {step.highlight}
                       </span>
                     </div>
-                    
-                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
+
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
                       {step.title}
                     </h3>
-                    
-                    <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+
+                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                       {step.description}
                     </p>
                   </div>
 
                   {/* Step Visual */}
-                  <div className="flex-1 flex justify-center">
+                  <div className="flex-shrink-0">
                     <div className="relative group">
-                      <div className="w-80 h-80 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-3xl flex items-center justify-center shadow-2xl group-hover:shadow-purple-500/25 transition-all duration-500 group-hover:scale-105 border border-purple-200/50 dark:border-purple-800/50">
-                        <step.icon className="w-24 h-24 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform duration-300" />
+                      <div className="w-32 h-32 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-purple-500/25 transition-all duration-500 group-hover:scale-105 border border-purple-200/50 dark:border-purple-800/50">
+                        <step.icon className="w-12 h-12 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform duration-300" />
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
                     </div>
                   </div>
                 </div>
