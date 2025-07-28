@@ -13,6 +13,8 @@ import MarkerClusterer from '../components/map/MarkerClusterer';
 import NotificationSidebar from '../components/NotificationSidebar';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { supabase } from '@/integrations/supabase/client';
+import { MotivationalMessage } from '../components/EasterEggs';
+import { useDebounce, usePerformanceMonitor } from '../hooks/usePerformance';
 
 // Bangalore coordinates for map center
 const BANGALORE_CENTER = { lat: 12.9716, lng: 77.5946 };
@@ -33,6 +35,7 @@ const calculateDistance = (lat1, lng1, lat2, lng2) => {
 
 const Map = () => {
   const { isDark } = useTheme();
+  const { logPerformance } = usePerformanceMonitor('Map');
   const mapRef = useRef(null);
   const googleMapRef = useRef(null);
   const markersRef = useRef([]);
@@ -40,6 +43,7 @@ const Map = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [mapInitialized, setMapInitialized] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [selectedItem, setSelectedItem] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -59,6 +63,7 @@ const Map = () => {
 
   const [filteredItems, setFilteredItems] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [motivationalTrigger, setMotivationalTrigger] = useState(0);
 
   // Fetch all reports from database
   const fetchReports = async () => {
@@ -462,11 +467,11 @@ const Map = () => {
   useEffect(() => {
     let filtered = allItems;
 
-    // Filter by search query
-    if (searchQuery) {
+    // Filter by search query (using debounced value)
+    if (debouncedSearchQuery) {
       filtered = filtered.filter(item =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+        item.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
       );
     }
 
@@ -520,7 +525,23 @@ const Map = () => {
     }
 
     setFilteredItems(filtered);
-  }, [searchQuery, filters, allItems]);
+
+    // Trigger motivational message when filters are applied successfully
+    if (filtered.length > 0 && (filters.categories.length > 0 || filters.status !== 'all' || debouncedSearchQuery)) {
+      setMotivationalTrigger(prev => prev + 1);
+    }
+
+    // Log performance
+    logPerformance('Filter Applied', {
+      totalItems: allItems.length,
+      filteredItems: filtered.length,
+      searchQuery: debouncedSearchQuery,
+      activeFilters: Object.keys(filters).filter(key =>
+        filters[key] !== 'all' &&
+        (Array.isArray(filters[key]) ? filters[key].length > 0 : true)
+      ).length
+    });
+  }, [debouncedSearchQuery, filters, allItems]);
 
   // Handle item selection
   const handleItemClick = (item) => {
@@ -1375,6 +1396,9 @@ const Map = () => {
 
       {/* Footer */}
       <Footer />
+
+      {/* Easter Eggs */}
+      <MotivationalMessage trigger={motivationalTrigger} />
     </div>
   );
 };

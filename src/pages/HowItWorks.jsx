@@ -1,11 +1,11 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  UserPlus, 
-  PlusCircle, 
-  Search, 
-  MessageCircle, 
+import {
+  UserPlus,
+  PlusCircle,
+  Search,
+  MessageCircle,
   CheckCircle,
   Filter,
   MapPin,
@@ -18,7 +18,12 @@ import {
   Github,
   ArrowRight,
   Play,
-  Star
+  Star,
+  Users,
+  Sparkles,
+  Heart,
+  Award,
+  Trophy
 } from 'lucide-react';
 import SimpleHeader from '../components/SimpleHeader';
 import Footer from '../components/Footer';
@@ -91,44 +96,66 @@ const HowItWorks = () => {
     {
       icon: Filter,
       title: "Smart Search & Filters",
-      description: "Advanced filtering by category, date, location, and custom criteria to find items faster."
+      description: "Advanced filtering by category, date, location radius, and status with real-time database integration.",
+      isNew: false
     },
     {
       icon: MapPin,
       title: "Interactive Map View",
-      description: "Visualize item locations on Google Maps with clustering and proximity-based search."
+      description: "Google Maps integration with marker clustering, smooth animations, and location-specific data for Bangalore.",
+      isNew: false
     },
     {
       icon: Bell,
       title: "Real-time Notifications",
-      description: "Instant alerts when matching items are posted or when someone messages you."
+      description: "Instant alerts with animated notification sidebar, resolution confirmations, and thank you messages.",
+      isNew: true
     },
     {
       icon: Shield,
-      title: "Verified Profiles",
-      description: "Enhanced security with profile verification and community rating system."
+      title: "Trust Score System",
+      description: "Community-driven reputation system with detailed metrics, successful matches tracking, and verification badges.",
+      isNew: false
     },
     {
       icon: Camera,
-      title: "Image Recognition",
-      description: "Upload multiple photos with automatic categorization and visual similarity matching."
+      title: "Photo Upload & Storage",
+      description: "Secure image upload with Supabase storage, multiple photo support, and optimized loading.",
+      isNew: false
     },
     {
       icon: Zap,
-      title: "Lightning Fast",
-      description: "Optimized performance with real-time updates and instant search results."
+      title: "Resolution Celebration",
+      description: "Confetti animations, success celebrations, and 'Item Reunited!' notifications when items are returned.",
+      isNew: true
+    },
+    {
+      icon: Users,
+      title: "Dual Confirmation System",
+      description: "Both owner and finder must confirm successful returns, ensuring accurate resolution tracking.",
+      isNew: true
+    },
+    {
+      icon: Sparkles,
+      title: "Enhanced UI/UX",
+      description: "Beautiful animations, micro-interactions, glass morphism effects, and delightful user experience.",
+      isNew: true
     }
   ];
 
   const techStack = [
-    { name: "React + Vite", category: "Frontend" },
-    { name: "Tailwind CSS", category: "Styling" },
-    { name: "Node.js + Express", category: "Backend" },
-    { name: "PostgreSQL", category: "Database" },
-    { name: "Google Maps API", category: "Maps" },
-    { name: "Cloudinary", category: "Images" },
-    { name: "JWT Auth", category: "Security" },
-    { name: "WebSocket", category: "Real-time" }
+    { name: "React + Vite", category: "Frontend", isCore: true },
+    { name: "Tailwind CSS", category: "Styling", isCore: true },
+    { name: "Framer Motion", category: "Animations", isCore: true },
+    { name: "Supabase", category: "Backend", isCore: true },
+    { name: "PostgreSQL", category: "Database", isCore: true },
+    { name: "Google Maps API", category: "Maps", isCore: true },
+    { name: "Supabase Storage", category: "Images", isCore: false },
+    { name: "Supabase Auth", category: "Security", isCore: true },
+    { name: "Real-time DB", category: "Live Updates", isCore: true },
+    { name: "Row Level Security", category: "Security", isCore: false },
+    { name: "Lucide Icons", category: "UI", isCore: false },
+    { name: "React Router", category: "Navigation", isCore: false }
   ];
 
   return (
@@ -239,20 +266,34 @@ const HowItWorks = () => {
               <div
                 key={feature.title}
                 ref={(el) => (featuresRef.current[index] = el)}
-                className="group opacity-0 p-8 bg-white/90 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:scale-105 cursor-pointer animate-glow-pulse"
+                className="group opacity-0 p-8 bg-white/90 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:scale-105 cursor-pointer animate-glow-pulse relative overflow-hidden"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
+                {/* NEW Badge */}
+                {feature.isNew && (
+                  <div className="absolute top-4 right-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse-glow">
+                    <Sparkles className="w-3 h-3 inline mr-1" />
+                    NEW
+                  </div>
+                )}
+
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg animate-bounce-subtle">
                   <feature.icon className="w-8 h-8 text-white" />
                 </div>
-                
+
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
                   {feature.title}
+                  {feature.isNew && (
+                    <span className="ml-2 text-green-500 animate-sparkle">✨</span>
+                  )}
                 </h3>
-                
+
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   {feature.description}
                 </p>
+
+                {/* Shimmer effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
               </div>
             ))}
           </div>
@@ -362,17 +403,131 @@ const HowItWorks = () => {
             {techStack.map((tech, index) => (
               <div
                 key={tech.name}
-                className="group p-6 bg-white/90 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-xl hover:shadow-purple-500/15 transition-all duration-300 hover:scale-105 text-center animate-stagger-fade hover:glow-purple"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className={`group p-6 bg-white/90 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl border transition-all duration-300 hover:scale-105 text-center animate-stagger-fade relative overflow-hidden ${
+                  tech.isCore
+                    ? 'border-purple-300 dark:border-purple-700 shadow-lg hover:shadow-xl hover:shadow-purple-500/20 hover-glow'
+                    : 'border-purple-200/50 dark:border-purple-800/50 shadow-md hover:shadow-lg hover:shadow-purple-500/10'
+                }`}
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2 group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors duration-300">
+                {/* Core technology indicator */}
+                {tech.isCore && (
+                  <div className="absolute top-2 right-2 w-3 h-3 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full animate-pulse-glow">
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full animate-ping opacity-75"></div>
+                  </div>
+                )}
+
+                <div className={`text-sm font-medium mb-2 transition-colors duration-300 ${
+                  tech.isCore
+                    ? 'text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300'
+                    : 'text-purple-500 dark:text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-400'
+                }`}>
                   {tech.category}
+                  {tech.isCore && <Star className="w-3 h-3 inline ml-1 fill-current" />}
                 </div>
                 <div className="font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
                   {tech.name}
                 </div>
+
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Resolution Celebration Showcase */}
+      <section className="py-20 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-green-900/10 dark:to-emerald-900/10 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-green-300/30 dark:bg-green-600/20 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-300/30 dark:bg-emerald-600/20 rounded-full blur-3xl animate-pulse delay-1000" />
+
+          {/* Floating celebration elements */}
+          <div className="absolute top-20 left-20 text-2xl animate-sparkle">🎉</div>
+          <div className="absolute top-40 right-32 text-3xl animate-sparkle delay-700">✨</div>
+          <div className="absolute bottom-32 left-1/3 text-2xl animate-sparkle delay-1000">🎊</div>
+          <div className="absolute bottom-20 right-20 text-3xl animate-sparkle delay-300">🏆</div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+              <span className="gradient-text">Celebrate Every Success</span>
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              When items are successfully returned, we celebrate with confetti animations and heartfelt messages
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Demo Animation */}
+            <div className="relative">
+              <div className="bg-white/90 dark:bg-gray-800/70 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-green-200/50 dark:border-green-800/50 hover-glow">
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse-glow">
+                    <CheckCircle className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold gradient-text mb-4">🎉 Item Reunited! 🎉</h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-6">
+                    <span className="font-semibold text-purple-600 dark:text-purple-400">"iPhone 13 Pro"</span>
+                    <br />
+                    has been successfully returned to its owner!
+                  </p>
+                  <div className="flex items-center justify-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                    <Heart className="w-4 h-4 text-red-500 animate-pulse" />
+                    <span>Thank you for making our community stronger!</span>
+                    <Heart className="w-4 h-4 text-red-500 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating confetti elements */}
+              <div className="absolute -top-4 -left-4 w-4 h-4 bg-purple-400 rounded-full animate-bounce"></div>
+              <div className="absolute -top-2 -right-6 w-3 h-3 bg-green-400 rounded-full animate-bounce delay-200"></div>
+              <div className="absolute -bottom-4 -left-2 w-5 h-5 bg-yellow-400 rounded-full animate-bounce delay-500"></div>
+              <div className="absolute -bottom-2 -right-4 w-3 h-3 bg-pink-400 rounded-full animate-bounce delay-700"></div>
+            </div>
+
+            {/* Features List */}
+            <div className="space-y-6">
+              {[
+                {
+                  icon: Trophy,
+                  title: "Confetti Celebration",
+                  description: "Beautiful animated confetti effects when items are successfully returned"
+                },
+                {
+                  icon: Heart,
+                  title: "Heartfelt Messages",
+                  description: "Personalized thank you messages and community appreciation notes"
+                },
+                {
+                  icon: Award,
+                  title: "Trust Score Boost",
+                  description: "Both owner and finder receive trust score increases for successful returns"
+                },
+                {
+                  icon: Bell,
+                  title: "Instant Notifications",
+                  description: "Real-time notifications with celebration animations for all parties involved"
+                }
+              ].map((feature, index) => (
+                <div key={feature.title} className="flex items-start space-x-4 group">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <feature.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+                      {feature.title}
+                    </h4>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

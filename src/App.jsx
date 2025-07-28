@@ -18,17 +18,19 @@ import Privacy from "./pages/Privacy";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <AuthProvider>
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Routes>
+  <ErrorBoundary>
+    <AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
@@ -47,10 +49,11 @@ const App = () => (
         
         {/* 404 Route */}
         <Route path="*" element={<NotFound />} />
-      </Routes>
-    </TooltipProvider>
-  </QueryClientProvider>
-  </AuthProvider>
+        </Routes>
+      </TooltipProvider>
+    </QueryClientProvider>
+    </AuthProvider>
+  </ErrorBoundary>
 );
 
 export default App;

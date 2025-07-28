@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, TrendingUp, User, Plus, MapPin, ChevronRight, Calendar, Tag, Clock, RefreshCw } from 'lucide-react';
+import { Search, Bell, TrendingUp, User, Plus, MapPin, ChevronRight, Calendar, Tag, Clock, RefreshCw, Sparkles, Trophy, Award, Heart, Star } from 'lucide-react';
+import EnhancedLoading from '../components/EnhancedLoading';
+import { KonamiCode, ClickCounter, FloatingHearts, DeveloperMode, TimeBasedGreeting, MotivationalMessage, CoffeeBreakReminder } from '../components/EasterEggs';
 
 import Navbar from '../components/Navbar';
 import NotificationSidebar from '../components/NotificationSidebar';
@@ -101,6 +103,11 @@ const Dashboard = () => {
   const [recentActivity, setRecentActivity] = useState([]);
   const [trustMetrics, setTrustMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Easter egg states
+  const [showFloatingHearts, setShowFloatingHearts] = useState(false);
+  const [developerMode, setDeveloperMode] = useState(false);
+  const [motivationalTrigger, setMotivationalTrigger] = useState(0);
 
   const toggleNotificationSidebar = () => {
     setIsNotificationSidebarOpen(!isNotificationSidebarOpen);
@@ -441,30 +448,38 @@ const Dashboard = () => {
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-3xl font-bold mb-2 text-shadow-lg">
-                  Hello, {userProfile?.name?.split(' ')[0] || 'Friend'}! 👋
+                  <TimeBasedGreeting userName={userProfile?.name?.split(' ')[0] || 'Friend'} />
                 </h1>
                 <p className="text-purple-100 text-lg">
                   Ready to help your community find their lost items today?
                 </p>
               </div>
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 }}
-                whileHover={{ scale: 1.05 }}
-                onClick={() => {
-                  const newShowProfile = !showProfile;
-                  setShowProfile(newShowProfile);
-                  // Close trust score when hiding profile or when opening profile
-                  if (!newShowProfile || !showProfile) {
-                    setShowTrustScore(false);
-                  }
+              <ClickCounter
+                threshold={7}
+                onThresholdReached={() => {
+                  setShowFloatingHearts(true);
+                  setMotivationalTrigger(prev => prev + 1);
                 }}
-                className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-full transition-colors duration-200 text-sm font-medium flex items-center space-x-2"
               >
-                <User size={20} />
-                <span>{showProfile ? 'Hide' : 'View'} Profile</span>
-              </motion.button>
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 }}
+                  whileHover={{ scale: 1.05 }}
+                  onClick={() => {
+                    const newShowProfile = !showProfile;
+                    setShowProfile(newShowProfile);
+                    // Close trust score when hiding profile or when opening profile
+                    if (!newShowProfile || !showProfile) {
+                      setShowTrustScore(false);
+                    }
+                  }}
+                  className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-full transition-colors duration-200 text-sm font-medium flex items-center space-x-2"
+                >
+                  <User size={20} />
+                  <span>{showProfile ? 'Hide' : 'View'} Profile</span>
+                </motion.button>
+              </ClickCounter>
             </div>
           </motion.div>
 
@@ -587,17 +602,23 @@ const Dashboard = () => {
             className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8"
           >
             {loading ? (
-              // Loading skeleton for stats
+              // Enhanced loading skeleton for stats
               [1, 2, 3].map((i) => (
-                <div key={i} className="bg-purple-100 dark:bg-gray-800 p-6 rounded-3xl border border-purple-300 dark:border-gray-700 animate-pulse">
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-gradient-to-br from-purple-100/50 to-indigo-100/50 dark:from-gray-800/50 dark:to-gray-700/50 p-6 rounded-3xl border border-purple-300/50 dark:border-gray-700/50 backdrop-blur-sm"
+                >
                   <div className="flex items-center justify-between">
-                    <div>
-                      <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-24 mb-2" />
-                      <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-16" />
+                    <div className="space-y-3">
+                      <div className="h-4 bg-gradient-to-r from-purple-200 to-indigo-200 dark:from-gray-600 dark:to-gray-500 rounded-full w-24 skeleton animate-shimmer" />
+                      <div className="h-8 bg-gradient-to-r from-purple-300 to-indigo-300 dark:from-gray-500 dark:to-gray-400 rounded-lg w-16 skeleton animate-shimmer" />
                     </div>
-                    <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-xl" />
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-200 to-indigo-200 dark:from-gray-600 dark:to-gray-500 rounded-xl skeleton animate-pulse-glow" />
                   </div>
-                </div>
+                </motion.div>
               ))
             ) : (
               stats.map((stat, index) => (
@@ -641,16 +662,26 @@ const Dashboard = () => {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Recent Activity</h2>
             <div className="space-y-4">
               {loading ? (
-                // Loading skeleton
+                // Enhanced loading skeleton
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center space-x-4 p-4 bg-purple-50 dark:bg-gray-700/50 rounded-xl animate-pulse">
-                      <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600" />
-                      <div className="flex-1">
-                        <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2" />
-                        <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2" />
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="flex items-center space-x-4 p-4 bg-gradient-to-r from-purple-50/50 to-indigo-50/50 dark:from-gray-700/30 dark:to-gray-600/30 rounded-xl backdrop-blur-sm border border-purple-200/30 dark:border-gray-600/30"
+                    >
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                        className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-400 to-indigo-400 animate-pulse-glow"
+                      />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gradient-to-r from-purple-200 to-indigo-200 dark:from-gray-600 dark:to-gray-500 rounded-full w-3/4 skeleton animate-shimmer" />
+                        <div className="h-3 bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-gray-700 dark:to-gray-600 rounded-full w-1/2 skeleton animate-shimmer" />
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               ) : recentActivity.length > 0 ? (
@@ -694,6 +725,13 @@ const Dashboard = () => {
         </div>
       </div>
       <Footer />
+
+      {/* Easter Eggs */}
+      <KonamiCode onActivate={() => setDeveloperMode(!developerMode)} />
+      <FloatingHearts isActive={showFloatingHearts} />
+      <DeveloperMode isActive={developerMode} />
+      <MotivationalMessage trigger={motivationalTrigger} />
+      <CoffeeBreakReminder />
     </div>
   );
 };
