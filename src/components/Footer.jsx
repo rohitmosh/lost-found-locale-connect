@@ -29,10 +29,10 @@ const Footer = () => {
               Quick Links
             </h3>
             <ul className="space-y-2">
-              {['Home', 'Map', 'Reports', 'Dashboard'].map((item) => (
+              {['Home', 'How It Works', 'Map', 'Reports', 'Dashboard'].map((item) => (
                 <li key={item}>
                   <Link
-                    to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                    to={item === 'Home' ? '/' : item === 'How It Works' ? '/how-it-works' : `/${item.toLowerCase()}`}
                     className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200"
                   >
                     {item}

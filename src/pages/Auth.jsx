@@ -37,6 +37,7 @@ const Auth = () => {
           setError(error.message);
         } else {
           toast.success('Welcome back!');
+          navigate('/dashboard');
         }
       } else {
         // Sign up validation
@@ -57,6 +58,7 @@ const Auth = () => {
           setError(error.message);
         } else {
           toast.success('Account created successfully! Please check your email to verify your account.');
+          navigate('/dashboard');
         }
       }
     } catch (err) {

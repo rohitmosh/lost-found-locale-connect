@@ -3,20 +3,7 @@ import { X, Calendar, MapPin, Filter, Check, Trash } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
 
-const categories = [
-  'Electronics',
-  'Jewelry',
-  'Clothing',
-  'Documents',
-  'Keys',
-  'Pets',
-  'Personal Items',
-  'Accessories',
-  'Books',
-  'Sports Equipment'
-];
-
-const FilterPanel = ({ isOpen, filters, onFiltersChange, onClose }) => {
+const FilterPanel = ({ isOpen, filters, onFiltersChange, onClose, categories = [] }) => {
   const { isDark } = useTheme();
   const handleCategoryToggle = (category) => {
     const newCategories = filters.categories.includes(category)

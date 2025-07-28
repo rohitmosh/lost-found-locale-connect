@@ -40,12 +40,10 @@ const App = () => (
         
         {/* Protected Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/map" element={<ProtectedRoute><Map /></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
         <Route path="/report-lost" element={<ProtectedRoute><ReportLostItem /></ProtectedRoute>} />
         <Route path="/report-found" element={<ProtectedRoute><ReportFoundItem /></ProtectedRoute>} />
-
-        {/* Public Routes that don't require authentication */}
-        <Route path="/map" element={<Map />} />
-        <Route path="/reports" element={<Reports />} />
         
         {/* 404 Route */}
         <Route path="*" element={<NotFound />} />

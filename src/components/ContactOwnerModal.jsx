@@ -293,9 +293,9 @@ const ContactOwnerModal = ({ isOpen, onClose, ownerData, reportId, reportUserId 
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.3, ease: "easeOut" }}
                   whileHover={{ scale: 1.02, y: -1 }}
-                  className={`relative text-center p-3 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'} border ${isDark ? 'border-gray-600/50' : 'border-gray-200'} shadow-lg hover:shadow-xl transition-all duration-300`}
+                  className={`relative text-center p-3 rounded-full ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'} border ${isDark ? 'border-gray-600/50' : 'border-gray-200'} shadow-lg hover:shadow-xl transition-all duration-300`}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full" />
                   <div className="relative">
                     <div className={`text-2xl font-bold ${isDark ? 'text-green-400' : 'text-green-600'}`}>
                       {owner.successfulReturns}
@@ -311,9 +311,9 @@ const ContactOwnerModal = ({ isOpen, onClose, ownerData, reportId, reportUserId 
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.45, duration: 0.3, ease: "easeOut" }}
                   whileHover={{ scale: 1.02, y: -1 }}
-                  className={`relative text-center p-3 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'} border ${isDark ? 'border-gray-600/50' : 'border-gray-200'} shadow-lg hover:shadow-xl transition-all duration-300`}
+                  className={`relative text-center p-3 rounded-full ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'} border ${isDark ? 'border-gray-600/50' : 'border-gray-200'} shadow-lg hover:shadow-xl transition-all duration-300`}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 rounded-xl" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 rounded-full" />
                   <div className="relative">
                     <div className="flex items-center justify-center space-x-1 mb-1">
                       <span className={`text-2xl font-bold ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`}>
@@ -341,7 +341,7 @@ const ContactOwnerModal = ({ isOpen, onClose, ownerData, reportId, reportUserId 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <motion.div
                     whileHover={{ x: 2, scale: 1.01 }}
-                    className={`flex items-center space-x-4 p-4 rounded-xl ${isDark ? 'bg-gray-700/30 hover:bg-gray-700/50' : 'bg-gray-50 hover:bg-gray-100'} transition-all duration-300`}
+                    className={`flex items-center space-x-4 p-4 rounded-full ${isDark ? 'bg-gray-700/30 hover:bg-gray-700/50' : 'bg-gray-50 hover:bg-gray-100'} transition-all duration-300`}
                   >
                     <div className={`p-3 rounded-full ${isDark ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
                       <Phone className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
@@ -353,7 +353,7 @@ const ContactOwnerModal = ({ isOpen, onClose, ownerData, reportId, reportUserId 
 
                   <motion.div
                     whileHover={{ x: 2, scale: 1.01 }}
-                    className={`flex items-center space-x-4 p-4 rounded-xl ${isDark ? 'bg-gray-700/30 hover:bg-gray-700/50' : 'bg-gray-50 hover:bg-gray-100'} transition-all duration-300`}
+                    className={`flex items-center space-x-4 p-4 rounded-full ${isDark ? 'bg-gray-700/30 hover:bg-gray-700/50' : 'bg-gray-50 hover:bg-gray-100'} transition-all duration-300`}
                   >
                     <div className={`p-3 rounded-full ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
                       <Mail className={`w-5 h-5 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />

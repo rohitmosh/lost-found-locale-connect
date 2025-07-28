@@ -26,10 +26,8 @@ export const AuthProvider = ({ children }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Only redirect to dashboard on actual sign-in, not on session refresh
-        if (event === 'SIGNED_IN' && session?.user && !user) {
-          navigate('/dashboard');
-        }
+        // Don't automatically redirect on auth state changes
+        // Let individual login/register components handle navigation
       }
     );
 
@@ -45,14 +43,12 @@ export const AuthProvider = ({ children }) => {
 
   const signUp = async (email, password, fullName) => {
     console.log('Attempting to sign up with email:', email);
-    const redirectUrl = `${window.location.origin}/dashboard`;
-    
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName,
             name: fullName,

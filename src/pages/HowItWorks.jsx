@@ -20,7 +20,7 @@ import {
   Play,
   Star
 } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import SimpleHeader from '../components/SimpleHeader';
 import Footer from '../components/Footer';
 
 const HowItWorks = () => {
@@ -133,7 +133,7 @@ const HowItWorks = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 dark:from-gray-900 dark:via-purple-900/30 dark:to-indigo-900/30">
-      <Navbar />
+      <SimpleHeader />
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">

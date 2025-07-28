@@ -8,7 +8,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const isAuthenticated = !!user;
 
   // Check if user is on login or register page
@@ -25,7 +25,12 @@ const Navbar = () => {
 
 
 
-  const navigation = isAuthenticated
+  const navigation = loading
+    ? [
+        { name: 'Home', href: '/' },
+        { name: 'How It Works', href: '/how-it-works' },
+      ]
+    : isAuthenticated
     ? [
         { name: 'Dashboard', href: '/dashboard' },
         { name: 'Map', href: '/map' },
@@ -33,8 +38,7 @@ const Navbar = () => {
       ]
     : [
         { name: 'Home', href: '/' },
-        { name: 'Map', href: '/map' },
-        { name: 'Reports', href: '/reports' },
+        { name: 'How It Works', href: '/how-it-works' },
       ];
 
   const isActive = (path) => location.pathname === path;
@@ -58,7 +62,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {isAuthenticated && navigation.map((item) => (
+            {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
@@ -122,7 +126,7 @@ const Navbar = () => {
         {isOpen && (
           <div className="md:hidden py-4 border-t border-purple-100 dark:border-purple-900/50">
             <div className="flex flex-col space-y-3">
-              {isAuthenticated && navigation.map((item) => (
+              {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}

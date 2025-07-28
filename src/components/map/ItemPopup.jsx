@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, MapPin, Calendar, Tag, Phone, MapIcon, Share, Flag, Bookmark, Clock } from 'lucide-react';
+import { X, MapPin, Calendar, Tag, Phone, MapIcon, Flag, Bookmark, Clock } from 'lucide-react';
 import { Button } from '../ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -234,14 +234,7 @@ const ItemPopup = ({ item, onClose }) => {
                 <MapIcon className="h-5 w-5" />
               </motion.button>
               
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className={`p-2 ${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-500 hover:text-purple-500'} transition-colors`}
-              >
-                <Share className="h-5 w-5" />
-              </motion.button>
-              
+
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}

@@ -55,7 +55,7 @@ const Register = () => {
       } else {
         // Success message
         setError(null);
-        // User will be redirected automatically by AuthContext
+        navigate('/dashboard');
       }
     } catch (err) {
             console.error('Registration Error:', err);

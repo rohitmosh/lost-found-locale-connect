@@ -33,7 +33,7 @@ const Login = () => {
         setError(error.message);
       } else {
         toast.success('Welcome back!');
-        // Navigation will be handled by AuthContext
+        navigate('/dashboard');
       }
     } catch (err) {
       setError(err.message);

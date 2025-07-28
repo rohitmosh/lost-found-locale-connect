@@ -58,6 +58,7 @@ const Map = () => {
   });
 
   const [filteredItems, setFilteredItems] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   // Fetch all reports from database
   const fetchReports = async () => {
@@ -94,16 +95,21 @@ const Map = () => {
       }
 
       // Fetch categories for mapping
-      const { data: categories } = await supabase
+      const { data: categoriesData } = await supabase
         .from('categories')
         .select('id, name');
 
       const categoryMap = {};
-      if (categories) {
-        categories.forEach(cat => {
+      const categoryNames = [];
+      if (categoriesData) {
+        categoriesData.forEach(cat => {
           categoryMap[cat.id] = cat.name;
+          categoryNames.push(cat.name);
         });
       }
+
+      // Set categories for filter panel
+      setCategories(categoryNames);
 
       // Format reports for the map
       const formattedItems = data.map(report => {
@@ -476,6 +482,41 @@ const Map = () => {
       filtered = filtered.filter(item =>
         item.status.toLowerCase() === filters.status
       );
+    }
+
+    // Filter by distance (radius)
+    if (filters.radius && filters.radius > 0) {
+      filtered = filtered.filter(item => {
+        const distanceValue = parseFloat(item.distance.replace(/[^\d.]/g, ''));
+        const distanceInKm = item.distance.includes('m') ? distanceValue / 1000 : distanceValue;
+        return distanceInKm <= filters.radius;
+      });
+    }
+
+    // Filter by date range
+    if (filters.dateRange !== 'all') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      filtered = filtered.filter(item => {
+        const itemDate = new Date(item.createdAt);
+        const itemDateOnly = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
+
+        switch (filters.dateRange) {
+          case 'today':
+            return itemDateOnly.getTime() === today.getTime();
+          case 'week':
+            const weekAgo = new Date(today);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            return itemDateOnly >= weekAgo;
+          case 'month':
+            const monthAgo = new Date(today);
+            monthAgo.setMonth(monthAgo.getMonth() - 1);
+            return itemDateOnly >= monthAgo;
+          default:
+            return true;
+        }
+      });
     }
 
     setFilteredItems(filtered);
@@ -1084,6 +1125,7 @@ const Map = () => {
           filters={filters}
           onFiltersChange={setFilters}
           onClose={() => setShowFilters(false)}
+          categories={categories}
         />
 
         {/* Map/List Content */}
