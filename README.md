@@ -287,7 +287,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <div align="center">
-  <p>Made with ❤️ by the FindIt team</p>
+  <p>Author : Rohit Mohanty</p>
   <p>
     <a href="https://github.com/yourusername/findit">⭐ Star this repo</a> •
     <a href="https://github.com/yourusername/findit/issues">🐛 Report Bug</a> •
