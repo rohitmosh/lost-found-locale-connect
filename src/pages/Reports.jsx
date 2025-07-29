@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -376,47 +376,49 @@ const Reports = () => {
     out: { opacity: 0 },
   };
   
-  // Filter reports based on search query and filters
-  const filteredReports = reports.filter(report => {
-    // Search filter
-    const matchesSearch = 
-      searchQuery === '' ||
-      report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.category.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // Status filter
-    const matchesStatus = 
-      statusFilter === 'all' || 
-      report.status === statusFilter;
-    
-    // Type filter
-    const matchesType = 
-      typeFilter === 'all' || 
-      report.type === typeFilter;
-      
-    // Category filter
-    const matchesCategory =
-      categoryFilter === 'all' ||
-      report.category === categoryFilter;
-    
-    // Only mine filter
-    const matchesMine = 
-      !filters.onlyMine || 
-      report.isOwner;
-    
-    return matchesSearch && matchesStatus && matchesType && matchesCategory && matchesMine;
-  });
-  
-  // Sort reports
-  const sortedReports = [...filteredReports].sort((a, b) => {
-    if (sortBy === 'newest') {
-      return b.date - a.date;
-    } else {
-      return a.date - b.date;
-    }
-  });
+  // Filter and sort reports with memoization for performance
+  const filteredAndSortedReports = useMemo(() => {
+    const filtered = reports.filter(report => {
+      // Search filter
+      const matchesSearch =
+        searchQuery === '' ||
+        report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+      // Status filter
+      const matchesStatus =
+        statusFilter === 'all' ||
+        report.status === statusFilter;
+
+      // Type filter
+      const matchesType =
+        typeFilter === 'all' ||
+        report.type === typeFilter;
+
+      // Category filter
+      const matchesCategory =
+        categoryFilter === 'all' ||
+        report.category === categoryFilter;
+
+      // Only mine filter
+      const matchesMine =
+        !filters.onlyMine ||
+        report.isOwner;
+
+      return matchesSearch && matchesStatus && matchesType && matchesCategory && matchesMine;
+    });
+
+    // Sort reports
+    return [...filtered].sort((a, b) => {
+      if (sortBy === 'newest') {
+        return b.date - a.date;
+      } else {
+        return a.date - b.date;
+      }
+    });
+  }, [reports, searchQuery, statusFilter, typeFilter, categoryFilter, filters.onlyMine, sortBy]);
   
   // Handle delete confirmation
   const confirmDelete = (reportId) => {
@@ -605,7 +607,7 @@ const Reports = () => {
                   </div>
                 ))}
               </motion.div>
-            ) : filteredReports.length === 0 ? (
+            ) : filteredAndSortedReports.length === 0 ? (
               <motion.div 
                 key="no-results"
                 initial={{ opacity: 0 }}
@@ -631,7 +633,7 @@ const Reports = () => {
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
               >
                 <AnimatePresence>
-                  {filteredReports.map((report, index) => (
+                  {filteredAndSortedReports.map((report, index) => (
                     <motion.div
                       key={report.id}
                       custom={index}

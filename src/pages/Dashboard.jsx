@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Bell, TrendingUp, User, Plus, MapPin, ChevronRight, Calendar, Tag, Clock, RefreshCw, Sparkles, Trophy, Award, Heart, Star } from 'lucide-react';
@@ -109,11 +109,11 @@ const Dashboard = () => {
   const [developerMode, setDeveloperMode] = useState(false);
   const [motivationalTrigger, setMotivationalTrigger] = useState(0);
 
-  const toggleNotificationSidebar = () => {
+  const toggleNotificationSidebar = useCallback(() => {
     setIsNotificationSidebarOpen(!isNotificationSidebarOpen);
-  };
+  }, [isNotificationSidebarOpen]);
 
-  const refreshDashboard = async () => {
+  const refreshDashboard = useCallback(async () => {
     if (user?.id) {
       setLoading(true);
       await Promise.all([
@@ -124,10 +124,10 @@ const Dashboard = () => {
       ]);
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   // Helper function to format time ago
-  const formatTimeAgo = (dateString) => {
+  const formatTimeAgo = useCallback((dateString) => {
     const now = new Date();
     const date = new Date(dateString);
     const diffInMinutes = Math.floor((now - date) / (1000 * 60));
@@ -141,10 +141,10 @@ const Dashboard = () => {
       const days = Math.floor(diffInMinutes / 1440);
       return `${days} day${days > 1 ? 's' : ''} ago`;
     }
-  };
+  }, []);
 
   // Fetch user statistics
-  const fetchUserStats = async (userId) => {
+  const fetchUserStats = useCallback(async (userId) => {
     try {
       // Get user's found items count (reports where user found something)
       const { data: foundItems, error: foundError } = await supabase
@@ -206,7 +206,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error fetching user stats:', error);
     }
-  };
+  }, []);
 
   // Fetch recent activity
   const fetchRecentActivity = async (userId) => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Phone, Mail, Star, Calendar, TrendingUp, Award, Clock, User, CheckCircle, Loader2 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -8,7 +8,7 @@ import VerificationBadges from './VerificationBadges';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 
-const ContactOwnerModal = ({ isOpen, onClose, ownerData, reportId, reportUserId }) => {
+const ContactOwnerModal = memo(({ isOpen, onClose, ownerData, reportId, reportUserId }) => {
   const { isDark } = useTheme();
   const { user } = useAuth();
   const [isMarkingResolved, setIsMarkingResolved] = useState(false);
@@ -16,7 +16,7 @@ const ContactOwnerModal = ({ isOpen, onClose, ownerData, reportId, reportUserId 
   if (!isOpen || !ownerData) return null;
 
   // Handle marking item as resolved
-  const handleMarkAsResolved = async () => {
+  const handleMarkAsResolved = useCallback(async () => {
     if (!user || !reportId) {
       toast.error('Unable to process request. Please try again.');
       return;
@@ -91,7 +91,7 @@ const ContactOwnerModal = ({ isOpen, onClose, ownerData, reportId, reportUserId 
     } finally {
       setIsMarkingResolved(false);
     }
-  };
+  }, [user, reportId, reportUserId, ownerData.name, onClose]);
 
   // Use actual data from props with minimal fallbacks
   const owner = {
@@ -406,6 +406,6 @@ const ContactOwnerModal = ({ isOpen, onClose, ownerData, reportId, reportUserId 
       </motion.div>
     </AnimatePresence>
   );
-};
+});
 
 export default ContactOwnerModal;

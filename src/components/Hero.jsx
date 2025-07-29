@@ -1,10 +1,29 @@
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, Bell, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const Hero = () => {
+const Hero = memo(() => {
+  // Memoize feature data to prevent recreation on every render
+  const features = useMemo(() => [
+    {
+      icon: Search,
+      title: 'Smart Search',
+      description: 'AI-powered matching to find your items faster'
+    },
+    {
+      icon: MapPin,
+      title: 'Geo-Location',
+      description: 'Precise location tracking with interactive maps'
+    },
+    {
+      icon: Bell,
+      title: 'Real-time Alerts',
+      description: 'Instant notifications when items are found'
+    }
+  ], []);
+
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-purple-50 via-white to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20">
       {/* Enhanced animated background elements */}
@@ -146,23 +165,7 @@ const Hero = () => {
 
           {/* Feature Icons */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto pt-16 pb-32">
-            {[
-              {
-                icon: Search,
-                title: 'Smart Search',
-                description: 'AI-powered matching to find your items faster'
-              },
-              {
-                icon: MapPin,
-                title: 'Geo-Location',
-                description: 'Precise location tracking with interactive maps'
-              },
-              {
-                icon: Bell,
-                title: 'Real-time Alerts',
-                description: 'Instant notifications when items are found'
-              }
-            ].map((feature, index) => (
+            {features.map((feature, index) => (
               <div 
                 key={feature.title}
                 className="group p-6 bg-purple-200/90 dark:bg-gray-800/60 backdrop-blur-sm border border-purple-300 dark:border-purple-900/50 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/10"
@@ -184,6 +187,6 @@ const Hero = () => {
       </div>
     </div>
   );
-};
+});
 
 export default Hero;
