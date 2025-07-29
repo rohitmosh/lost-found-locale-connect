@@ -62,8 +62,8 @@ A modern, community-driven web application that helps people reconnect with thei
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/findit.git
-cd findit
+git clone https://github.com/yourusername/lost-found-locale-connect.git
+cd lost-found-locale-connect
 ```
 
 ### 2. Install Dependencies
@@ -134,13 +134,13 @@ CREATE TABLE users (
 );
 ```
 
-### Additional Tables (Planned)
-- `lost_items` - Items that have been lost
-- `found_items` - Items that have been found
-- `item_matches` - Potential matches between lost and found items
-- `notifications` - User notifications
-- `locations` - Geographic data for items
-- `reports` - User reports and feedback
+### Additional Tables (Implemented)
+- `reports` - Lost and found item reports with location data
+- `categories` - Item categories for better organization
+- `notifications` - Real-time user notifications
+- `user_profiles` - Extended user profile information
+- `trust_metrics` - Community trust scoring system
+- `item_matches` - AI-powered matching between lost and found items
 
 ## 🔧 Configuration
 
@@ -179,30 +179,41 @@ The project includes Model Context Protocol integration for advanced Supabase op
 
 ### For Users
 1. **Register**: Create an account with email and password
-2. **Report Lost Item**: Add details, photos, and location of lost items
+2. **Report Lost Item**: Add details, photos, and precise location of lost items
 3. **Report Found Item**: Upload found items with location and description
-4. **Browse Matches**: View potential matches for your items
-5. **Connect**: Contact other users when you find a match
+4. **Interactive Map**: Explore lost/found items on a real-time map with clustering
+5. **Smart Search**: Use debounced search with advanced filtering options
+6. **Real-time Notifications**: Get instant alerts for potential matches
+7. **Trust Score System**: Build community reputation through successful helps
+8. **Contact Owners**: Securely communicate with item owners through the platform
 
 ### For Developers
-1. **Authentication**: Use the auth utilities in `src/lib/auth.ts`
-2. **Database Operations**: Leverage Supabase client in `src/lib/supabase-client.ts`
+1. **Authentication**: Supabase Auth integration in `src/contexts/AuthContext.jsx`
+2. **Database Operations**: Supabase client in `src/integrations/supabase/client.js`
 3. **Components**: Reusable UI components in `src/components/`
-4. **Routing**: Add new pages in `src/pages/` and update `src/App.tsx`
+4. **Performance Hooks**: Custom hooks in `src/hooks/usePerformance.js`
+5. **Routing**: React Router setup in `src/App.jsx`
+6. **State Management**: Context-based state management for theme and auth
 
-## 📱 API Endpoints
+## 📱 Database Operations (Supabase)
 
-### Authentication
-- `POST /auth/register` - User registration
-- `POST /auth/login` - User login
-- `POST /auth/logout` - User logout
-- `GET /auth/session` - Get current session
+### Authentication (Built-in Supabase Auth)
+- User registration with email/password
+- Secure login and session management
+- Password reset functionality
+- Social authentication providers
 
-### Items
-- `GET /api/items/lost` - Get lost items
-- `GET /api/items/found` - Get found items
-- `POST /api/items/lost` - Report lost item
-- `POST /api/items/found` - Report found item
+### Reports Table Operations
+- `SELECT` - Get lost/found reports with filtering
+- `INSERT` - Create new lost/found reports
+- `UPDATE` - Modify existing reports
+- `DELETE` - Remove reports (with RLS policies)
+
+### Real-time Features
+- Live notifications for new matches
+- Real-time report updates
+- Location-based subscriptions
+- Community interaction tracking
 
 ## 🧪 Testing
 
@@ -291,10 +302,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 📧 Email: support@findit.com
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/findit/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/findit/discussions)
-- 📖 Documentation: [Wiki](https://github.com/yourusername/findit/wiki)
+- 📧 Email: support@lostfoundlocale.com
+- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/lost-found-locale-connect/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/lost-found-locale-connect/discussions)
+- 📖 Documentation: [Wiki](https://github.com/yourusername/lost-found-locale-connect/wiki)
 
 ## ⚡ Performance Optimizations Implemented
 
@@ -342,8 +353,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <div align="center">
   <p>Author : Rohit Mohanty</p>
   <p>
-    <a href="https://github.com/yourusername/findit">⭐ Star this repo</a> •
-    <a href="https://github.com/yourusername/findit/issues">🐛 Report Bug</a> •
-    <a href="https://github.com/yourusername/findit/issues">✨ Request Feature</a>
+    <a href="https://github.com/yourusername/lost-found-locale-connect">⭐ Star this repo</a> •
+    <a href="https://github.com/yourusername/lost-found-locale-connect/issues">🐛 Report Bug</a> •
+    <a href="https://github.com/yourusername/lost-found-locale-connect/issues">✨ Request Feature</a>
   </p>
 </div>
