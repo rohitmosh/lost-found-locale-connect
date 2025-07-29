@@ -92,19 +92,18 @@ const Hero = () => {
             >
               <Link
                 to="/register"
-                className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-lg font-semibold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/25 overflow-hidden"
+                className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-lg font-semibold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/25 overflow-hidden inline-flex items-center gap-2"
               >
-                <span className="relative z-10 flex items-center gap-2">
-                  <motion.span
-                    animate={{ x: [0, 2, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    ✨
-                  </motion.span>
-                  Get Started Free
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-indigo-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                <motion.span
+                  animate={{ x: [0, 2, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="relative z-20"
+                >
+                  ✨
+                </motion.span>
+                <span className="relative z-20">Get Started Free</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-indigo-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 z-10" />
               </Link>
             </motion.div>
 
@@ -143,7 +142,7 @@ const Hero = () => {
                 Explore Map
               </Link>
             </motion.div>
-          </div>
+          </motion.div>
 
           {/* Feature Icons */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto pt-16 pb-32">
