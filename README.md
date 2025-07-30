@@ -1,4 +1,4 @@
-# 🔍 Lost & Found Locale Connect
+# 🔍 FindIt - Lost & Found App
 
 A modern, community-driven web application that helps people reconnect with their lost items through location-based matching, real-time notifications, and an intuitive user interface. Built specifically for local communities with advanced mapping, clustering, and smooth animations.
 
