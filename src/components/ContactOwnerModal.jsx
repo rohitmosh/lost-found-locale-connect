@@ -13,8 +13,6 @@ const ContactOwnerModal = memo(({ isOpen, onClose, ownerData, reportId, reportUs
   const { user } = useAuth();
   const [isMarkingResolved, setIsMarkingResolved] = useState(false);
 
-  if (!isOpen || !ownerData) return null;
-
   // Handle marking item as resolved
   const handleMarkAsResolved = useCallback(async () => {
     if (!user || !reportId) {
@@ -91,7 +89,10 @@ const ContactOwnerModal = memo(({ isOpen, onClose, ownerData, reportId, reportUs
     } finally {
       setIsMarkingResolved(false);
     }
-  }, [user, reportId, reportUserId, ownerData.name, onClose]);
+  }, [user, reportId, reportUserId, ownerData?.name, onClose]);
+
+  // Early return after all hooks are called
+  if (!isOpen || !ownerData) return null;
 
   // Use actual data from props with minimal fallbacks
   const owner = {

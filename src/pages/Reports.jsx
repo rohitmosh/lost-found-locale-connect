@@ -281,7 +281,10 @@ const Reports = () => {
 
   // Fetch user's reports from database
   const fetchReports = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -567,7 +570,7 @@ const Reports = () => {
           
           {/* Reports Count */}
           <div className="mb-6 text-sm text-gray-600 dark:text-gray-400">
-            Showing {sortedReports.length} {sortedReports.length === 1 ? 'report' : 'reports'}
+            Showing {filteredAndSortedReports.length} {filteredAndSortedReports.length === 1 ? 'report' : 'reports'}
           </div>
           
           {/* Results */}
