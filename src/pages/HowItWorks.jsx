@@ -560,7 +560,7 @@ const HowItWorks = () => {
             </Link>
             
             <a
-              href="https://github.com"
+              href="https://github.com/rohitmosh/lost-found-locale-connect"
               target="_blank"
               rel="noopener noreferrer"
               className="group px-8 py-4 border-2 border-white/30 text-white font-bold rounded-2xl transition-all duration-300 hover:bg-white/10 hover:scale-105 flex items-center gap-2 hover:shadow-xl"
